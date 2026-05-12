@@ -891,16 +891,19 @@
   }
 
   function startSingleRedemption() {
-    if (globalWrongPool.length === 0 || redemptionUsedInThisSession) return;
-    const randomIndex = Math.floor(Math.random() * globalWrongPool.length);
-    const target = globalWrongPool[randomIndex];
-    globalWrongPool.splice(randomIndex, 1);
-    currentQuestions = [target];
-    currentIndex = 0;
-    redemptionUsedInThisSession = true;
-    showToast("Menebus 1 soal acak...");
-    renderQuestion();
-  }
+  if (globalWrongPool.length === 0 || redemptionUsedInThisSession) return;
+  const randomIndex = Math.floor(Math.random() * globalWrongPool.length);
+  const target = globalWrongPool[randomIndex];
+  globalWrongPool.splice(randomIndex, 1);
+  currentQuestions = [target];
+  currentIndex = 0;
+  redemptionUsedInThisSession = true;
+  
+  saveCurrentState(); // Update status di Firebase bahwa redem sudah terpakai
+  showToast("Menebus 1 soal acak...");
+  renderQuestion();
+}
+
 
   function goBack() {
     window.speechSynthesis.cancel();
