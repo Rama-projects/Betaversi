@@ -819,7 +819,8 @@
 
   function showResult() {
     const isIrodori = currentLabel.includes("Irodori");
-    const isFinished = (masterPool.length === 0 && globalWrongPool.length === 0);
+    // Sesi dianggap benar-benar beres jika masterPool kosong DAN (soal salah habis ATAU jatah tebus sudah dipakai)
+    const isFinished = (masterPool.length === 0 && (globalWrongPool.length === 0 || redemptionUsedInThisSession));
     
     if(isIrodori && isFinished) stopTimer();
     hideAll();
@@ -847,7 +848,12 @@
         showToast("Bab Tuntas 100%!");
     }
 
-    if(isFinished) clearSession(); 
+    // Hapus sesi di Firebase jika sudah tidak ada aktivitas yang bisa dilakukan
+    if(isFinished) {
+        clearSession(); 
+    } else {
+        saveCurrentState();
+    }
 
     const rb = document.getElementById('reviewBox');
     rb.innerHTML = '';
@@ -857,7 +863,7 @@
     
     if (globalWrongPool.length > 0) {
         if (!redemptionUsedInThisSession) {
-            redeemDiv.innerHTML = `<p style="color:var(--gold); margin-top:0;">Tersedia Poin Redemption ${globalWrongPool.length} </p>`;
+            redeemDiv.innerHTML = `<p style="color:var(--gold); margin-top:0;">Tersedia Poin Redemption: ${globalWrongPool.length} </p>`;
             let btnR = document.createElement('button');
             btnR.className = "mainBtn goldBtn";
             btnR.style.fontSize = "13px";
@@ -866,7 +872,7 @@
             redeemDiv.appendChild(btnR);
         } else {
             redeemDiv.innerHTML = `<p style="color:#ff4444; font-size:12px; margin:0; font-weight:bold;">Kesempatan Redemption Habis!</p>
-                                   <p style="color:#888; font-size:11px; margin-top:5px;">Selesaikan sisa bab ini atau ulang dari awal.</p>`;
+                                   <p style="color:#888; font-size:11px; margin-top:5px;">Selesaikan sisa kuis atau ulang dari awal untuk membersihkan sisa soal salah.</p>`;
         }
     } else {
         redeemDiv.innerHTML = `<p style="color:#4caf50; margin:0;">Redemption Selesai</p>`;
@@ -879,7 +885,7 @@
         btnLanjut.innerText = "LANJUT KUIS";
         btnLanjut.onclick = nextChunk; 
     } else { 
-        btnLanjut.style.display = 'none'; 
+        btnLanjut.style.display = 'none';
       database.ref(`users/${currentUserID}/redemptionPool`).remove();
     }
   }
