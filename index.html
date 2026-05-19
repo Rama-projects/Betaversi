@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>KUIS BAHASA JEPANG RAMA</title>
+<title>KUIS JFT REALTIME - RAMA</title>
 
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
@@ -22,1009 +22,426 @@
   
   firebase.initializeApp(firebaseConfig);
   const database = firebase.database();
-
-  document.onkeydown = function(e) {
-    if(event.keyCode == 123) return false;
-    if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
-    if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
-  };
 </script>
 
 <style>
-  :root { --primary: #ff5722; --secondary: #2196f3; --bg: #121212; --card: #1e1e1e; --text: #eee; --ssw: #9c27b0; --gold: #ffb74d; }
-  * { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
-  input { -webkit-user-select: text; user-select: text; }
-  html, body { margin: 0; padding: 0; background-color: var(--bg); color: var(--text); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-x: hidden; }
+  :root { --primary: #ff5722; --secondary: #2196f3; --bg: #121212; --card: #1e1e1e; --text: #eee; --gold: #ffb74d; --green: #4caf50; }
+  * { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+  input, select, textarea { -webkit-user-select: text; user-select: text; }
+  html, body { margin: 0; padding: 0; background-color: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
   body { display: flex; justify-content: center; min-height: 100vh; }
-  #app { width: 100vw; max-width: 420px; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; position: relative; }
+  #app { width: 100vw; max-width: 450px; padding: 20px; display: flex; flex-direction: column; position: relative; }
   
-  #progressContainer { 
-    position: fixed; top: 0; left: 0; width: 100%; height: 8px; background: #222; z-index: 2000; display: none; flex-direction: row; gap: 3px; padding: 2px; box-sizing: border-box;
-  }
-  .progress-segment { flex-grow: 1; height: 100%; background: #444; border-radius: 1px; transition: 0.3s; }
-  .progress-segment.active { background: var(--primary); box-shadow: 0 0 5px var(--primary); }
-
-  #backBtn { position: absolute; top: 15px; left: 15px; font-size: 28px; background: none; border: none; color: var(--primary); cursor: pointer; display: none; z-index: 1000; padding: 5px; }
-  #muteBtn { position: absolute; top: 15px; right: 15px; font-size: 24px; background: none; border: none; color: #ffb74d; cursor: pointer; z-index: 1000; padding: 5px; }
-  #quizHeader { text-align: center; margin-bottom: 20px; margin-top: 20px; }
-  #quizInfo { font-size: 11px; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; font-weight: bold; border: 1.5px solid var(--primary); padding: 4px 12px; border-radius: 20px; display: inline-block; }
-  #instruksi { font-size: 13px; color: #888; margin-top: 10px; }
-  .menu-container { display: none; flex-direction: column; gap: 15px; align-items: center; width: 100%; padding-top: 60px; animation: fadeIn 0.3s ease; }
+  .menu-container { display: none; flex-direction: column; gap: 15px; align-items: center; width: 100%; padding-top: 40px; animation: fadeIn 0.3s ease; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-  #headerGrid { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 20px; }
-  .mainBtn { background: var(--primary); border-radius: 18px; padding: 18px; font-weight: bold; color: white; width: 95%; border: none; cursor: pointer; font-size: 15px; text-transform: uppercase; box-shadow: 0 5px 0 #bf360c; transition: 0.1s; outline: none; }
+  
+  .mainBtn { background: var(--primary); border-radius: 15px; padding: 15px; font-weight: bold; color: white; width: 100%; border: none; cursor: pointer; font-size: 15px; text-transform: uppercase; box-shadow: 0 5px 0 #bf360c; transition: 0.1s; outline: none; }
   .mainBtn:active { transform: translateY(3px); box-shadow: 0 2px 0 #bf360c; }
-  .iroBtn { background: var(--secondary); box-shadow: 0 5px 0 #1565c0; }
-  .sswBtn { background: var(--ssw); box-shadow: 0 5px 0 #7b1fa2; }
+  .secBtn { background: var(--secondary); box-shadow: 0 5px 0 #1565c0; }
   .goldBtn { background: var(--gold); box-shadow: 0 5px 0 #e65100; color: #000; }
-  .babBtn { background: var(--card); border-radius: 12px; padding: 10px; color: #eee; border: 1px solid #333; cursor: pointer; min-width: 85px; font-size: 13px; position: relative; }
+  .greenBtn { background: var(--green); box-shadow: 0 5px 0 #2e7d32; }
   
-  #resumeWrapper { display: flex; width: 95%; background: #4caf50; border-radius: 18px; box-shadow: 0 5px 0 #2e7d32; overflow: hidden; margin-bottom: 10px; }
-  #resumeBtn { flex-grow: 1; background: none; box-shadow: none; border-radius: 0; padding: 18px; color: white; font-weight: bold; border: none; cursor: pointer; text-transform: uppercase; font-size: 15px; }
-  #clearSessionBtn { width: 50px; background: none; border: none; border-left: 1px solid rgba(255,255,255,0.3); color: white; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-
-  #wordBox { display: none; flex-direction: column; align-items: center; justify-content: flex-start; flex-grow: 1; text-align: center; padding-top: 40px; }
-  #quizContent { width: 100%; flex-shrink: 0; margin-bottom: 20px; }
-  #displayWord { font-size: 42px; color: var(--text); font-weight: bold; margin-bottom: 10px; }
-  ruby rt { font-size: 18px; color: #aaa; margin-bottom: 4px; }
-  .speakerBtn { background: #333; border: none; font-size: 22px; cursor: pointer; color: #ffb74d; padding: 10px; border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
+  input[type="text"], input[type="number"] { width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #444; background: #222; color: white; font-size: 16px; text-align: center; outline: none; }
+  
+  .admin-box { background: var(--card); border: 1px solid #333; padding: 15px; border-radius: 15px; width: 100%; margin-bottom: 10px; }
+  .soal-item { border-bottom: 1px solid #333; padding: 10px 0; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+  
+  #displayWord { font-size: 36px; color: var(--text); font-weight: bold; margin-bottom: 10px; text-align: center; }
   #options { display: none; flex-direction: column; gap: 12px; width: 100%; margin-top: 20px; }
-  .optBtn { background: #252525; border: 2px solid #333; padding: 18px; border-radius: 15px; color: white; font-size: 18px; cursor: pointer; transition: 0.2s; }
-  .optBtn.correct { background: #4caf50 !important; border-color: #2e7d32 !important; transform: scale(1.02); }
-  .optBtn.wrong { background: #f44336 !important; border-color: #c62828 !important; animation: shake 0.4s; }
+  .optBtn { background: #252525; border: 2px solid #333; padding: 16px; border-radius: 12px; color: white; font-size: 16px; cursor: pointer; text-align: left; transition: 0.2s; }
+  .optBtn.correct { background: var(--green) !important; border-color: #2e7d32 !important; }
+  .optBtn.wrong { background: #f44336 !important; border-color: #c62828 !important; }
   
-  #inputContainer { display: none; width: 100%; flex-direction: column; gap: 10px; margin-top: 0px; }
-  #userAnswer { width: 100%; padding: 18px; border-radius: 15px; border: 2px solid #333; background: #252525; color: white; font-size: 20px; text-align: center; box-sizing: border-box; transition: all 0.3s ease; }
-  .correct-flash { background-color: rgba(76, 175, 80, 0.3) !important; border-color: #4caf50 !important; }
-  .wrong-flash { background-color: rgba(244, 67, 54, 0.3) !important; border-color: #f44336 !important; }
-
-  #flashcardSection { display: none; flex-direction: column; align-items: center; width: 100%; padding-top: 40px; }
-  .card-container { perspective: 1000px; width: 240px; height: 380px; cursor: pointer; margin-bottom: 30px; }
-  .card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; }
-  .card-inner.is-flipped { transform: rotateY(180deg); }
-  .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 25px; border: 3px solid #444; padding: 20px; box-sizing: border-box; }
-  .card-front { background: #1e1e1e; color: white; }
-  .card-back { background: #2c2c2c; color: var(--gold); transform: rotateY(180deg); border-color: var(--gold); }
-  .flip-icon { position: absolute; bottom: 15px; right: 15px; font-size: 18px; opacity: 0.4; }
-
-  .fc-nav { display: flex; gap: 15px; width: 100%; justify-content: center; }
-  .fc-btn { background: #333; border: none; color: white; padding: 15px 25px; border-radius: 15px; font-weight: bold; font-size: 18px; cursor: pointer; flex: 1; border-bottom: 4px solid #111; }
-  .fc-btn:active { transform: translateY(2px); border-bottom: 2px solid #111; }
-
-  .score-circle { width: 130px; height: 130px; border-radius: 50%; border: 8px solid var(--primary); display: flex; justify-content: center; align-items: center; margin: 0 auto 20px; font-size: 34px; font-weight: bold; color: var(--primary); background: rgba(255,87,34,0.05); }
-  #loginInput { width: 90%; padding: 15px; border-radius: 15px; border: 2px solid #444; background: #222; color: white; font-size: 18px; text-align: center; margin-bottom: 20px; }
+  #timerDisplay { font-family: monospace; font-size: 24px; color: var(--gold); font-weight: bold; text-align: center; margin-bottom: 10px; }
   #toast { display: none; position: fixed; bottom: 50px; left: 50%; transform: translateX(-50%); background: var(--primary); color: white; padding: 12px 25px; border-radius: 30px; font-size: 14px; font-weight: bold; z-index: 10000; text-align: center; }
-  #logoutModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; justify-content:center; align-items:center; }
-  .modal-content { background:var(--card); padding:30px; border-radius:25px; width:85%; max-width:340px; text-align:center; border:2px solid #333; }
-  @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-10px);} 75% {transform: translateX(10px);} }
-  #timerDisplay { font-family: monospace; font-size: 16px; color: #ffb74d; margin-bottom: 5px; }
-  .lb-box { margin-top: 15px; background: #222; border-radius: 12px; padding: 10px; width: 100%; font-size: 12px; display: none; }
-  .lb-item { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 4px 0; }
-
-  #floatingKamus {
-    position: fixed; top: 100px; right: 0; width: 50px; height: 50px;
-    background: transparent;
-    z-index: 9999; display: flex; align-items: center; justify-content: center;
-    font-size: 30px; cursor: move;
-    touch-action: none;
-    text-shadow: 0 0 8px rgba(0,0,0,0.8);
-  }
-
-  #kamusOverlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0.05) 100%);
-    z-index: 9998;
-    display: none; flex-direction: column; align-items: center; padding: 20px; box-sizing: border-box;
-  }
-
-  #kamusInput {
-    width: 100%; padding: 15px; border-radius: 15px; border: 2px solid var(--primary);
-    background: rgba(0,0,0,0.6); color: white; font-size: 18px; margin-bottom: 20px;
-    outline: none;
-  }
-  #kamusResults {
-    width: 100%; flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;
-  }
-  .search-item {
-    background: rgba(0,0,0,0.7);
-    padding: 15px; border-radius: 12px;
-    border-left: 4px solid var(--gold);
-    color: white;
-  }
+  
+  .lobby-list { background: #1a1a1a; width: 100%; border-radius: 12px; padding: 15px; max-height: 180px; overflow-y: auto; text-align: left; }
 </style>
 </head>
-<body oncontextmenu="return false;"> 
-<div id="progressContainer"></div>
+<body>
+
 <div id="toast"></div>
 
-<div id="floatingKamus" onpointerdown="onPointerDown(event)">🔍</div>
-
-<div id="kamusOverlay">
-    <div style="width:100%; display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-        <h2 style="color:var(--primary); margin:0; text-shadow: 0 2px 4px black;">KAMUS CEPAT</h2>
-        <button onclick="closeKamusOverlay()" style="background:none; border:none; color:white; font-size:24px; text-shadow: 0 2px 4px black;">✕</button>
-    </div>
-    <input type="text" id="kamusInput" placeholder="Cari Indo / Jepang..." oninput="searchGlobal()">
-    <div id="kamusResults"></div>
-</div>
-
 <div id="app">
-  <button id="backBtn" onclick="goBack()">⬅</button>
-  <button id="muteBtn" onclick="toggleMute()">🔊</button>
-
-  <div id="loginPage" class="menu-container">
-    <h1 style="color: var(--primary); margin-bottom: 10px;">MASUK KUIS</h1>
-    <p style="color: #888; font-size: 14px; margin-bottom: 25px;">Masukan ID</p>
-    <input type="text" id="loginInput" placeholder="ID / NAMA" autocomplete="off">
-    <button class="mainBtn" onclick="handleLogin()">MULAI BELAJAR</button>
-  </div>
-
-  <div id="mainMenu" class="menu-container">
-    <h1 style="color: var(--primary); margin-bottom: 5px;">日本語クイズ</h1>
-    <p id="userLabel" style="color: #4caf50; font-size: 13px; margin-bottom: 25px; font-weight: bold;"></p>
-    
-    <div id="resumeWrapper" style="display:none;">
-        <button id="resumeBtn" onclick="resumeQuiz()">LANJUTKAN KUIS</button>
-        <button id="clearSessionBtn" onclick="clearSession()">✕</button>
-    </div>
-
-    <button class="mainBtn" onclick="showMinnaMenu()">MINNA NO NIHONGO</button>
-    <button class="mainBtn iroBtn" onclick="showIrodoriMenu()">IRODORI</button>
-    <button class="mainBtn sswBtn" onclick="showSSWMenu()">SSW</button>
-    <button class="mainBtn" style="background:#333; box-shadow: 0 5px 0 #111; margin-top: 20px;" onclick="logout()">KELUAR</button>
-    <div style="margin-top: 30px; text-align: center; border-top: 1px solid #333; width: 100%; padding-top: 20px;">
-        <p style="font-size: 12px; color: #555;">Copyright © 2026<br>Pengembang Cahya Ramadhan</p>
-    </div>
-  </div>
-
-  <div id="minnaMenu" class="menu-container">
-    <button class="mainBtn" onclick="showBagian(1)">KOTOBA BAGIAN 1 (1-25)</button>
-    <button class="mainBtn" onclick="showBagian(2)">KOTOBA BAGIAN 2 (26-50)</button>
-    <button class="mainBtn iroBtn" onclick="showRefMenu()">KOSAKATA REFERENSI</button>
-  </div>
-  <div id="irodoriMenu" class="menu-container">
-    <h2 style="color:var(--secondary);">IRODORI</h2>
-    <button class="mainBtn iroBtn" onclick="startIrodoriKanji()">KANJI IRODORI (FULL)</button>
-    <div id="leaderboardBox" class="lb-box"></div>
-  </div>
-  <div id="sswMenu" class="menu-container">
-    <h2 style="color:var(--ssw);">SSW</h2>
-    <button class="mainBtn sswBtn" onclick="showSSWGrid()">PENGOLAHAN MAKANAN (PM)</button>
-    <div id="sswLeaderboard" class="lb-box"></div>
-  </div>
-  <div id="dynamicMenu" class="menu-container">
-    <h2 id="dynamicTitle">Pilih Bab</h2>
-    <div id="headerGrid"></div>
-  </div>
   
-  <div id="modeMenu" class="menu-container">
-    <h2 style="color: #ffb74d;">Pilih Mode</h2>
-    <p id="modeInfo" style="margin-top:-10px; color:#888;"></p>
-    <button class="mainBtn goldBtn" onclick="startFlashcardMode()">🎴 MODE FLASHCARD</button>
-    <button class="mainBtn" onclick="setQuizDirection('jp-id')">JEPANG ➡ INDO</button>
-    <button class="mainBtn iroBtn" onclick="setQuizDirection('id-jp')">INDO ➡ JEPANG</button>
+  <!-- ================= LAYAR LOGIN PESERTA ================= -->
+  <div id="loginPage" class="menu-container">
+    <h1 style="color: var(--primary); margin-bottom: 5px;">JFT REALTIME</h1>
+    <p style="color: #888; font-size: 13px; margin-bottom: 20px;" id="loginSubText">Silakan masukkan nama Anda untuk bergabung</p>
+    <input type="text" id="loginInput" placeholder="NAMA ANDA" autocomplete="off">
+    <button class="mainBtn secBtn" onclick="handleLogin()">MASUK KUIS</button>
   </div>
 
-  <div id="diffMenu" class="menu-container">
-    <h2 style="color: #4caf50;">Pilih Kesulitan</h2>
-    <button class="mainBtn" style="background:#4caf50; box-shadow: 0 5px 0 #2e7d32;" onclick="setDifficulty('easy')">MUDAH (KANA)</button>
-    <button class="mainBtn" style="background:#ff9800; box-shadow: 0 5px 0 #ef6c00;" onclick="setDifficulty('medium')">SEDANG (KANJI)</button>
-    <button class="mainBtn" style="background:#f44336; box-shadow: 0 5px 0 #c62828;" onclick="setDifficulty('hard')">SULIT (KETIK KANJI)</button>
-  </div>
-
-  <div id="wordBox">
-    <div id="quizContent">
-      <div id="quizHeader">
-          <div id="timerDisplay"></div>
-          <div id="quizInfo"></div>
-          <div id="instruksi"></div>
-      </div>
-      <div id="displayWord"></div>
-      <button id="mainSpeaker" class="speakerBtn" onclick="playAudio()">🔊</button>
-      <div id="comboSection" style="display:none; text-align:center; margin-bottom: 10px;">🔥 <span id="flowerCount" style="font-weight:bold; color:#4caf50;">0</span></div>
-    </div>
-    <div id="inputContainer">
-      <input type="text" id="userAnswer" placeholder="Ketik jawabannya..." autocomplete="off">
-      <div id="wrongMsg" style="display: none; color: #ffb74d; font-size: 14px; text-align: center; margin-top: 10px; font-weight: bold;"></div>
-      <button class="mainBtn" style="margin-top:10px; height:55px;" onclick="checkInputAnswer()">KIRIM JAWABAN</button>
+  <!-- ================= LAYAR UTAMA ADMIN (Hanya Terbuka via Tautan Rahasia) ================= -->
+  <div id="adminMenu" class="menu-container">
+    <h2 style="color: var(--gold); margin: 0;">PANEL OWNER ADMIN</h2>
+    <p style="color: #666; margin-top: -10px; font-size: 12px;">Mode Manajemen & Room Controller</p>
+    
+    <button class="mainBtn" onclick="bukaKelolaSoal()">📝 KELOLA BANK SOAL JFT</button>
+    
+    <div class="admin-box">
+       <h3 style="margin-top:0; color:var(--secondary);">BUAT ROOM KUIS BARU</h3>
+       <label style="font-size:12px; color:#aaa; display:block; margin-bottom:5px; text-align:left;">Durasi Per Soal (Detik):</label>
+       <input type="number" id="roomTimerInput" value="20" min="5" style="margin-bottom:15px;">
+       <button class="mainBtn greenBtn" onclick="buatRoom()">IKAT & BUAT ROOM</button>
     </div>
   </div>
 
-  <div id="flashcardSection">
-    <div id="fcInfo" style="color:var(--gold); font-size:14px; margin-bottom:15px; font-weight:bold; text-align:center;"></div>
-    <div class="card-container" onclick="flipCard()">
-      <div class="card-inner" id="cardInner">
-        <div class="card-face card-front">
-          <div id="fcFront" style="font-size: 38px; font-weight:bold;"></div>
-          <div class="flip-icon">⇄</div>
-        </div>
-        <div class="card-face card-face card-back">
-          <div id="fcBack" style="display:flex; flex-direction:column; gap:10px; text-align:center;">
-              <div id="fcBackRead" style="font-size: 20px; color:#aaa; font-weight:bold;"></div>
-              <div id="fcBackMean" style="font-size: 28px; font-weight:bold; color:var(--gold);"></div>
-          </div>
-          <div class="flip-icon">⇄</div>
-        </div>
-      </div>
-    </div>
-    <div class="fc-nav">
-      <button class="fc-btn" onclick="prevCard()">PREV</button>
-      <button class="fc-btn" style="background:var(--gold); color:#000;" onclick="playAudioFC()">🔊</button>
-      <button class="fc-btn" onclick="nextCard()">NEXT</button>
-    </div>
-    <button class="mainBtn" style="margin-top:30px; background:#4caf50; box-shadow: 0 5px 0 #2e7d32;" onclick="setQuizDirection('jp-id')">PELAJARI SELESAI? MULAI KUIS</button>
+  <!-- ================= LAYAR KELOLA BANK SOAL ================= -->
+  <div id="kelolaSoalPage" class="menu-container">
+     <h3 style="color: var(--primary); margin:0;">INPUT SOAL JFT BARU</h3>
+     <input type="text" id="inpKanji" placeholder="Kanji (Kosongkan jika tidak ada)">
+     <input type="text" id="inpKana" placeholder="Kana / Cara Baca (Wajib)" style="margin-top:5px;">
+     <input type="text" id="inpCorrect" placeholder="Arti / Jawaban Benar (Wajib)" style="margin-top:5px;">
+     <p style="font-size:12px; color:#888; margin:5px 0 -5px 0; text-align:left; width:100%">Pilihan Distraksi (Pisah dengan koma):</p>
+     <input type="text" id="inpWrongs" placeholder="salah1, salah2, salah3" style="margin-top:5px;">
+     <button class="mainBtn greenBtn" onclick="simpanSoalKeFirebase()">TAMBAH KE DATABASE</button>
+     
+     <div class="admin-box" style="margin-top:15px;">
+        <h4 style="margin:0 0 10px 0;">Daftar Soal Aktif (<span id="totalSoalBank">0</span>)</h4>
+        <div id="listSoalContainer" style="max-height:200px; overflow-y:auto; text-align:left;"></div>
+     </div>
+     <button class="mainBtn" style="background:#555; box-shadow:0 5px 0 #333;" onclick="kembaliKeAdmin()">KEMBALI</button>
   </div>
 
-  <div id="options"></div>
+  <!-- ================= LAYAR LOBBY ROOM ================= -->
+  <div id="lobbyPage" class="menu-container">
+     <h2 style="color: var(--primary); margin:0;" id="lobbyTitle">LOBBY ROOM</h2>
+     <div class="admin-box" style="text-align:center;">
+        <span style="font-size:12px; color:#aaa;">LINK SHARE KE PESERTA:</span><br>
+        <input type="text" id="linkShareUrl" readonly onclick="this.select();" style="font-size:12px; background:#111; color:var(--gold); margin-top:5px; cursor:pointer;">
+     </div>
+     
+     <h4 style="margin:10px 0 0 0; align-self:flex-start;">Peserta Bergabung (<span id="playerCount">0</span>):</h4>
+     <div class="lobby-list" id="lobbyPlayers"></div>
+     
+     <div id="adminLobbyControls" style="display:none; width:100%;">
+        <button class="mainBtn greenBtn" onclick="mulaiKuisOlehAdmin()">🚀 MULAI KUIS SEKARANG</button>
+     </div>
+     <div id="pesertaLobbyControls" style="display:block; color:var(--gold); font-size:14px; text-align:center; margin-top:10px;">
+        Menunggu Pemilik Room Memulai Kuis...
+     </div>
+  </div>
 
+  <!-- ================= LAYAR UTAMA GAME KUIS BARU ================= -->
+  <div id="wordBox" class="menu-container" style="padding-top:20px;">
+    <div id="timerDisplay">00</div>
+    <div id="quizInfo" style="font-size:12px; color:var(--secondary); font-weight:bold;">LIVE GAMEPLAY ACTIVE</div>
+    <div id="displayWord"></div>
+    <div id="options"></div>
+  </div>
+
+  <!-- ================= LAYAR LIVE RANKING MULTIPLAYER ================= -->
   <div id="resultPage" class="menu-container">
-    <h2 style="margin-bottom:10px;">HASIL KUIS</h2>
-    <div id="timerResult" style="color:#ffb74d; font-weight:bold; margin-bottom:10px;"></div>
-    <div class="score-circle" id="finalScore">0%</div>
-    <div id="finalDetail" style="color:#aaa; white-space: pre-wrap;"></div>
-    <div id="reviewBox" style="width: 100%; text-align: left; margin-top: 20px; max-height: 200px; overflow-y: auto; background: #1a1a1a; padding: 15px; border-radius: 12px; font-size: 14px;"></div>
-    <button id="nextChunkBtn" class="mainBtn" style="margin-top:20px; display:none;">LANJUT KUIS</button>
-    <button class="mainBtn" style="background:#555; margin-top:10px; box-shadow: 0 5px 0 #333;" onclick="goBack()">KEMBALI</button>
+    <h2 style="margin:0; color:var(--gold);">LIVE RANKING AKHIR</h2>
+    <div class="lobby-list" id="liveLeaderboardContent" style="max-height:320px;"></div>
+    <button class="mainBtn" style="background:#444; box-shadow:0 5px 0 #222;" onclick="kembaliKeMenuUtamaAsli()">KEMBALI KE AWAL</button>
   </div>
 
-  <div id="logoutModal">
-    <div class="modal-content">
-      <h3 style="margin-top:0; color:var(--primary); letter-spacing:1px;">YAKIN KELUAR?</h3>
-      <div style="display:flex; gap:12px; margin-top: 20px;">
-        <button class="mainBtn" style="background:#444; box-shadow: 0 4px 0 #222;" onclick="closeLogoutModal()">TIDAK</button>
-        <button class="mainBtn" onclick="confirmLogout()">YA</button>
-      </div>
-    </div>
-  </div>
 </div>
-
-<script src="data_minna.js"></script>
-<script src="data_referensi.js"></script>
-<script src="data_irodori.js"></script>
-<script src="data_ssw_pm.js"></script>
 
 <script>
-  let masterPool = [], currentQuestions = [], currentIndex = 0, correctCount = 0, combo = 0;
-  let totalCorrectInSession = 0, totalQuestionsInSession = 0;
-  let activeView = 'main', currentLabel = '', selectedData = null;
-  let quizMode = 'jp-id', quizDifficulty = 'easy', currentAnswer = "", wrongList = [], isMuted = false;
-  let startTime, timerInterval, isTimerRunning = false;
-  let currentUserID = localStorage.getItem("kuis_rama_userid") || "";
-  let fcIndex = 0;
+  // KUNCI PARAMETER LINK ADMIN KAMU
+  const ADMIN_PARAM_KEY = "admin-rama";
 
-  let globalWrongPool = []; 
-  let redemptionUsedInThisSession = false; 
+  let username = "";
+  let role = "peserta"; 
+  let currentRoomID = "";
+  let listSemuaSoal = [];
+  let roomRef = null;
+  let timerInterval = null;
+  let canAnswer = false;
+  let myScore = 0;
 
-  let isDragging = false;
-  let startX, startY;
+  window.onload = function() {
+     const urlParams = new URLSearchParams(window.location.search);
+     const aksesParam = urlParams.get('akses');
+     const roomParam = urlParams.get('room');
+     const statusParam = urlParams.get('status');
+     
+     // 1. Validasi Pemilik Web lewat Link Rahasia (?akses=admin-rama)
+     if(aksesParam === ADMIN_PARAM_KEY) {
+        role = "admin";
+        username = "Pemilik Room (Rama)";
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('adminMenu').style.display = 'flex';
+        ambilDataBankSoal();
+        showToast("Selamat datang kembali, Admin Rama!");
+        return;
+     }
 
-  function onPointerDown(e) {
-    isDragging = false;
-    startX = e.clientX;
-    startY = e.clientY;
-    document.onpointermove = onPointerMove;
-    document.onpointerup = onPointerUp;
-  }
-
-  function onPointerMove(e) {
-    if (Math.abs(e.clientX - startX) > 5 || Math.abs(e.clientY - startY) > 5) {
-        isDragging = true;
-    }
-    const fab = document.getElementById('floatingKamus');
-    fab.style.left = (e.clientX - 25) + 'px';
-    fab.style.top = (e.clientY - 25) + 'px';
-    fab.style.right = 'auto';
-  }
-
-  function onPointerUp(e) {
-    document.onpointermove = null;
-    document.onpointerup = null;
-    
-    if (!isDragging) {
-        openKamusOverlay();
-    } else {
-        const fab = document.getElementById('floatingKamus');
-        const screenWidth = window.innerWidth;
-        if (e.clientX < screenWidth / 2) {
-            fab.style.left = '0px';
-            fab.style.right = 'auto';
-        } else {
-            fab.style.left = 'auto';
-            fab.style.right = '0px';
+     // 2. Alur jika yang masuk adalah Peserta
+     role = "peserta";
+     if(roomParam) {
+        currentRoomID = roomParam;
+        if(statusParam === 'playing') {
+           checkAutoSavedLogin(true);
+           return;
         }
-    }
-  }
-
-  function openKamusOverlay() {
-    document.getElementById('kamusOverlay').style.display = 'flex';
-    document.getElementById('kamusInput').focus();
-  }
-
-  function closeKamusOverlay() {
-    document.getElementById('kamusOverlay').style.display = 'none';
-  }
-
-  function searchGlobal() {
-    const query = document.getElementById('kamusInput').value.toLowerCase().trim();
-    const resultBox = document.getElementById('kamusResults');
-    resultBox.innerHTML = "";
-    if (query.length < 2) return;
-
-    let allData = [];
-    if(typeof babData !== 'undefined') Object.values(babData).forEach(arr => allData = allData.concat(arr));
-    if(typeof referensiData !== 'undefined') Object.values(referensiData).forEach(arr => allData = allData.concat(arr));
-    if(typeof irodoriKanjiData !== 'undefined') allData = allData.concat(irodoriKanjiData);
-    if(typeof sswPMData !== 'undefined') Object.values(sswPMData).forEach(arr => allData = allData.concat(arr));
-
-    const matches = allData.filter(item => 
-      (item.kana && item.kana.toLowerCase().includes(query)) || 
-      (item.kanji && item.kanji.toLowerCase().includes(query)) || 
-      (item.correct && item.correct.toLowerCase().includes(query))
-    );
-
-    matches.slice(0, 30).forEach(m => {
-        let div = document.createElement('div');
-        div.className = 'search-item';
-        div.innerHTML = `<strong>${m.kanji || ''} (${m.kana})</strong><br><span style="color:var(--gold)">➜ ${m.correct}</span>`;
-        resultBox.appendChild(div);
-    });
-  }
+     }
+     checkAutoSavedLogin(false);
+  };
 
   function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.innerText = msg;
-    t.style.display = 'block';
+    const t = document.getElementById('toast'); t.innerText = msg; t.style.display = 'block';
     setTimeout(() => { t.style.opacity = '1'; }, 10);
-    setTimeout(() => {
-      t.style.opacity = '0';
-      setTimeout(() => { t.style.display = 'none'; }, 400);
-    }, 2500);
+    setTimeout(() => { t.style.opacity = '0'; setTimeout(() => { t.style.display = 'none'; }, 400); }, 2500);
   }
 
-  function checkLogin() {
-    hideAll();
-    if (currentUserID) {
-        document.getElementById('userLabel').innerText = "Halo, " + currentUserID + "!";
-        showMainMenu();
-    } else {
-        document.getElementById('loginPage').style.display = 'flex';
-        document.getElementById('backBtn').style.display = 'none';
-    }
+  function checkAutoSavedLogin(isDirectQuiz) {
+     let savedUser = localStorage.getItem("jft_live_user");
+     if(savedUser && role !== 'admin') {
+        username = savedUser;
+        if(isDirectQuiz) {
+           document.getElementById('loginPage').style.display = 'none';
+           hubungkanKeKuisBerjalan();
+        } else {
+           masukKeSistemSesuaiRole();
+        }
+     } else {
+        if(role !== 'admin') {
+           document.getElementById('loginPage').style.display = 'flex';
+        }
+     }
   }
 
   function handleLogin() {
-    const val = document.getElementById('loginInput').value.trim();
-    if (val) {
-        currentUserID = val;
-        localStorage.setItem("kuis_rama_userid", val);
-        checkLogin();
-    } else {
-        showToast("Masukan ID");
-    }
+     const val = document.getElementById('loginInput').value.trim();
+     if(!val) { showToast("Masukan Nama Anda!"); return; }
+     
+     username = val;
+     localStorage.setItem("jft_live_user", username);
+     
+     const urlParams = new URLSearchParams(window.location.search);
+     if(urlParams.get('status') === 'playing') {
+        hubungkanKeKuisBerjalan();
+     } else {
+        masukKeSistemSesuaiRole();
+     }
   }
 
-  function logout() { document.getElementById('logoutModal').style.display = 'flex'; }
-  function closeLogoutModal() { document.getElementById('logoutModal').style.display = 'none'; }
-  function confirmLogout() { localStorage.removeItem("kuis_rama_userid"); currentUserID = ""; location.reload(); }
-
-  function saveToCloud(label, score) {
-    if(!currentUserID) return;
-    const cleanLabel = label.replace(/\s/g, "_");
-    database.ref(`users/${currentUserID}/scores/${cleanLabel}`).set(score);
+  function masukKeSistemSesuaiRole() {
+     document.getElementById('loginPage').style.display = 'none';
+     if(currentRoomID) { 
+        joinLobbyRoom(); 
+     } else { 
+        document.getElementById('loginPage').style.display = 'flex';
+        showToast("Gunakan Link Room Undangan dari Admin!"); 
+     }
   }
 
-  function saveCurrentState() {
-    if(!currentUserID || activeView !== 'quiz') return;
-    database.ref(`sessions/${currentUserID}`).set({
-      masterPool: masterPool,
-      currentQuestions: currentQuestions,
-      currentIndex: currentIndex,
-      correctCount: correctCount,
-      combo: combo,
-      totalCorrectInSession: totalCorrectInSession,
-      totalQuestionsInSession: totalQuestionsInSession,
-      currentLabel: currentLabel,
-      quizMode: quizMode,
-      quizDifficulty: quizDifficulty,
-      activeView: activeView,
-      startTime: startTime || 0,
-      selectedData: selectedData,
-      globalWrongPool: globalWrongPool
-    });
+  function kembaliKeMenuUtamaAsli() { location.href = window.location.pathname; }
+  function kembaliKeAdmin() { document.getElementById('kelolaSoalPage').style.display = 'none'; document.getElementById('adminMenu').style.display = 'flex'; }
+  function bukaKelolaSoal() { document.getElementById('adminMenu').style.display = 'none'; document.getElementById('kelolaSoalPage').style.display = 'flex'; }
+
+  // ================= SIMPAN SOAL FIREBASE (ADMIN) =================
+  function simpanSoalKeFirebase() {
+     const kanji = document.getElementById('inpKanji').value.trim();
+     const kana = document.getElementById('inpKana').value.trim();
+     const correct = document.getElementById('inpCorrect').value.trim();
+     const wrongsRaw = document.getElementById('inpWrongs').value.trim();
+     if(!kana || !correct) { showToast("Kana & Jawaban Benar Wajib Diisi!"); return; }
+     
+     let answersArray = [correct];
+     if(wrongsRaw) { wrongsRaw.split(",").forEach(w => { if(w.trim()) answersArray.push(w.trim()); }); }
+     
+     database.ref('jft_bank_soal').push().set({ kanji: kanji, kana: kana, correct: correct, answers: answersArray }, () => {
+        showToast("Soal Ditambahkan!");
+        document.getElementById('inpKanji').value = ""; document.getElementById('inpKana').value = "";
+        document.getElementById('inpCorrect').value = ""; document.getElementById('inpWrongs').value = "";
+     });
   }
 
-  function checkExistingSession() {
-    if(!currentUserID) return;
-    database.ref(`sessions/${currentUserID}`).once('value', snap => {
-      if(snap.exists()) document.getElementById('resumeWrapper').style.display = 'flex';
-      else document.getElementById('resumeWrapper').style.display = 'none';
-    });
-  }
-
-  function resumeQuiz() {
-    database.ref(`sessions/${currentUserID}`).once('value', snap => {
-      const data = snap.val();
-      if(data) {
-        masterPool = data.masterPool || [];
-        currentQuestions = data.currentQuestions || [];
-        currentIndex = data.currentIndex || 0;
-        correctCount = data.correctCount || 0;
-        combo = data.combo || 0;
-        totalCorrectInSession = data.totalCorrectInSession || 0;
-        totalQuestionsInSession = data.totalQuestionsInSession || 0;
-        currentLabel = data.currentLabel;
-        quizMode = data.quizMode;
-        quizDifficulty = data.quizDifficulty;
-        selectedData = data.selectedData;
-        globalWrongPool = data.globalWrongPool || [];
-        if(data.startTime > 0) {
-           startTime = data.startTime;
-           isTimerRunning = true;
-           timerInterval = setInterval(updateTimerUI, 100);
+  function ambilDataBankSoal() {
+     database.ref('jft_bank_soal').on('value', snap => {
+        listSemuaSoal = [];
+        const container = document.getElementById('listSoalContainer'); container.innerHTML = "";
+        if(snap.exists()) {
+           snap.forEach(child => {
+              let s = child.val(); s.id = child.key; listSemuaSoal.push(s);
+              let div = document.createElement('div'); div.className = 'soal-item';
+              div.innerHTML = `<div><b>${s.kanji || ''} (${s.kana})</b><br><span style="color:var(--gold)">➜ ${s.correct}</span></div>`;
+              let delBtn = document.createElement('button'); delBtn.innerText = "❌"; delBtn.style.cssText = "background:none; border:none; cursor:pointer;";
+              delBtn.onclick = () => database.ref(`jft_bank_soal/${s.id}`).remove();
+              div.appendChild(delBtn); container.appendChild(div);
+           });
         }
-        activeView = 'quiz';
-        document.getElementById('backBtn').style.display = 'block';
-        renderQuestion();
-      }
-    });
+        document.getElementById('totalSoalBank').innerText = listSemuaSoal.length;
+     });
   }
 
-  function clearSession() {
-    if(!currentUserID) return;
-    database.ref(`sessions/${currentUserID}`).remove();
-    document.getElementById('resumeWrapper').style.display = 'none';
-    showToast("Sesi dihapus");
+  // ================= BUAT ROOM & LOBBY =================
+  function buatRoom() {
+     if(listSemuaSoal.length === 0) { showToast("Isi Bank Soal terlebih dahulu!"); return; }
+     const wkt = parseInt(document.getElementById('roomTimerInput').value) || 20;
+     currentRoomID = "JFT-" + Math.floor(1000 + Math.random() * 9000);
+     let pooledQuestions = [...listSemuaSoal].sort(() => Math.random() - 0.5);
+     
+     roomRef = database.ref(`rooms/${currentRoomID}`);
+     roomRef.set({ status: "lobby", timerDuration: wkt, currentQuestionIndex: -1, questions: pooledQuestions }, () => {
+        showToast("Lobby Room Berhasil Dibuat!");
+        joinLobbyRoom();
+     });
   }
 
-  function saveRaceTime(category, time, scorePercent) {
-    if(!currentUserID) return;
-    const path = `leaderboard/${category}/${currentUserID}`;
-    let weight = 1; 
-    if(quizDifficulty === 'medium') weight = 2;
-    if(quizDifficulty === 'hard') weight = 3;
-
-    database.ref(path).once('value', snap => {
-      const data = snap.val();
-      if(!data || weight > (data.weight || 0) || 
-         (weight === data.weight && scorePercent > (data.score || 0)) || 
-         (weight === data.weight && scorePercent === data.score && time < data.time)) {
-        database.ref(path).set({
-          score: scorePercent,
-          time: time,
-          weight: weight,
-          difficulty: quizDifficulty.toUpperCase(),
-          timestamp: firebase.database.ServerValue.TIMESTAMP
-        });
-        showToast("Rekor Leaderboard diperbarui!");
-      }
-    });
-  }
-
-  function loadLeaderboard(category, elementId) {
-    const lbBox = document.getElementById(elementId);
-    database.ref(`leaderboard/${category}`).on('value', snap => {
-      if(!snap.exists()) { lbBox.style.display = 'none'; return; }
-      let players = [];
-      snap.forEach(child => { players.push({ name: child.key, ...child.val() }); });
-      
-      players.sort((a, b) => {
-          if (b.weight !== a.weight) return b.weight - a.weight;
-          if (b.score !== a.score) return b.score - a.score;
-          return a.time - b.time;
-      });
-
-      lbBox.innerHTML = `<b style="color:var(--secondary)">RANKING IRODORI (WEIGHTED)</b>`;
-      lbBox.style.display = 'block';
-      players.slice(0, 10).forEach((p, index) => {
-        let div = document.createElement('div');
-        div.className = 'lb-item';
-        let diffLabel = p.weight === 3 ? "[SULIT]" : (p.weight === 2 ? "[SDG]" : "[MDH]");
-        div.innerHTML = `<span>${index + 1}. <small style="color:var(--gold)">${diffLabel}</small> ${p.name} <small style="color:#888">(${p.score || 0}%)</small></span><span>${formatTime(p.time)}</span>`;
-        lbBox.appendChild(div);
-      });
-    });
-  }
-
-  function syncStars() {
-    if(!currentUserID) return;
-    database.ref(`users/${currentUserID}/scores`).on('value', snap => {
-      const cloudData = snap.val() || {};
-      document.querySelectorAll('.babBtn').forEach(btn => {
-        const key = btn.dataset.fullLabel.replace(/\s/g, "_");
-        const textOnly = btn.innerText.replace(" ✅", "");
-        if(cloudData[key] === 100) btn.innerText = textOnly + " ✅";
-        else btn.innerText = textOnly;
-      });
-    });
-  }
-
-  function hideAll() {
-    ['loginPage','mainMenu','minnaMenu','irodoriMenu','sswMenu','dynamicMenu','modeMenu','diffMenu','wordBox','options','comboSection','resultPage','inputContainer','progressContainer','logoutModal','flashcardSection']
-    .forEach(id => { const el = document.getElementById(id); if(el) el.style.display = 'none'; });
-    if (activeView !== 'main') document.getElementById('resumeWrapper').style.display = 'none';
-  }
-
-  function toggleMute() {
-    isMuted = !isMuted;
-    document.getElementById('muteBtn').innerText = isMuted ? '🔇' : '🔊';
-    if(isMuted) window.speechSynthesis.cancel();
-  }
-
-  function showMainMenu() { hideAll(); document.getElementById('mainMenu').style.display = 'flex'; document.getElementById('backBtn').style.display = 'none'; activeView = 'main'; stopTimer(); checkExistingSession(); }
-  function showMinnaMenu() { hideAll(); document.getElementById('minnaMenu').style.display = 'flex'; document.getElementById('backBtn').style.display = 'block'; activeView = 'minna'; }
-  function showIrodoriMenu() { hideAll(); document.getElementById('irodoriMenu').style.display = 'flex'; document.getElementById('backBtn').style.display = 'block'; activeView = 'irodori'; loadLeaderboard('irodori', 'leaderboardBox'); }
-  function showSSWMenu() { hideAll(); document.getElementById('sswMenu').style.display = 'flex'; document.getElementById('backBtn').style.display = 'block'; activeView = 'ssw'; }
-  function showSSWGrid() { showGridMenu("SSW PM", "ssw_pm", 2, 65); }
-
-  function showGridMenu(title, type, start, end) {
-    hideAll();
-    const grid = document.getElementById('headerGrid');
-    document.getElementById('dynamicTitle').innerText = title;
-    grid.innerHTML = '';
-    document.getElementById('dynamicMenu').style.display = 'flex';
-    document.getElementById('backBtn').style.display = 'block';
-    activeView = type;
-    for(let i=start; i<=end; i++) {
-        let currentTargetData = null;
-        let prefix = "Bab ";
-        if (type === 'ssw_pm') {
-            if (i === 4 || i === 23 || i === 59) continue;
-            if (typeof sswPMData !== 'undefined' && sswPMData[i]) currentTargetData = sswPMData[i];
-            prefix = "SSW Page ";
-        } else if (type === 'ref') {
-            if (typeof referensiData !== 'undefined' && referensiData[i]) currentTargetData = referensiData[i];
-            prefix = "Ref Bab ";
-        } else {
-            if (typeof babData !== 'undefined' && babData[i]) currentTargetData = babData[i];
+  function joinLobbyRoom() {
+     document.getElementById('adminMenu').style.display = 'none';
+     document.getElementById('lobbyPage').style.display = 'flex';
+     document.getElementById('lobbyTitle').innerText = "LOBBY: " + currentRoomID;
+     
+     // Link yang dibagikan murni hanya membawa ID room (?room=JFT-XXXX) tanpa akses kunci admin
+     const shareUrl = window.location.origin + window.location.pathname + "?room=" + currentRoomID;
+     document.getElementById('linkShareUrl').value = shareUrl;
+     
+     roomRef = database.ref(`rooms/${currentRoomID}`);
+     roomRef.child('players').child(username).set({ score: 0, lastAnswerStatus: "none" });
+     
+     if(role === 'admin') {
+        document.getElementById('adminLobbyControls').style.display = 'block';
+        document.getElementById('pesertaLobbyControls').style.display = 'none';
+     } else {
+        document.getElementById('adminLobbyControls').style.display = 'none';
+        document.getElementById('pesertaLobbyControls').style.display = 'block';
+     }
+     
+     roomRef.child('players').on('value', snap => {
+        const pContainer = document.getElementById('lobbyPlayers'); pContainer.innerHTML = "";
+        if(snap.exists()) {
+           document.getElementById('playerCount').innerText = snap.numChildren();
+           snap.forEach(p => {
+              let d = document.createElement('div'); d.style.cssText = "padding:5px 0; border-bottom:1px solid #222; font-weight:bold; color:var(--green);";
+              d.innerText = "👤 " + p.key; pContainer.appendChild(d);
+           });
         }
-        if (!currentTargetData) continue;
-        let b = document.createElement('button');
-        b.className = 'babBtn';
-        const labelText = (type === 'ssw_pm') ? 'Page ' + i : 'Bab ' + i;
-        b.innerText = labelText;
-        b.dataset.fullLabel = prefix + i;
-        b.onclick = () => { selectedData = currentTargetData; currentLabel = prefix + i; showModeMenu(); };
-        grid.appendChild(b);
-    }
-    syncStars(); 
-  }
+     });
 
-  function showBagian(n) { showGridMenu("Minna No Nihongo", 'bagian_'+n, n === 1 ? 1 : 25, n === 1 ? 25 : 50); }
-  function showRefMenu() { showGridMenu("Kosakata Referensi", "ref", 1, 50); }
-  function startIrodoriKanji() { selectedData = (typeof irodoriKanjiData !== 'undefined') ? irodoriKanjiData : []; currentLabel = "Irodori"; showModeMenu(); }
-  function showModeMenu() { hideAll(); document.getElementById('modeMenu').style.display = 'flex'; document.getElementById('modeInfo').innerText = currentLabel; activeView = 'mode'; document.getElementById('backBtn').style.display = 'block'; }
-  function setQuizDirection(mode) { quizMode = mode; hideAll(); document.getElementById('diffMenu').style.display = 'flex'; activeView = 'difficulty'; }
-  function setDifficulty(level) { quizDifficulty = level; startQuiz(currentLabel, selectedData); }
-
-  function startFlashcardMode() {
-    hideAll();
-    activeView = 'flashcard';
-    document.getElementById('flashcardSection').style.display = 'flex';
-    document.getElementById('backBtn').style.display = 'block';
-    fcIndex = 0;
-    renderFlashcard();
-  }
-
-  function renderFlashcard() {
-    const q = selectedData[fcIndex];
-    const inner = document.getElementById('cardInner');
-    inner.classList.remove('is-flipped');
-    document.getElementById('fcInfo').innerText = `${currentLabel}\nKartu ${fcIndex + 1} / ${selectedData.length}`;
-    
-    if (currentLabel.includes("Irodori")) {
-        const isAlfabet = /^[A-Za-z\s.,!?]+$/.test(q.kanji);
-        if (isAlfabet) {
-            document.getElementById('fcFront').innerText = q.correct; 
-            document.getElementById('fcBackRead').innerText = `${q.kana}`;
-            document.getElementById('fcBackMean').innerText = q.kanji;
-        } else {
-            document.getElementById('fcFront').innerHTML = (q.kanji && q.kanji.trim() !== "") ? q.kanji : q.kana;
-            document.getElementById('fcBackRead').innerText = `${q.kana}`;
-            document.getElementById('fcBackMean').innerText = q.correct;
+     roomRef.child('status').on('value', snap => {
+        if(snap.val() === 'playing') {
+           const liveGameUrl = window.location.origin + window.location.pathname + "?room=" + currentRoomID + "&status=playing";
+           window.location.href = liveGameUrl; 
         }
-    } else {
-        document.getElementById('fcFront').innerHTML = (q.kanji && q.kanji.trim() !== "") ? `<ruby>${q.kanji}<rt>${q.kana}</rt></ruby>` : q.kana;
-        document.getElementById('fcBackRead').innerText = "";
-        document.getElementById('fcBackMean').innerText = q.correct;
-    }
+     });
   }
 
-  function flipCard() { document.getElementById('cardInner').classList.toggle('is-flipped'); }
-  function nextCard() { if(fcIndex < selectedData.length - 1) { fcIndex++; renderFlashcard(); } else { showToast("Selesai!"); } }
-  function prevCard() { if(fcIndex > 0) { fcIndex--; renderFlashcard(); } }
-  function playAudioFC() { if(isMuted) return; const q = selectedData[fcIndex]; window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(q.kana); u.lang = 'ja-JP'; window.speechSynthesis.speak(u); }
-
-  function startQuiz(label, data) {
-    if(!data || data.length === 0) { alert("Data kosong!"); return; }
-    currentLabel = label;
-    masterPool = [...data].sort(() => Math.random() - 0.5);
-    totalCorrectInSession = 0;
-    totalQuestionsInSession = data.length;
-    globalWrongPool = []; 
-    redemptionUsedInThisSession = false;
-    
-    if(label.includes("Irodori")) { 
-      startTime = Date.now(); 
-      isTimerRunning = true; 
-      timerInterval = setInterval(updateTimerUI, 100); 
-    } else { 
-      stopTimer(); 
-      document.getElementById('timerDisplay').innerText = ""; 
-    }
-    nextChunk();
+  function mulaiKuisOlehAdmin() {
+     roomRef.update({ status: "playing", currentQuestionIndex: 0 });
   }
 
-  function stopTimer() { clearInterval(timerInterval); isTimerRunning = false; }
-  function updateTimerUI() { if(!isTimerRunning) return; const diff = Date.now() - startTime; document.getElementById('timerDisplay').innerText = "⌛ " + formatTime(diff); }
-  
-  function nextChunk() { 
-    redemptionUsedInThisSession = false; 
-    currentQuestions = masterPool.splice(0, 10); 
-    currentIndex = 0; 
-    correctCount = 0; 
-    combo = 0; 
-    wrongList = []; 
-    activeView = 'quiz'; 
-    document.getElementById('backBtn').style.display = 'block'; 
-    renderQuestion(); 
+  function hubungkanKeKuisBerjalan() {
+     hideSemuaLayar();
+     document.getElementById('wordBox').style.display = 'flex';
+     
+     roomRef = database.ref(`rooms/${currentRoomID}`);
+     roomRef.child('players').child(username).update({ score: myScore });
+
+     roomRef.child('currentQuestionIndex').on('value', snap => {
+        let idx = snap.val();
+        if(idx !== null && idx >= 0) {
+           roomRef.child('questions').child(idx).once('value', qSnap => {
+              if(qSnap.exists()) renderSoalRealtime(qSnap.val(), idx);
+           });
+        }
+     });
+
+     roomRef.child('status').on('value', snap => {
+        if(snap.val() === 'finished') tampilkanLeaderboardAkhir();
+     });
   }
 
-  function formatTime(ms) { let s = Math.floor(ms / 1000); let m = Math.floor(s / 60); s = s % 60; return `${m}:${s < 10 ? '0'+s : s}`; }
-
-  function updateProgressBar() {
-    const container = document.getElementById('progressContainer');
-    container.style.display = 'flex';
-    container.innerHTML = '';
-    for (let i = 0; i < currentQuestions.length; i++) {
-        let segment = document.createElement('div');
-        segment.className = 'progress-segment';
-        if (i < currentIndex) segment.classList.add('active');
-        container.appendChild(segment);
-    }
-  }
-
-  function renderQuestion() {
-    if(currentIndex >= currentQuestions.length) { showResult(); return; }
-    hideAll();
-    updateProgressBar();
-    saveCurrentState();
-    const q = currentQuestions[currentIndex];
-    const display = document.getElementById('displayWord');
-    const inputField = document.getElementById('userAnswer');
-    inputField.classList.remove('correct-flash', 'wrong-flash');
-    inputField.style.borderColor = "#333";
-    document.getElementById('wordBox').style.display = 'flex';
-    document.getElementById('comboSection').style.display = 'block';
-    document.getElementById('quizInfo').innerText = `${currentLabel} | ${quizDifficulty.toUpperCase()}`;
-    document.getElementById('instruksi').innerText = (quizDifficulty === 'hard') ? "Ketik jawabannya" : "Pilih jawaban benar";
-    document.getElementById('userAnswer').value = "";
-    document.getElementById('wrongMsg').style.display = "none";
-    document.getElementById('backBtn').style.display = 'block';
-
-    const isIrodoriEasy = currentLabel.includes("Irodori") && quizDifficulty === 'easy';
-
-    if (quizMode === 'jp-id') {
-        document.getElementById('mainSpeaker').style.display = 'flex';
-        if (isIrodoriEasy) {
-            display.innerText = (q.kanji && q.kanji.trim() !== "") ? q.kanji : q.kana;
-            currentAnswer = q.kana;
-            let choices = [q.kana];
-            let pData = selectedData || [];
-            let others = pData.filter(item => item.kana !== q.kana).map(o => o.kana);
-            choices = choices.concat(others.sort(() => 0.5 - Math.random()).slice(0, 3));
-            setupLayout(choices);
-        } else {
-          if (currentLabel.includes("Irodori") && quizDifficulty === 'medium') {
-            display.innerText = (q.kanji && q.kanji.trim() !== "") ? q.kanji : q.kana;
-        } else
-            if (quizDifficulty === 'easy') display.innerText = q.kana;
-            else display.innerHTML = (q.kanji && q.kanji.trim() !== "") ? `<ruby>${q.kanji}<rt>${q.kana}</rt></ruby>` : q.kana;
-            currentAnswer = q.correct;
-            let choices = (q.answers && q.answers.length >= 4) ? [...q.answers] : [q.correct];
-            if (choices.length < 4) {
-                let pData = selectedData || [];
-                let pool = pData.filter(item => item.correct !== q.correct).map(item => item.correct);
-                choices = choices.concat(pool.sort(() => 0.5 - Math.random()).slice(0, 4 - choices.length));
+  function renderSoalRealtime(qData, index) {
+     canAnswer = true;
+     document.getElementById('options').style.display = 'flex';
+     document.getElementById('options').innerHTML = '';
+     
+     const display = document.getElementById('displayWord');
+     display.innerHTML = (qData.kanji) ? `<ruby>${qData.kanji}<rt>${qData.kana}</rt></ruby>` : qData.kana;
+     
+     let finalChoices = [...qData.answers].sort(() => Math.random() - 0.5);
+     finalChoices.forEach(txt => {
+         let b = document.createElement('button'); b.className = 'optBtn'; b.innerText = txt;
+         b.onclick = () => verifikasiJawabanRealtime(txt, qData.correct, b);
+         document.getElementById('options').appendChild(b);
+     });
+     
+     roomRef.child('timerDuration').once('value', timeSnap => {
+         let hitung = timeSnap.val();
+         document.getElementById('timerDisplay').innerText = hitung;
+         clearInterval(timerInterval);
+         
+         timerInterval = setInterval(() => {
+            hitung--;
+            document.getElementById('timerDisplay').innerText = hitung < 10 ? "0" + hitung : hitung;
+            if(hitung <= 0) {
+               clearInterval(timerInterval);
+               kunciJawabanOtomatis(qData.correct);
+               
+               if(role === 'admin') {
+                  setTimeout(() => {
+                     roomRef.child('questions').once('value', allQ => {
+                        if(index + 1 < allQ.numChildren()) {
+                           roomRef.update({ currentQuestionIndex: index + 1 });
+                        } else {
+                           roomRef.update({ status: "finished" });
+                        }
+                     });
+                  }, 2500); 
+               }
             }
-            setupLayout(choices);
-        }
-        setTimeout(playAudio, 300);
-    } else {
-        document.getElementById('mainSpeaker').style.display = 'none';
-        if (isIrodoriEasy) {
-            display.innerHTML = `<div style="font-size:16px; color:var(--primary); margin-bottom:5px;">Pilih Kanji Yang Tepat:</div>${q.correct}<br><div style="font-size:24px; color:#666; margin-top:10px;">(${q.kana})</div>`;
-            currentAnswer = (q.kanji && q.kanji.trim() !== "") ? q.kanji : q.kana;
-            let choices = [currentAnswer];
-            let pData = selectedData || [];
-            let others = pData.filter(item => item.kanji !== q.kanji).map(o => (o.kanji || o.kana));
-            choices = choices.concat(others.sort(() => 0.5 - Math.random()).slice(0, 3));
-            setupLayout(choices);
-        } else {
-            display.innerHTML = `<div style="font-size:16px; color:var(--primary); margin-bottom:5px;">Terjemahkan:</div>${q.correct}`;
-            currentAnswer = (quizDifficulty === 'easy') ? q.kana : (q.kanji && q.kanji.trim() !== "" ? q.kanji : q.kana);
-            let choices = [currentAnswer];
-            let pData = selectedData || [];
-            let others = pData.filter(item => item.kana !== q.kana).map(o => (quizDifficulty === 'easy') ? o.kana : (o.kanji || o.kana));
-            choices = choices.concat(others.sort(() => 0.5 - Math.random()).slice(0, 3));
-            setupLayout(choices);
-        }
-    }
-    document.getElementById('flowerCount').innerText = combo;
+         }, 1000);
+     });
   }
 
-  function setupLayout(choices) {
-    const optBox = document.getElementById('options');
-    if(quizDifficulty === 'hard') {
-        document.getElementById('inputContainer').style.display = 'flex';
-        document.getElementById('userAnswer').focus();
-    } else {
-        optBox.style.display = 'flex';
-        optBox.innerHTML = '';
-        let finalChoices = [...new Set(choices)].slice(0, 4);
-        if(finalChoices.length < 4) {
-             let pData = selectedData || [];
-             let backup = pData.map(item => (quizMode === 'jp-id' ? item.correct : (item.kanji || item.kana)));
-             for(let item of backup) { if(!finalChoices.includes(item)) finalChoices.push(item); if(finalChoices.length === 4) break; }
-        }
-        finalChoices.sort(()=>Math.random()-0.5).forEach(txt => {
-            let b = document.createElement('button');
-            b.className = 'optBtn'; b.innerText = txt;
-            b.onclick = () => processAnswer(txt === currentAnswer, b);
-            optBox.appendChild(b);
+  function verifikasiJawabanRealtime(pilihan, jawabanBenar, elemenTombol) {
+     if(!canAnswer) return;
+     canAnswer = false;
+     clearInterval(timerInterval);
+     
+     if(pilihan === jawabanBenar) {
+        elemenTombol.classList.add('correct');
+        myScore += 10;
+        roomRef.child('players').child(username).update({ score: myScore, lastAnswerStatus: "Benar" });
+     } else {
+        elemenTombol.classList.add('wrong');
+        roomRef.child('players').child(username).update({ lastAnswerStatus: "Salah" });
+        Array.from(document.getElementById('options').children).forEach(b => {
+           if(b.innerText === jawabanBenar) b.classList.add('correct');
         });
-    }
+     }
   }
 
-  function playAudio() {
-    if (isMuted) return;
-    const q = currentQuestions[currentIndex];
-    if (!q) return;
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(q.kana || q.kanji);
-    utterance.lang = 'ja-JP';
-    utterance.rate = 0.8;
-    window.speechSynthesis.speak(utterance);
+  function kunciJawabanOtomatis(jawabanBenar) {
+     if(!canAnswer) return;
+     canAnswer = false;
+     Array.from(document.getElementById('options').children).forEach(b => {
+        if(b.innerText === jawabanBenar) b.classList.add('correct');
+     });
   }
 
-  function clean(t) { return t ? t.replace(/\(.*\)|\[.*\]|[~〜\-\s]/g, "").toLowerCase().trim() : ""; }
-
-  function checkInputAnswer() {
-    const q = currentQuestions[currentIndex];
-    const inputField = document.getElementById('userAnswer');
-    const msg = document.getElementById('wrongMsg');
-    const cleanUser = clean(inputField.value.trim());
-    let isCorrect = (quizMode === 'jp-id') ? q.correct.split(/,| atau /).some(opt => clean(opt) === cleanUser) : (cleanUser === clean(q.kanji) || cleanUser === clean(q.kana));
-    if(isCorrect) { inputField.classList.add('correct-flash'); processAnswer(true); } 
-    else { inputField.classList.add('wrong-flash'); inputField.classList.add('shake'); msg.style.display = 'block'; msg.innerText = (quizMode === 'jp-id') ? `Jawabannya: ${q.correct}` : `Jwb: ${q.kanji || ''} (${q.kana})`; setTimeout(() => { inputField.classList.remove('shake'); processAnswer(false); }, 1500); }
+  function tampilkanLeaderboardAkhir() {
+     clearInterval(timerInterval);
+     document.getElementById('wordBox').style.display = 'none';
+     document.getElementById('resultPage').style.display = 'flex';
+     
+     roomRef.child('players').on('value', snap => {
+         const lbContent = document.getElementById('liveLeaderboardContent'); lbContent.innerHTML = "";
+         let urutanScore = [];
+         snap.forEach(player => { urutanScore.push({ name: player.key, ...player.val() }); });
+         urutanScore.sort((a,b) => b.score - a.score);
+         
+         urutanScore.forEach((p, index) => {
+            let div = document.createElement('div');
+            div.style.cssText = "display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #333; font-size:15px;";
+            let medal = index === 0 ? "👑 " : `${index + 1}. `;
+            div.innerHTML = `<span><b>${medal}${p.name}</b></span> <span style="color:var(--gold); font-weight:bold;">${p.score} POIN</span>`;
+            lbContent.appendChild(div);
+         });
+     });
   }
 
-  function processAnswer(isCorrect, btn = null) {
-    const q = currentQuestions[currentIndex];
-    if(isCorrect) { 
-        if(btn) btn.classList.add('correct'); 
-        correctCount++; 
-        combo++; 
-        totalCorrectInSession++; 
-        if(quizMode === 'id-jp') playAudio(); 
-    } else { 
-        if(btn) btn.classList.add('wrong'); 
-        const exists = globalWrongPool.some(item => item.kana === q.kana && item.correct === q.correct);
-        if (!exists) globalWrongPool.push(q);
-        wrongList.push(q); 
-        combo = 0; 
-        if(btn) Array.from(document.getElementById('options').children).forEach(b => { if(b.innerText === currentAnswer) b.classList.add('correct'); }); 
-    }
-    setTimeout(() => { currentIndex++; renderQuestion(); }, (isCorrect ? 600 : 1600));
-  }
-
-  function showResult() {
-    const isIrodori = currentLabel.includes("Irodori");
-    // Sesi dianggap benar-benar beres jika masterPool kosong DAN (soal salah habis ATAU jatah tebus sudah dipakai)
-    const isFinished = (masterPool.length === 0 && (globalWrongPool.length === 0 || redemptionUsedInThisSession));
-    
-    if(isIrodori && isFinished) stopTimer();
-    hideAll();
-    activeView = 'result';
-    document.getElementById('resultPage').style.display = 'flex';
-    document.getElementById('backBtn').style.display = 'block';
-    
-    let p = Math.round((correctCount / currentQuestions.length) * 100);
-    if (p > 100) p = 100;
-    document.getElementById('finalScore').innerText = p + "%";
-    
-    let totalAccuracy = totalQuestionsInSession > 0 ? Math.round((totalCorrectInSession / totalQuestionsInSession) * 100) : 0;
-    if (totalAccuracy > 100) totalAccuracy = 100;
-
-    document.getElementById('finalDetail').innerText = `Pending Redemption: ${globalWrongPool.length} | Sisa Soal: ${masterPool.length}\nAkurasi: ${totalAccuracy}%`;
-    
-    if(isIrodori && isFinished) {
-        const finalDiff = Date.now() - startTime;
-        document.getElementById('timerResult').innerText = "TOTAL WAKTU: " + formatTime(finalDiff);
-        saveRaceTime("irodori", finalDiff, totalAccuracy);
-    }
-
-    if(isFinished && totalAccuracy >= 100) {
-        saveToCloud(currentLabel, 100);
-        showToast("Bab Tuntas 100%!");
-    }
-
-    // Hapus sesi di Firebase jika sudah tidak ada aktivitas yang bisa dilakukan
-    if(isFinished) {
-        clearSession(); 
-    } else {
-        saveCurrentState();
-    }
-
-    const rb = document.getElementById('reviewBox');
-    rb.innerHTML = '';
-    
-    let redeemDiv = document.createElement('div');
-    redeemDiv.style.cssText = "margin:10px 0; padding:15px; background:#252525; border-radius:12px; border:1px dashed var(--gold);";
-    
-    if (globalWrongPool.length > 0) {
-        if (!redemptionUsedInThisSession) {
-            redeemDiv.innerHTML = `<p style="color:var(--gold); margin-top:0;">Tersedia Poin Redemption: ${globalWrongPool.length} </p>`;
-            let btnR = document.createElement('button');
-            btnR.className = "mainBtn goldBtn";
-            btnR.style.fontSize = "13px";
-            btnR.innerText = "🎲 TEBUS SOAL";
-            btnR.onclick = startSingleRedemption;
-            redeemDiv.appendChild(btnR);
-        } else {
-            redeemDiv.innerHTML = `<p style="color:#ff4444; font-size:12px; margin:0; font-weight:bold;">Kesempatan Redemption Habis!</p>
-                                   <p style="color:#888; font-size:11px; margin-top:5px;">Selesaikan sisa kuis atau ulang dari awal untuk membersihkan sisa soal salah.</p>`;
-        }
-    } else {
-        redeemDiv.innerHTML = `<p style="color:#4caf50; margin:0;">Redemption Selesai</p>`;
-    }
-    rb.appendChild(redeemDiv);
-
-    const btnLanjut = document.getElementById('nextChunkBtn');
-    if (masterPool.length > 0) { 
-        btnLanjut.style.display = 'block'; 
-        btnLanjut.innerText = "LANJUT KUIS";
-        btnLanjut.onclick = nextChunk; 
-    } else { 
-        btnLanjut.style.display = 'none';
-      database.ref(`users/${currentUserID}/redemptionPool`).remove();
-    }
-  }
-
-  function startSingleRedemption() {
-  if (globalWrongPool.length === 0 || redemptionUsedInThisSession) return;
-  const randomIndex = Math.floor(Math.random() * globalWrongPool.length);
-  const target = globalWrongPool[randomIndex];
-  globalWrongPool.splice(randomIndex, 1);
-  currentQuestions = [target];
-  currentIndex = 0;
-  redemptionUsedInThisSession = true;
-  
-  saveCurrentState(); // Update status di Firebase bahwa redem sudah terpakai
-  showToast("Menebus 1 soal acak...");
-  renderQuestion();
-}
-
-
-  function goBack() {
-    window.speechSynthesis.cancel();
-    stopTimer();
-    if (activeView === 'flashcard' || activeView === 'quiz' || activeView === 'result' || activeView === 'difficulty') showModeMenu();
-    else if (activeView === 'mode') {
-        if(currentLabel.includes("Ref")) showRefMenu();
-        else if(currentLabel.includes("Irodori")) showIrodoriMenu();
-        else if(currentLabel.includes("SSW")) showSSWGrid();
-        else showBagian(parseInt(currentLabel.replace("Bab ","")) <= 25 ? 1 : 2);
-    } 
-    else if (activeView.startsWith('bagian') || activeView === 'ref') showMinnaMenu();
-    else if (activeView === 'ssw_pm') showSSWMenu();
-    else if (activeView === 'ssw' || activeView === 'irodori' || activeView === 'minna') showMainMenu();
-    else showMainMenu();
-  }
-
-  document.getElementById('userAnswer').addEventListener('keypress', (e) => { if (e.key === 'Enter') checkInputAnswer(); });
-  window.onload = checkLogin;
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-<style>
-  #bukuOverlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: #000; z-index: 10001; display: none; flex-direction: column;
-  }
-  #bukuCanvasContainer {
-    flex-grow: 1; display: flex; justify-content: center; align-items: center;
-    overflow: hidden; background: #333; position: relative;
-  }
-  #pdfCanvas { max-width: 100%; max-height: 90vh; box-shadow: 0 0 20px rgba(0,0,0,0.5); border: 5px solid white; }
-  .buku-nav {
-    display: flex; justify-content: space-between; padding: 20px;
-    background: #1e1e1e; border-top: 1px solid #333;
-  }
-  #pageFlipSound { display: none; }
-</style>
-
-<div id="bukuOverlay">
-    <div style="padding: 15px; display: flex; justify-content: space-between; align-items: center; background: var(--card);">
-        <span id="bukuTitle" style="font-weight: bold; color: var(--primary);">MATERI</span>
-        <button onclick="tutupBuku()" style="background:none; border:none; color:white; font-size:24px;">✕</button>
-    </div>
-    <div id="bukuCanvasContainer">
-        <canvas id="pdfCanvas"></canvas>
-    </div>
-    <div class="buku-nav">
-        <button class="fc-btn" onclick="prevHalaman()">  ⬅  </button>
-        <span id="pageNumDisplay" style="align-self: center; color: var(--gold);">Hal: 1 / --</span>
-        <button class="fc-btn" onclick="nextHalaman()">  ➡  </button>
-    </div>
-</div>
-
-<audio id="pageFlipSound" src="https://www.soundjay.com/misc/sounds/page-flip-01a.mp3"></audio>
-
-<script>
-  const URL_PDF_KAMU = 'materi.pdf';
-  let pdfDoc = null, pageNum = 1, isRendering = false;
-  const canvas = document.getElementById('pdfCanvas'), ctx = canvas.getContext('2d');
-
-  window.addEventListener('DOMContentLoaded', () => {
-    const mainMenu = document.getElementById('mainMenu');
-    const btnBuku = document.createElement('button');
-    btnBuku.className = 'mainBtn goldBtn';
-    btnBuku.style.marginTop = '10px';
-    btnBuku.innerHTML = '📖 MATERI 文法';
-    btnBuku.onclick = bukaBuku;
-    mainMenu.insertBefore(btnBuku, mainMenu.lastElementChild.previousElementSibling);
-  });
-
-  function bukaBuku() {
-    document.getElementById('bukuOverlay').style.display = 'flex';
-    if (!pdfDoc) {
-        pdfjsLib.getDocument(URL_PDF_KAMU).promise.then(doc => {
-            pdfDoc = doc;
-            document.getElementById('pageNumDisplay').innerText = `Hal: ${pageNum} / ${pdfDoc.numPages}`;
-            renderHalaman(pageNum);
-        }).catch(err => {
-            alert("Gagal memuat PDF.");
-            tutupBuku();
-        });
-    }
-  }
-
-  function renderHalaman(num) {
-    isRendering = true;
-    pdfDoc.getPage(num).then(page => {
-        const viewport = page.getViewport({ scale: 1.5 });
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-        page.render({ canvasContext: ctx, viewport: viewport }).promise.then(() => {
-            isRendering = false;
-            document.getElementById('pageNumDisplay').innerText = `Hal: ${num} / ${pdfDoc.numPages}`;
-        });
-    });
-  }
-
-  function playFlip() {
-    const sfx = document.getElementById('pageFlipSound');
-    sfx.currentTime = 0;
-    sfx.play();
-  }
-
-  function nextHalaman() {
-    if (pageNum >= pdfDoc.numPages || isRendering) return;
-    pageNum++;
-    playFlip();
-    renderHalaman(pageNum);
-  }
-
-  function prevHalaman() {
-    if (pageNum <= 1 || isRendering) return;
-    pageNum--;
-    playFlip();
-    renderHalaman(pageNum);
-  }
-
-  function tutupBuku() {
-    document.getElementById('bukuOverlay').style.display = 'none';
+  function hideSemuaLayar() {
+    ['loginPage','adminMenu','kelolaSoalPage','lobbyPage','wordBox','options','resultPage']
+    .forEach(id => { document.getElementById(id).style.display = 'none'; });
   }
 </script>
 </body>
-</html>l
+</html>
