@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>JFT MASTER PANEL - ADMIN</title>
+<title>JFT MASTER PANEL - AUTO DISTRACTOR</title>
+
+<script src="data_irodori.js"></script>
+<script src="data_minna.js"></script>
 
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
@@ -44,7 +47,7 @@
   .admin-box { background: var(--card); border: 1px solid #333; padding: 20px; border-radius: 15px; }
   .soal-card-input { background: #252525; border: 1px dashed var(--secondary); padding: 15px; border-radius: 12px; margin-bottom: 15px; }
   
-  input[type="text"], input[type="number"], input[type="file"] { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #444; background: #222; color: white; font-size: 14px; margin-bottom: 8px; outline: none; }
+  input[type="text"], input[type="number"], input[type="file"], select { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #444; background: #222; color: white; font-size: 14px; margin-bottom: 8px; outline: none; }
   
   .img-preview-box { width: 100%; max-height: 150px; background: #111; border-radius: 8px; margin-bottom: 8px; display: none; justify-content: center; align-items: center; overflow: hidden; border: 1px solid #444; }
   .img-preview-box img { max-width: 100%; max-height: 150px; object-fit: contain; }
@@ -61,7 +64,7 @@
 
   .room-active-item { background: #252525; border: 1px solid #444; border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
   .status-db { font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: bold; display: inline-block; margin-top: 5px; }
-  #toast { display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #ffb74d; color: #000; padding: 12px 25px; border-radius: 25px; z-index: 9999; font-weight: bold; box-shadow: 0 4px 15 rgba(0,0,0,0.5); }
+  #toast { display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #ffb74d; color: #000; padding: 12px 25px; border-radius: 25px; z-index: 9999; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 </style>
 </head>
 <body>
@@ -76,9 +79,15 @@
   </div>
 
   <div class="admin-box">
-     <h3 style="color: var(--secondary); font-size: 16px; margin-bottom: 15px; margin-top:0;">🆕 BUAT PAKET KUIS + GAMBAR</h3>
+     <h3 style="color: var(--secondary); font-size: 16px; margin-bottom: 15px; margin-top:0;">🆕 BUAT PAKET KUIS (AUTO GOCEKAN)</h3>
      
-     <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 5px;">Masa Aktif Link (Menit):</label>
+     <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 2px;">Sumber Bank Data Gocekan Otomatis:</label>
+     <select id="sumberDataGocekan">
+        <option value="irodori">Ambil Kosakata dari data_irodori.js</option>
+        <option value="minna">Ambil Kosakata dari data_minna.js</option>
+     </select>
+
+     <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 2px;">Masa Aktif Link (Menit):</label>
      <input type="number" id="linkExpiryInput" value="30" min="1">
      
      <div id="dynamicSoalWrapper" style="max-height: 320px; overflow-y: auto; margin-top: 10px; padding-right: 5px;"></div>
@@ -144,9 +153,9 @@
         <input type="file" accept="image/*" onchange="prosesDanKompresGambar(this, ${nomorSoalCounter})" style="padding:5px; font-size:11px; background:#1a1a1a;">
 
         <input type="text" class="inp-kanji" placeholder="Kanji (Opsional)">
-        <input type="text" class="inp-kana" placeholder="Kana / Bacaan (Wajib)">
+        <input type="text" class="inp-kana" placeholder="Kana / Bacaan Pertanyaan (Wajib)">
         <input type="text" class="inp-correct" placeholder="Jawaban Benar (Wajib)" style="border-color: var(--green);">
-        <input type="text" class="inp-wrongs" placeholder="3 Pilihan Salah (Pisahkan dengan koma)">
+        <p style="margin: 2px 0 0 0; font-size: 10px; color: var(--gold);">*3 Pilihan salah akan diisi otomatis oleh sistem</p>
      `;
      wrapper.appendChild(card);
      wrapper.scrollTop = wrapper.scrollHeight;
@@ -161,27 +170,16 @@
         const img = new Image();
         img.onload = function() {
            const canvas = document.createElement('canvas');
-           let width = img.width;
-           let height = img.height;
-
+           let width = img.width; let height = img.height;
            const MAX_WIDTH = 400;
-           if (width > MAX_WIDTH) {
-              height = Math.round((height * MAX_WIDTH) / width);
-              width = MAX_WIDTH;
-           }
-
-           canvas.width = width;
-           canvas.height = height;
-           
+           if (width > MAX_WIDTH) { height = Math.round((height * MAX_WIDTH) / width); width = MAX_WIDTH; }
+           canvas.width = width; canvas.height = height;
            const ctx = canvas.getContext('2d');
            ctx.drawImage(img, 0, 0, width, height);
-
            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-
            document.getElementById(`base64_${idNomor}`).value = compressedBase64;
            const pBox = document.getElementById(`prevBox_${idNomor}`);
-           pBox.innerHTML = `<img src="${compressedBase64}">`;
-           pBox.style.display = 'flex';
+           pBox.innerHTML = `<img src="${compressedBase64}">`; pBox.style.display = 'flex';
         };
         img.src = event.target.result;
      };
@@ -201,25 +199,60 @@
         nomorSoalCounter++;
         card.id = `kolomSoal_${nomorSoalCounter}`;
         card.querySelector('span').innerText = `SOAL NO #${nomorSoalCounter}`;
-        card.querySelector('button').setAttribute('onclick', `hapusKolomSpesifik(${nomorSoalCounter})`);
      });
+  }
+
+  // LOGIKA AMBIL GOCEKAN ACAK DARI FILE JS GITHUB ANDA
+  function dapatkanGocekanOtomatis(jawabanBenar, jenisData) {
+     let listKosakata = [];
+     
+     try {
+        // Deteksi pilihan data berdasarkan dropdown select
+        if (jenisData === "irodori" && typeof data_irodori !== "undefined") {
+           listKosakata = data_irodori.map(item => item.kana || item.kosakata || item).filter(Boolean);
+        } else if (jenisData === "minna" && typeof data_minna !== "undefined") {
+           listKosakata = data_minna.map(item => item.kana || item.kosakata || item).filter(Boolean);
+        }
+     } catch (e) {
+        console.log("Gagal membaca file js bank data: ", e);
+     }
+
+     // Jika file JS kosong/tidak terbaca, pakai backup gocekan standar ini agar kuis tidak crash
+     if (listKosakata.length < 5) {
+        listKosakata = ["たべます", "のみます", "いきます", "きます", "みます", "かいます", "はなします", "ききます"];
+     }
+
+     // Filter agar jawaban benar tidak ikut menjadi pilihan salah
+     let filterSalah = listKosakata.filter(kata => kata !== jawabanBenar);
+     
+     // Acak isi array
+     filterSalah.sort(() => Math.random() - 0.5);
+     
+     // Ambil 3 teratas
+     return filterSalah.slice(0, 3);
   }
 
   function mulaiKuisDanGenerateLinkBaru() {
      const cards = document.querySelectorAll('.soal-card-input');
-     if(cards.length === 0) { showToast("❌ Buat minimal 1 soal!"); return; }
+     if(cards.length === 0) { alert("❌ Buat minimal 1 soal terlebih dahulu!"); return; }
      
      let tempBatch = [];
      let isValid = true;
+     const tipeData = document.getElementById('sumberDataGocekan').value;
 
      cards.forEach((card, idx) => {
+        const nomorNyata = idx + 1;
         const kana = card.querySelector('.inp-kana').value.trim();
         const correct = card.querySelector('.inp-correct').value.trim();
-        if(!kana || !correct) { showToast("❌ Kolom wajib belum terisi!"); isValid = false; return; }
+
+        if(!kana) { alert(`❌ Kolom Kana/Pertanyaan di Soal No #${nomorNyata} kosong.`); isValid = false; return; }
+        if(!correct) { alert(`❌ Kolom Jawaban Benar di Soal No #${nomorNyata} kosong.`); isValid = false; return; }
         
+        // AUTO GENERATE 3 PILIHAN SALAH DI SINI
+        let splitWrongs = dapatkanGocekanOtomatis(correct, tipeData);
+
         let choices = [correct];
-        const wrongsRaw = card.querySelector('.inp-wrongs').value.trim();
-        if(wrongsRaw) wrongsRaw.split(",").forEach(w => { if(w.trim()) choices.push(w.trim()); });
+        splitWrongs.forEach(w => choices.push(w));
         choices.sort(() => Math.random() - 0.5);
 
         const currentId = card.id.split("_");
@@ -235,12 +268,12 @@
      });
 
      if(!isValid) return;
+     if (!firebaseAktif) { alert("❌ Gagal terhubung ke Firebase Server!"); return; }
 
      const menitAktif = parseInt(document.getElementById('linkExpiryInput').value) || 30;
      const expiredTime = Date.now() + (menitAktif * 60 * 1000);
      const generateNewID = "NEW-" + Math.floor(1000 + Math.random() * 9000);
      
-     // LOGIKA BARU JIKA ADMIN ADALAH index.html:
      let currentHref = window.location.href.split('?'); 
      let fullURL = "";
      
@@ -253,23 +286,23 @@
         fullURL = currentHref.substring(0, lastSlash + 1) + "kuis.html?room=" + generateNewID;
      }
 
-     if (firebaseAktif) {
-        database.ref(`${FIREBASE_PATH}/${generateNewID}`).set({
-           roomID: generateNewID, expiredAt: expiredTime, questions: tempBatch
-        }, () => {
+     database.ref(`${FIREBASE_PATH}/${generateNewID}`).set({
+        roomID: generateNewID, expiredAt: expiredTime, questions: tempBatch
+     }, (error) => {
+        if(error) {
+           alert("❌ Gagal ke Firebase: " + error.message);
+        } else {
            document.getElementById('textLinkSiswa').innerText = fullURL;
            document.getElementById('linkOutputContainer').style.display = 'block';
            showToast("🚀 Kuis Aktif! Silakan salin link di bawah.");
            resetFormInputs();
-        });
-     }
+        }
+     });
   }
 
   function salinLinkKeClipboard() {
      const linkText = document.getElementById('textLinkSiswa').innerText;
-     navigator.clipboard.writeText(linkText).then(() => {
-        showToast("📋 LINK BERHASIL DISALIN!");
-     });
+     navigator.clipboard.writeText(linkText).then(() => { showToast("📋 LINK BERHASIL DISALIN!"); });
   }
 
   function resetFormInputs() {
@@ -283,20 +316,14 @@
      database.ref(FIREBASE_PATH).on('value', snap => {
         const cont = document.getElementById('runningRoomsContainer');
         cont.innerHTML = "";
-        if(!snap.exists()) {
-           cont.innerHTML = `<p style="color: #666; font-size: 13px; text-align: center;">Tidak ada kuis aktif...</p>`;
-           return;
-        }
+        if(!snap.exists()) { cont.innerHTML = `<p style="text-align: center;">Tidak ada kuis aktif...</p>`; return; }
         snap.forEach(child => {
            const room = child.val();
            const div = document.createElement('div');
            div.className = 'room-active-item';
            div.innerHTML = `
-              <div>
-                 <strong style="color:var(--secondary);">${room.roomID}</strong><br>
-                 <span style="font-size:11px; color:#aaa;">Soal: ${room.questions ? room.questions.length : 0}</span>
-              </div>
-              <button class="mainBtn redBtn" style="padding:6px 10px; font-size:11px; box-shadow:none; width:auto;" onclick="hapusKuisDanDataFirebase('${room.roomID}')">❌ HAPUS</button>
+              <div><strong>${room.roomID}</strong> (Soal: ${room.questions ? room.questions.length : 0})</div>
+              <button class="mainBtn redBtn" style="padding:6px 10px; font-size:11px; width:auto;" onclick="hapusKuisDanDataFirebase('${room.roomID}')">❌ HAPUS</button>
            `;
            cont.appendChild(div);
         });
@@ -304,9 +331,7 @@
   }
 
   function hapusKuisDanDataFirebase(idRoom) {
-     if(confirm(`Hapus kuis ${idRoom}?`) && firebaseAktif) {
-        database.ref(`${FIREBASE_PATH}/${idRoom}`).remove();
-     }
+     if(confirm(`Hapus kuis ${idRoom}?`) && firebaseAktif) { database.ref(`${FIREBASE_PATH}/${idRoom}`).remove(); }
   }
 </script>
 </body>
