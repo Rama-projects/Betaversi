@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>JFT MASTER PANEL - KILAT TANPA GOCEKAN</title>
+<title>JFT KILAT - ALL IN ONE PANEL</title>
 
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
@@ -11,7 +11,6 @@
 <script>
   let database = null;
   let firebaseAktif = false;
-
   const firebaseConfig = {
     apiKey: "AIzaSyBZSps-natL_AFexEnQl9-chHFiLO0GXes",
     authDomain: "kuis-jepang-29cf5.firebaseapp.com",
@@ -24,255 +23,241 @@
   };
   
   try {
-     if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-     }
+     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
      database = firebase.database();
      firebaseAktif = true;
-  } catch (error) {
-     console.error("Gagal terhubung ke Firebase:", error);
-  }
+  } catch (error) { console.error(error); }
 </script>
 
 <style>
-  :root { --primary: #ff5722; --secondary: #2196f3; --bg: #121212; --card: #1e1e1e; --text: #eee; --gold: #ffb74d; --green: #4caf50; --red: #f44336; }
+  :root { --bg: #121212; --card: #1e1e1e; --text: #eee; --primary: #2196f3; --green: #4caf50; --red: #f44336; --gold: #ffb74d; }
   * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-  html, body { margin: 0; padding: 0; background-color: var(--bg); color: var(--text); }
-  body { display: flex; justify-content: center; min-height: 100vh; padding: 20px; }
-  #app { width: 100vw; max-width: 500px; display: flex; flex-direction: column; gap: 20px; }
+  body { margin: 0; padding: 20px; background: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; }
+  .container { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 20px; }
+  .box { background: var(--card); border: 1px solid #333; padding: 20px; border-radius: 15px; }
   
-  .admin-box { background: var(--card); border: 1px solid #333; padding: 20px; border-radius: 15px; }
-  .soal-card-input { background: #252525; border: 1px dashed var(--secondary); padding: 15px; border-radius: 12px; margin-bottom: 15px; }
+  input[type="text"], input[type="number"], input[type="file"] { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #444; background: #222; color: white; margin-bottom: 10px; outline: none; }
   
-  input[type="text"], input[type="number"], input[type="file"] { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #444; background: #222; color: white; font-size: 14px; margin-bottom: 8px; outline: none; }
-  
-  .img-preview-box { width: 100%; max-height: 150px; background: #111; border-radius: 8px; margin-bottom: 8px; display: none; justify-content: center; align-items: center; overflow: hidden; border: 1px solid #444; }
-  .img-preview-box img { max-width: 100%; max-height: 150px; object-fit: contain; }
-  
-  .mainBtn { position: relative; z-index: 10; background: var(--primary); border-radius: 12px; padding: 14px; font-weight: bold; color: white; width: 100%; border: none; cursor: pointer; font-size: 14px; text-transform: uppercase; box-shadow: 0 4px 0 #bf360c; transition: 0.1s; display: block; }
-  .mainBtn:active { transform: translateY(2px); box-shadow: 0 2px 0 #bf360c; }
-  .secBtn { background: var(--secondary); box-shadow: 0 4px 0 #1565c0; }
+  .btn { background: #ff5722; color: white; border: none; padding: 14px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 0 #bf360c; }
+  .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #bf360c; }
+  .secBtn { background: var(--primary); box-shadow: 0 4px 0 #1565c0; }
   .greenBtn { background: var(--green); box-shadow: 0 4px 0 #2e7d32; }
-  .redBtn { background: var(--red); box-shadow: 0 4px 0 #b71c1c; }
-  .goldBtn { background: var(--gold); box-shadow: 0 4px 0 #e65100; color: #000; }
-
-  .link-output-box { display: none; background: #151515; border: 2px solid var(--gold); border-radius: 12px; padding: 15px; margin-top: 15px; }
-  .link-text-area { background: #222; border: 1px solid #333; padding: 10px; border-radius: 8px; font-size: 13px; color: var(--gold); word-break: break-all; margin-bottom: 10px; font-family: monospace; max-height: 65px; overflow-y: auto; }
-
-  .room-active-item { background: #252525; border: 1px solid #444; border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-  .status-db { font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: bold; display: inline-block; margin-top: 5px; }
-  #toast { display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #ffb74d; color: #000; padding: 12px 25px; border-radius: 25px; z-index: 9999; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+  
+  .preview-img-box { width: 100%; max-height: 250px; background: #000; border-radius: 8px; margin-bottom: 10px; display: none; justify-content: center; align-items: center; overflow: hidden; border: 1px solid #444; }
+  .preview-img-box img { max-width: 100%; max-height: 250px; object-fit: contain; }
+  
+  .output-box { display: none; background: #151515; border: 2px solid var(--gold); border-radius: 12px; padding: 15px; margin-top: 10px; }
+  .url-text { background: #222; padding: 10px; border-radius: 8px; font-size: 13px; color: var(--gold); word-break: break-all; margin-bottom: 10px; font-family: monospace; }
+  .card-soal { background: #252525; padding: 15px; border-radius: 10px; margin-top: 10px; border: 1px dashed var(--primary); }
 </style>
 </head>
 <body>
 
-<div id="toast"></div>
+<div class="container">
 
-<div id="app">
-  
-  <div style="text-align: center; margin-bottom: 5px;">
-     <h1 style="color: var(--gold); margin: 0; font-size: 26px;">JFT MASTER PANEL</h1>
-     <div id="dbStatusBadge" class="status-db" style="background: rgba(244, 67, 54, 0.2); color: var(--red);">Menghubungkan Server...</div>
-  </div>
-
-  <div class="admin-box">
-     <h3 style="color: var(--secondary); font-size: 16px; margin-bottom: 15px; margin-top:0;">🆕 KUIS KILAT (GAMBAR + JAWABAN SAJA)</h3>
-
-     <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 2px;">Masa Aktif Link (Menit):</label>
-     <input type="number" id="linkExpiryInput" value="180" min="1">
+  <div id="viewAdmin" class="box">
+     <h2 style="color: var(--gold); margin-top: 0; text-align: center;">⚡ JFT KILAT ADMIN</h2>
+     <label style="font-size: 12px; color: #aaa;">Masa Aktif Kuis (Menit):</label>
+     <input type="number" id="expiryInput" value="180">
      
-     <div id="dynamicSoalWrapper" style="max-height: 350px; overflow-y: auto; margin-top: 10px; padding-right: 5px;"></div>
+     <div id="wrapperSoal"></div>
      
-     <div style="display: flex; gap: 10px; margin-top: 15px;">
-        <button class="mainBtn secBtn" onclick="tambahKolomSoalBaru()">➕ TAMBAH SOAL</button>
-        <button class="mainBtn greenBtn" onclick="mulaiKuisDanGenerateLinkBaru()">🚀 MULAI & BUAT LINK</button>
+     <div style="display: flex; gap: 10px; margin-top: 10px;">
+        <button class="btn secBtn" onclick="tambahKolomSoal()">➕ TAMBAH SOAL</button>
+        <button class="btn greenBtn" onclick="simpanDanBikinLink()">🚀 BUAT LINK KUIS</button>
      </div>
 
-     <div class="link-output-box" id="linkOutputContainer">
-        <div style="font-size: 12px; font-weight: bold; color: white; margin-bottom: 5px;">🔗 LINK KUIS UNTUK SISWA (BEBAS LOGIN):</div>
-        <div class="link-text-area" id="textLinkSiswa">Mengecek...</div>
-        <button class="mainBtn goldBtn" style="padding: 10px;" onclick="salinLinkKeClipboard()">📋 SALIN LINK KUIS</button>
+     <div class="output-box" id="outputLinkContainer">
+        <div style="font-size: 12px; font-weight: bold; margin-bottom: 5px;">🔗 LINK KUIS UNTUK SISWA:</div>
+        <div class="url-text" id="textLinkSiswa">Mengecek...</div>
+        <button class="btn" style="background:var(--gold); color:#000; box-shadow:0 4px 0 #e65100;" onclick="salinLinkKuis()">📋 SALIN LINK KUIS</button>
      </div>
   </div>
 
-  <div class="admin-box">
-     <h3 style="color: var(--gold); font-size: 16px; margin-bottom: 15px; margin-top:0;">📊 DAFTAR KUIS YANG BERJALAN</h3>
-     <div id="runningRoomsContainer" style="max-height: 200px; overflow-y: auto;">
-        <p style="color: #666; font-size: 13px; text-align: center;">Tidak ada kuis aktif...</p>
+  <div id="viewKuis" class="box" style="display: none;">
+     <div style="display: flex; justify-content: space-between; color: #aaa; font-size: 12px; margin-bottom: 10px;">
+        <span id="infoNomer">Soal 1 dari 1</span>
+        <span id="infoRoomID">ROOM: -</span>
      </div>
+
+     <div class="preview-img-box" id="wadahGambarSiswa" style="display: flex; min-height: 200px; border: 2px solid #555;">
+        <p style="color:#666;">Memuat Gambar...</p>
+     </div>
+
+     <p style="font-size: 14px; color: var(--gold); font-weight: bold; text-align: center; margin-bottom: 15px;">
+        Lihat gambar di atas, lalu ketik jawabannya di bawah:
+     </p>
+
+     <input type="text" id="jawabanSiswaInput" placeholder="Ketik jawaban di sini..." autocomplete="off" style="text-align: center; font-size: 18px;">
+     <button class="btn secBtn" onclick="cekJawabanSiswa()">Kirim Jawaban</button>
+     
+     <div id="statusJawaban" style="text-align: center; font-size: 20px; font-weight: bold; margin-top: 15px;"></div>
   </div>
 
 </div>
 
 <script>
-  let nomorSoalCounter = 0;
-  const FIREBASE_PATH = "kuis_master_baru";
+  let counterSoal = 0;
+  let daftarSoalFirebase = [];
+  let indexSoalBerjalan = 0;
+  const DB_PATH = "kuis_master_baru";
 
   window.onload = function() {
-     const badge = document.getElementById('dbStatusBadge');
-     if (firebaseAktif) {
-        badge.innerText = "🟢 SERVER AKTIF & AMAN";
-        badge.style.background = "rgba(76, 175, 80, 0.2)";
-        badge.style.color = "var(--green)";
-        dengarkanDaftarRoomAktif();
+     const urlParams = new URLSearchParams(window.location.search);
+     const roomParam = urlParams.get('room');
+     
+     if (roomParam) {
+        document.getElementById('viewAdmin').style.display = 'none';
+        document.getElementById('viewKuis').style.display = 'block';
+        document.getElementById('infoRoomID').innerText = "ROOM: " + roomParam;
+        bukaDataKuisSiswa(roomParam);
+     } else {
+        tambahKolomSoal();
      }
-     tambahKolomSoalBaru();
   };
 
-  function showToast(msg) {
-    const t = document.getElementById('toast'); 
-    t.innerText = msg; t.style.display = 'block';
-    setTimeout(() => { t.style.display = 'none'; }, 2000);
-  }
-
-  function tambahKolomSoalBaru() {
-     nomorSoalCounter++;
-     const wrapper = document.getElementById('dynamicSoalWrapper');
+  function tambahKolomSoal() {
+     counterSoal++;
+     const wadah = document.getElementById('wrapperSoal');
      const card = document.createElement('div');
-     card.className = 'soal-card-input';
-     card.id = `kolomSoal_${nomorSoalCounter}`;
+     card.className = 'card-soal';
+     card.id = `panelSoal_${counterSoal}`;
+     
      card.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-           <span class="nomor-label" style="color:var(--secondary); font-weight:bold; font-size:12px;">SOAL NO #${nomorSoalCounter}</span>
-           <button style="background:none; border:none; color:var(--red); font-size:12px; cursor:pointer; font-weight:bold;" onclick="hapusKolomSpesifik(this)">Hapus</button>
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:12px; font-weight:bold; color:var(--primary);">
+           <span>SOAL NO #${counterSoal}</span>
+           <span style="color:var(--red); cursor:pointer;" onclick="document.getElementById('panelSoal_${counterSoal}').remove()">Hapus</span>
         </div>
+        <div class="preview-img-box" id="pvBox_${counterSoal}"></div>
         
-        <div class="img-preview-box" id="previewBox_${nomorSoalCounter}" style="display:none; justify-content:center; align-items:center;"></div>
-        <input type="text" class="inp-base64" style="display:none;" value="">
+        <input type="text" id="stringBase_${counterSoal}" style="display:none;" value="">
         
-        <label style="font-size:11px; color:#aaa; display:block; margin-bottom:2px;">Upload Gambar Soal (Wajib):</label>
-        <input type="file" accept="image/*" onchange="prosesDanKompresGambar(this, ${nomorSoalCounter})" style="padding:5px; font-size:11px; background:#1a1a1a;">
-
-        <input type="text" class="inp-correct" placeholder="Jawaban Benar (Wajib)" style="border-color: var(--green);">
+        <label style="font-size:11px; color:#aaa;">Upload Gambar Pertanyaan (Wajib):</label>
+        <input type="file" accept="image/*" onchange="konversiGambarKeBase64(this, ${counterSoal})">
+        
+        <label style="font-size:11px; color:#aaa;">Jawaban Benar (Wajib):</label>
+        <input type="text" id="jawabanBenar_${counterSoal}" placeholder="Contoh: たな" style="border-color:var(--green);">
      `;
-     wrapper.appendChild(card);
-     wrapper.scrollTop = wrapper.scrollHeight;
+     wadah.appendChild(card);
   }
 
-  function prosesDanKompresGambar(inputElement, currentId) {
-     if (!inputElement.files || !inputElement.files) return;
-     const file = inputElement.files; 
-     const card = inputElement.closest('.soal-card-input');
-
+  function konversiGambarKeBase64(fileInput, idTarget) {
+     if (!fileInput.files || !fileInput.files) return;
      const reader = new FileReader();
-     reader.onload = function(event) {
+     reader.onload = function(e) {
         const img = new Image();
         img.onload = function() {
            const canvas = document.createElement('canvas');
-           let width = img.width; let height = img.height;
-           const MAX_WIDTH = 500;
-           if (width > MAX_WIDTH) { height = Math.round((height * MAX_WIDTH) / width); width = MAX_WIDTH; }
-           canvas.width = width; canvas.height = height;
-           const ctx = canvas.getContext('2d');
-           ctx.drawImage(img, 0, 0, width, height);
+           let w = img.width; let h = img.height;
+           if (w > 500) { h = Math.round((h * 500) / w); w = 500; }
+           canvas.width = w; canvas.height = h;
+           canvas.getContext('2d').drawImage(img, 0, 0, w, h);
            
-           // Simpan string gambar kualitas tinggi tapi ukuran kompres optimal
-           const compressedBase64 = canvas.toDataURL('image/jpeg', 0.75);
-           card.querySelector('.inp-base64').value = compressedBase64;
+           const finalBase64 = canvas.toDataURL('image/jpeg', 0.6);
            
-           const pBox = document.getElementById(`previewBox_${currentId}`);
-           pBox.innerHTML = `<img src="${compressedBase64}" style="max-width:100%; max-height:150px; object-fit:contain;">`; 
-           pBox.style.display = 'flex';
+           // TEMBAK LANGSUNG KE ID YANG DIKUNCI
+           document.getElementById(`stringBase_${idTarget}`).value = finalBase64;
+           
+           const pv = document.getElementById(`pvBox_${idTarget}`);
+           pv.innerHTML = `<img src="${finalBase64}">`;
+           pv.style.display = 'flex';
         };
-        img.src = event.target.result;
+        img.src = e.target.result;
      };
-     reader.readAsDataURL(file);
+     reader.readAsDataURL(fileInput.files);
   }
 
-  function hapusKolomSpesifik(buttonElement) {
-     buttonElement.closest('.soal-card-input').remove();
-     reIndexNomorSoal();
-  }
-
-  function reIndexNomorSoal() {
-     const cards = document.querySelectorAll('.soal-card-input');
-     let indexBaru = 0;
-     cards.forEach(card => {
-        indexBaru++;
-        card.querySelector('.nomor-label').innerText = `SOAL NO #${indexBaru}`;
-     });
-  }
-
-  function mulaiKuisDanGenerateLinkBaru() {
-     const cards = document.querySelectorAll('.soal-card-input');
-     if(cards.length === 0) { alert("❌ Tambah minimal 1 gambar kuis!"); return; }
+  function simpanDanBikinLink() {
+     const cards = document.querySelectorAll('.card-soal');
+     if(cards.length === 0) { alert("Tambah soal dulu!"); return; }
      
-     let tempBatch = [];
-     let isValid = true;
+     let paketSoal = [];
+     let aman = true;
 
-     cards.forEach((card, index) => {
-        const nomorNyata = index + 1;
-        const correct = card.querySelector('.inp-correct').value.trim();
-        const base64Image = card.querySelector('.inp-base64').value || "";
-
-        if(!base64Image) { alert(`❌ Gambar di Soal No #${nomorNyata} belum di-upload!`); isValid = false; return; }
-        if(!correct) { alert(`❌ Jawaban Benar di Soal No #${nomorNyata} wajib diisi!`); isValid = false; return; }
+     cards.forEach((card) => {
+        // Ambil ID digit asli dari card element
+        const currentId = card.id.split('_');
         
-        tempBatch.push({ 
-           image: base64Image,
-           correct: correct,
-           kanji: "", 
-           kana: "Lihat gambar dan ketik jawaban yang benar:", 
-           options: [correct] // Tanpa gocekan sama sekali!
-        });
+        const imgData = document.getElementById(`stringBase_${currentId}`).value;
+        const jawaban = document.getElementById(`jawabanBenar_${currentId}`).value.trim();
+
+        if(!imgData) { alert(`Gambar di Soal No #${currentId} belum masuk! Silakan pilih ulang file gambarnya.`); aman = false; return; }
+        if(!jawaban) { alert(`Jawaban di Soal No #${currentId} masih kosong!`); aman = false; return; }
+
+        paketSoal.push({ image: imgData, correct: jawaban });
      });
 
-     if(!isValid) return;
-     if (!firebaseAktif) { alert("❌ Putus koneksi server Firebase!"); return; }
+     if(!aman) return;
+     if(!firebaseAktif) { alert("Firebase putus koneksi!"); return; }
 
-     const menitAktif = parseInt(document.getElementById('linkExpiryInput').value) || 180;
-     const expiredTime = Date.now() + (menitAktif * 60 * 1000);
-     const generateNewID = "JFT-" + Math.floor(1000 + Math.random() * 9000);
-     
-     // KUNCI ABSOLUT DOMAIN BEBAS LOGIN VERCEL LU!
-     let fullURL = "https://rama-project.vercel.app/kuis.html?room=" + generateNewID;
+     const menit = parseInt(document.getElementById('expiryInput').value) || 180;
+     const expired = Date.now() + (menit * 60 * 1000);
+     const roomID = "JFT-" + Math.floor(1000 + Math.random() * 9000);
 
-     database.ref(`${FIREBASE_PATH}/${generateNewID}`).set({
-        roomID: generateNewID, expiredAt: expiredTime, questions: tempBatch
-     }, (error) => {
-        if(error) {
-           alert("❌ Gagal simpan: " + error.message);
-        } else {
-           document.getElementById('textLinkSiswa').innerText = fullURL;
-           document.getElementById('linkOutputContainer').style.display = 'block';
-           showToast("🚀 Link kuis kilat berhasil dibuat!");
-           resetFormInputs();
+     // Otomatis deteksi URL asal tempat admin dibuka biar gak perlu login Vercel
+     let linkSiswa = window.location.origin + window.location.pathname + "?room=" + roomID;
+
+     database.ref(`${DB_PATH}/${roomID}`).set({
+        roomID: roomID, expiredAt: expired, questions: paketSoal
+     }, (err) => {
+        if(err) { alert(err.message); } else {
+           document.getElementById('textLinkSiswa').innerText = linkSiswa;
+           document.getElementById('outputLinkContainer').style.display = 'block';
+           alert("🚀 LINK KUIS SELESAI DICREATE!");
         }
      });
   }
 
-  function salinLinkKeClipboard() {
-     const linkText = document.getElementById('textLinkSiswa').innerText;
-     navigator.clipboard.writeText(linkText).then(() => { showToast("📋 LINK BERHASIL DISALIN!"); });
+  function salinLinkKuis() {
+     navigator.clipboard.writeText(document.getElementById('textLinkSiswa').innerText);
+     alert("Link disalin!");
   }
 
-  function resetFormInputs() {
-     document.getElementById('dynamicSoalWrapper').innerHTML = "";
-     nomorSoalCounter = 0;
-     tambahKolomSoalBaru();
-  }
-
-  function dengarkanDaftarRoomAktif() {
-     if (!firebaseAktif) return;
-     database.ref(FIREBASE_PATH).on('value', snap => {
-        const cont = document.getElementById('runningRoomsContainer');
-        cont.innerHTML = "";
-        if(!snap.exists()) { cont.innerHTML = `<p style="text-align: center; color: #666; font-size: 13px;">Tidak ada kuis aktif...</p>`; return; }
-        snap.forEach(child => {
-           const room = child.val();
-           const div = document.createElement('div');
-           div.className = 'room-active-item';
-           div.innerHTML = `
-              <div><strong style="color:var(--secondary);">${room.roomID}</strong><br><span style="font-size:11px; color:#aaa;">Soal Gambar: ${room.questions ? room.questions.length : 0}</span></div>
-              <button class="mainBtn redBtn" style="padding:6px 10px; font-size:11px; width:auto; box-shadow:none;" onclick="hapusKuisDanDataFirebase('${room.roomID}')">❌ HAPUS</button>
-           `;
-           cont.appendChild(div);
-        });
+  // ================= ENGINE HALAMAN KUIS SISWA =================
+  function bukaDataKuisSiswa(room) {
+     database.ref(`${DB_PATH}/${room}`).once('value').then((snap) => {
+        if(!snap.exists()) {
+           document.getElementById('viewKuis').innerHTML = `<h2 style="color:var(--red);">KUIS EXPIRED / TIDAK ADA</h2>`;
+           return;
+        }
+        daftarSoalFirebase = snap.val().questions || [];
+        tampilkanSoalSiswa();
      });
   }
 
-  function hapusKuisDanDataFirebase(idRoom) {
-     if(confirm(`Hapus kuis ${idRoom}?`) && firebaseAktif) { database.ref(`${FIREBASE_PATH}/${idRoom}`).remove(); }
+  function tampilkanSoalSiswa() {
+     if(indexSoalBerjalan >= daftarSoalFirebase.length) {
+        document.getElementById('viewKuis').innerHTML = `<h2 style="color:var(--green);">🎉 KUIS SELESAI!</h2><p>Semoga besok lulus ujian JFT-Basic!</p>`;
+        return;
+     }
+
+     const soal = daftarSoalFirebase[indexSoalBerjalan];
+     document.getElementById('infoNomer').innerText = `Soal ${indexSoalBerjalan + 1} dari ${daftarSoalFirebase.length}`;
+     document.getElementById('jawabanSiswaInput').value = "";
+     document.getElementById('statusJawaban').innerText = "";
+
+     const wadahGambar = document.getElementById('wadahGambarSiswa');
+     wadahGambar.innerHTML = `<img src="${soal.image}" style="max-width:100%; max-height:250px; object-fit:contain;">`;
+  }
+
+  function cekJawabanSiswa() {
+     const input = document.getElementById('jawabanSiswaInput').value.trim().toLowerCase();
+     const kunci = daftarSoalFirebase[indexSoalBerjalan].correct.trim().toLowerCase();
+     const status = document.getElementById('statusJawaban');
+
+     if(!input) return;
+
+     if (input === kunci) {
+        status.innerText = "⭕ BENAR!";
+        status.style.color = "var(--green)";
+        setTimeout(() => {
+           indexSoalBerjalan++;
+           tampilkanSoalSiswa();
+        }, 1000);
+     } else {
+        status.innerText = `❌ SALAH! (Kunci: ${daftarSoalFirebase[indexSoalBerjalan].correct})`;
+        status.style.color = "var(--red)";
+     }
   }
 </script>
 </body>
