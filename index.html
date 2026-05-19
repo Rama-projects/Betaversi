@@ -348,10 +348,6 @@
      });
   }
 
-  function deleteExpiredRoomsAutomatically(snap) {
-      // Fitur opsional pembersih otomatis jika diperlukan di masa mendatang
-  }
-
   function hapusKuisDanDataFirebase(idRoom) {
      if(confirm(`Hapus kuis ${idRoom}?`) && firebaseAktif) { database.ref(`${FIREBASE_PATH}/${idRoom}`).remove(); }
   }
