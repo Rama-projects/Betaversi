@@ -3,14 +3,17 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>KUIS JFT DASHBOARD MASTER - ADMIN ONLY</title>
+<title>JFT MASTER PANEL - ISOLATED DATABASE</title>
 
 <!-- Firebase App & Database Compat -->
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
 
 <script>
-  // Konfigurasi Firebase Anda
+  let database = null;
+  let firebaseAktif = false;
+
+  // Kode API bawaan Anda tetap dipakai tanpa diubah
   const firebaseConfig = {
     apiKey: "AIzaSyBZSps-natL_AFexEnQl9-chHFiLO0GXes",
     authDomain: "kuis-jepang-29cf5.firebaseapp.com",
@@ -22,27 +25,30 @@
     databaseURL: "https://kuis-jepang-29cf5-default-rtdb.asia-southeast1.firebasedatabase.app"
   };
   
-  if (!firebase.apps.length) {
-     firebase.initializeApp(firebaseConfig);
+  try {
+     if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+     }
+     database = firebase.database();
+     firebaseAktif = true;
+  } catch (error) {
+     console.error("Gagal terhubung ke Firebase:", error);
   }
-  const database = firebase.database();
 </script>
 
 <style>
   :root { --primary: #ff5722; --secondary: #2196f3; --bg: #121212; --card: #1e1e1e; --text: #eee; --gold: #ffb74d; --green: #4caf50; --red: #f44336; }
-  * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-  html, body { margin: 0; padding: 0; background-color: var(--bg); color: var(--text); overflow-x: hidden; }
+  * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; pointer-events: auto !important; }
+  html, body { margin: 0; padding: 0; background-color: var(--bg); color: var(--text); }
   body { display: flex; justify-content: center; min-height: 100vh; padding: 20px; }
   #app { width: 100vw; max-width: 500px; display: flex; flex-direction: column; gap: 20px; }
   
-  h2, h3 { margin: 0; }
-  .admin-box { background: var(--card); border: 1px solid #333; padding: 20px; border-radius: 15px; text-align: left; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+  .admin-box { background: var(--card); border: 1px solid #333; padding: 20px; border-radius: 15px; }
   .soal-card-input { background: #252525; border: 1px dashed var(--secondary); padding: 15px; border-radius: 12px; margin-bottom: 15px; }
   
-  input[type="text"], input[type="number"] { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #444; background: #222; color: white; font-size: 14px; outline: none; margin-bottom: 8px; }
-  input:focus { border-color: var(--secondary); }
+  input[type="text"], input[type="number"] { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #444; background: #222; color: white; font-size: 14px; margin-bottom: 8px; outline: none; }
   
-  .mainBtn { background: var(--primary); border-radius: 12px; padding: 12px; font-weight: bold; color: white; width: 100%; border: none; cursor: pointer; font-size: 14px; text-transform: uppercase; box-shadow: 0 4px 0 #bf360c; transition: 0.1s; }
+  .mainBtn { position: relative; z-index: 10; background: var(--primary); border-radius: 12px; padding: 14px; font-weight: bold; color: white; width: 100%; border: none; cursor: pointer !important; font-size: 14px; text-transform: uppercase; box-shadow: 0 4px 0 #bf360c; transition: 0.1s; display: block; }
   .mainBtn:active { transform: translateY(2px); box-shadow: 0 2px 0 #bf360c; }
   .secBtn { background: var(--secondary); box-shadow: 0 4px 0 #1565c0; }
   .greenBtn { background: var(--green); box-shadow: 0 4px 0 #2e7d32; }
@@ -53,9 +59,10 @@
   .report-user-card { background: #1a1a1a; border-radius: 10px; padding: 12px; margin-bottom: 10px; border-left: 4px solid var(--secondary); }
   .badge { padding: 3px 8px; border-radius: 5px; font-size: 11px; font-weight: bold; color: white; display: inline-block; margin-right: 5px; }
   
-  #toast { display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.9); color: white; padding: 12px 25px; border-radius: 25px; z-index: 9999; font-size: 13px; text-align: center; font-weight: bold; border: 1px solid #444; }
-  .modal-report { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
+  #toast { display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.9); color: white; padding: 12px 25px; border-radius: 25px; z-index: 9999; font-size: 13px; text-align: center; border: 1px solid #444; }
+  .modal-report { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 99999; justify-content: center; align-items: center; padding: 20px; }
   .modal-content { background: var(--card); border: 1px solid #444; border-radius: 20px; width: 100%; max-width: 450px; padding: 20px; display: flex; flex-direction: column; max-height: 90vh; }
+  .status-db { font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: bold; display: inline-block; margin-top: 5px; }
 </style>
 </head>
 <body>
@@ -66,12 +73,12 @@
   
   <div style="text-align: center; margin-bottom: 5px;">
      <h1 style="color: var(--gold); margin: 0; font-size: 26px;">JFT MASTER PANEL</h1>
-     <p style="color: #aaa; margin: 5px 0 0 0; font-size: 13px;">Sistem Pembuat Kuis & Monitor Nilas Real-Time</p>
+     <div id="dbStatusBadge" class="status-db" style="background: rgba(244, 67, 54, 0.2); color: var(--red);">Menghubungkan Ke Firebase...</div>
   </div>
 
-  <!-- BAGIAN 1: PEMBUAT KUIS BARU -->
+  <!-- BAGIAN INPUT SOAL -->
   <div class="admin-box">
-     <h3 style="color: var(--secondary); font-size: 16px; margin-bottom: 15px;">🆕 BUAT PAKET KUIS BARU</h3>
+     <h3 style="color: var(--secondary); font-size: 16px; margin-bottom: 15px; margin-top:0;">🆕 BUAT PAKET KUIS BARU</h3>
      
      <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 5px;">Masa Aktif Link (Menit):</label>
      <input type="number" id="linkExpiryInput" value="30" min="1">
@@ -84,43 +91,50 @@
      </div>
   </div>
 
-  <!-- BAGIAN 2: MONITORING ROOM AKTIF -->
+  <!-- BAGIAN DAFTAR KUIS AKTIF -->
   <div class="admin-box">
-     <h3 style="color: var(--gold); font-size: 16px; margin-bottom: 15px;">📊 DAFTAR KUIS YANG SEDANG BERJALAN</h3>
+     <h3 style="color: var(--gold); font-size: 16px; margin-bottom: 15px; margin-top:0;">📊 DAFTAR KUIS BARU YANG BERJALAN</h3>
      <div id="runningRoomsContainer" style="max-height: 300px; overflow-y: auto;">
-        <p style="color: #666; font-size: 13px; text-align: center;">Tidak ada kuis aktif saat ini...</p>
+        <p style="color: #666; font-size: 13px; text-align: center;">Tidak ada kuis aktif...</p>
      </div>
   </div>
 
 </div>
 
-<!-- JENDELA POPUP MODAL: LAPORAN NILAI SISWA -->
+<!-- LAPORAN SISWA MODAL POPUP -->
 <div class="modal-report" id="reportModal">
    <div class="modal-content">
-      <h2 style="color: var(--secondary); font-size: 20px;" id="reportRoomTitle">ROOM REPORT</h2>
+      <h2 style="color: var(--secondary); font-size: 20px; margin:0;" id="reportRoomTitle">ROOM REPORT</h2>
       <hr style="border: 1px solid #333; margin: 15px 0; width: 100%;">
-      
       <div style="flex: 1; overflow-y: auto; margin-bottom: 15px;" id="reportSiswaWrapper"></div>
-      
       <button class="mainBtn" style="background: #444; box-shadow: 0 4px 0 #222;" onclick="tutupLaporanModal()">TUTUP LAPORAN</button>
    </div>
 </div>
 
 <script>
   let nomorSoalCounter = 0;
+  // Nama folder baru agar tidak menimpa folder 'rooms' bawaan kuis lama Anda
+  const FIREBASE_PATH = "kuis_master_baru";
 
-  // Langsung jalankan monitor database saat halaman dibuka
   window.onload = function() {
+     const badge = document.getElementById('dbStatusBadge');
+     if (firebaseAktif) {
+        badge.innerText = "🟢 SERVER TERISOLASI & AMAN";
+        badge.style.background = "rgba(76, 175, 80, 0.2)";
+        badge.style.color = "var(--green)";
+        dengarkanDaftarRoomAktif();
+     } else {
+        badge.innerText = "⚠️ KONEKSI FIREBASE ERROR";
+        badge.style.background = "rgba(244, 67, 54, 0.2)";
+        badge.style.color = "var(--red)";
+     }
      tambahKolomSoalBaru();
-     dengarkanDaftarRoomAktif();
   };
 
   function showToast(msg) {
     const t = document.getElementById('toast'); 
-    t.innerText = msg; 
-    t.style.display = 'block';
-    setTimeout(() => { t.style.opacity = '1'; }, 10);
-    setTimeout(() => { t.style.opacity = '0'; setTimeout(() => { t.style.display = 'none'; }, 400); }, 2500);
+    t.innerText = msg; t.style.display = 'block';
+    setTimeout(() => { t.style.display = 'none'; }, 2500);
   }
 
   function tambahKolomSoalBaru() {
@@ -130,11 +144,11 @@
      card.className = 'soal-card-input';
      card.id = `kolomSoal_${nomorSoalCounter}`;
      card.innerHTML = `
-        <div style="display:flex; justify-content:between; align-items:center; margin-bottom:8px; justify-content: space-between;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
            <span style="color:var(--secondary); font-weight:bold; font-size:12px;">SOAL NO #${nomorSoalCounter}</span>
            <button style="background:none; border:none; color:var(--red); font-size:12px; cursor:pointer; font-weight:bold;" onclick="hapusKolomSpesifik(${nomorSoalCounter})">Hapus</button>
         </div>
-        <input type="text" class="inp-kanji" placeholder="Kanji (Boleh dikosongkan)">
+        <input type="text" class="inp-kanji" placeholder="Kanji (Opsional)">
         <input type="text" class="inp-kana" placeholder="Kana / Bacaan (Wajib)">
         <input type="text" class="inp-correct" placeholder="Jawaban Benar (Wajib)" style="border-color: var(--green);">
         <input type="text" class="inp-wrongs" placeholder="3 Pilihan Salah (Pisahkan dengan koma)">
@@ -168,49 +182,56 @@
      let isValid = true;
 
      cards.forEach((card, idx) => {
-        const kanji = card.querySelector('.inp-kanji').value.trim();
         const kana = card.querySelector('.inp-kana').value.trim();
         const correct = card.querySelector('.inp-correct').value.trim();
-        const wrongsRaw = card.querySelector('.inp-wrongs').value.trim();
-
         if(!kana || !correct) { showToast(`Soal #${idx+1} Belum Lengkap!`); isValid = false; return; }
-
+        
         let choices = [correct];
+        const wrongsRaw = card.querySelector('.inp-wrongs').value.trim();
         if(wrongsRaw) wrongsRaw.split(",").forEach(w => { if(w.trim()) choices.push(w.trim()); });
         choices.sort(() => Math.random() - 0.5);
 
-        tempBatch.push({ kanji: kanji, kana: kana, correct: correct, options: choices });
+        tempBatch.push({ 
+           kanji: card.querySelector('.inp-kanji').value.trim(), 
+           kana: kana, 
+           correct: correct, 
+           options: choices 
+        });
      });
 
      if(!isValid) return;
 
      const menitAktif = parseInt(document.getElementById('linkExpiryInput').value) || 30;
      const expiredTime = Date.now() + (menitAktif * 60 * 1000);
-     const generateNewID = "JFT-" + Math.floor(1000 + Math.random() * 9000);
+     const generateNewID = "NEW-" + Math.floor(1000 + Math.random() * 9000);
      
-     database.ref(`rooms/${generateNewID}`).set({
-        roomID: generateNewID,
-        expiredAt: expiredTime,
-        questions: tempBatch
-     }, () => {
-        // Tautan dinamis yang akan digunakan oleh siswa untuk membuka aplikasi siswa Anda
-        const baseStudentURL = window.location.origin + window.location.pathname.replace("admin.html", "index.html"); 
-        const fullURL = baseStudentURL + "?room=" + generateNewID;
-        
-        alert(`Kuis Berhasil Dibuat!\n\nSalin Link Ini Untuk Siswa:\n${fullURL}`);
-        
-        document.getElementById('dynamicSoalWrapper').innerHTML = "";
-        nomorSoalCounter = 0;
-        tambahKolomSoalBaru();
-     });
+     if (firebaseAktif) {
+        // Menyimpan ke jalur folder terisolasi 'kuis_master_baru/'
+        database.ref(`${FIREBASE_PATH}/${generateNewID}`).set({
+           roomID: generateNewID, expiredAt: expiredTime, questions: tempBatch
+        }, () => {
+           alert(`Kuis Berhasil Dibuat!\n\nLink Pengerjaan Siswa:\n${window.location.origin + window.location.pathname}?room=${generateNewID}`);
+           resetFormInputs();
+        });
+     } else {
+        showToast("Gagal kirim, periksa koneksi Firebase Anda.");
+     }
+  }
+
+  function resetFormInputs() {
+     document.getElementById('dynamicSoalWrapper').innerHTML = "";
+     nomorSoalCounter = 0;
+     tambahKolomSoalBaru();
   }
 
   function dengarkanDaftarRoomAktif() {
-     database.ref('rooms').on('value', snap => {
+     if (!firebaseAktif) return;
+     // Hanya memantau data di folder 'kuis_master_baru'
+     database.ref(FIREBASE_PATH).on('value', snap => {
         const cont = document.getElementById('runningRoomsContainer');
         cont.innerHTML = "";
         if(!snap.exists()) {
-           cont.innerHTML = `<p style="color:#666; font-size:13px; text-align:center;">Tidak ada kuis aktif saat ini...</p>`;
+           cont.innerHTML = `<p style="color: #666; font-size: 13px; text-align: center;">Tidak ada kuis baru...</p>`;
            return;
         }
 
@@ -220,8 +241,8 @@
            div.className = 'room-active-item';
            div.innerHTML = `
               <div>
-                 <strong style="color:var(--secondary); font-size:14px;">${room.roomID}</strong><br>
-                 <span style="font-size:11px; color:#aaa;">Soal: ${room.questions ? room.questions.length : 0} | Sisa: <span id="monitor_${room.roomID}">--</span></span>
+                 <strong style="color:var(--secondary);">${room.roomID}</strong><br>
+                 <span style="font-size:11px; color:#aaa;">Soal: ${room.questions ? room.questions.length : 0}</span>
               </div>
               <div style="display:flex; gap:5px;">
                  <button class="mainBtn goldBtn" style="padding:6px 10px; font-size:11px; box-shadow:none; width:auto;" onclick="bukaLaporanNilaiRoom('${room.roomID}')">📊 LAPORAN</button>
@@ -229,94 +250,41 @@
               </div>
            `;
            cont.appendChild(div);
-
-           let timer = setInterval(() => {
-              let diff = room.expiredAt - Date.now();
-              let targetEl = document.getElementById(`monitor_${room.roomID}`);
-              if(!targetEl) { clearInterval(timer); return; }
-              if(diff <= 0) {
-                 targetEl.innerText = "Habis / Kedaluwarsa";
-                 targetEl.style.color = "var(--red)";
-                 clearInterval(timer);
-              } else {
-                 let m = Math.floor(diff / 60000);
-                 let s = Math.floor((diff % 60000) / 1000);
-                 targetEl.innerText = `${m}m ${s}s`;
-              </div>
-           }, 1000);
         });
      });
   }
 
   function hapusKuisDanDataFirebase(idRoom) {
-     if(confirm(`Apakah Anda yakin ingin menghapus kuis ${idRoom}?`)) {
-        database.ref(`rooms/${idRoom}`).remove()
-        .then(() => showToast(`Room ${idRoom} berhasil dihapus.`));
+     if(confirm(`Hapus kuis ${idRoom}?`) && firebaseAktif) {
+        database.ref(`${FIREBASE_PATH}/${idRoom}`).remove();
      }
   }
 
   function bukaLaporanNilaiRoom(idRoom) {
+     if(!firebaseAktif) return;
      document.getElementById('reportModal').style.display = 'flex';
      document.getElementById('reportRoomTitle').innerText = "📊 LAPORAN ROOM: " + idRoom;
      
-     database.ref(`rooms/${idRoom}`).on('value', snap => {
+     database.ref(`${FIREBASE_PATH}/${idRoom}`).on('value', snap => {
          const wrapper = document.getElementById('reportSiswaWrapper');
          wrapper.innerHTML = "";
-         if(!snap.exists()) { wrapper.innerHTML = "<p style='color:#666;'>Data tidak tersedia.</p>"; return; }
-         
-         const roomData = snap.val();
-         const totalSoal = roomData.questions ? roomData.questions.length : 0;
-         const dataSiswa = roomData.leaderboard;
-
-         if(!dataSiswa) {
-            wrapper.innerHTML = "<p style='color:#aaa; text-align:center; font-size:13px; margin-top:20px;'>Belum ada pengerjaan dari siswa.</p>";
-            return;
+         if(!snap.exists() || !snap.val().leaderboard) { 
+            wrapper.innerHTML = "<p style='color:#aaa; text-align:center;'>Belum ada data nilai masuk.</p>"; 
+            return; 
          }
-
+         
+         const dataSiswa = snap.val().leaderboard;
          Object.keys(dataSiswa).forEach(namaUser => {
             const detailUser = dataSiswa[namaUser];
-            const detailJawaban = detailUser.jawabanHistory || {};
-            
-            let jmlBenar = 0;
-            let logHTML = "";
-
-            for(let i = 0; i < totalSoal; i++) {
-               let itemJawab = detailJawaban[i];
-               if(itemJawab && itemJawab.status === "Benar") {
-                  jmlBenar++;
-                  logHTML += `<span style="color:var(--green); margin-right:8px;">No.${i+1}(✔)</span>`;
-               } else {
-                  logHTML += `<span style="color:var(--red); margin-right:8px;">No.${i+1}(❌)</span>`;
-               }
-            }
-
-            let jmlSalah = totalSoal - jmlBenar;
-            let persenBenar = totalSoal > 0 ? Math.round((jmlBenar / totalSoal) * 100) : 0;
-
-            const card = document.createElement('div');
-            card.className = 'report-user-card';
-            card.innerHTML = `
-               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                  <strong style="color:white; font-size:14px;">👤 ${namaUser}</strong>
-                  <span style="color:var(--gold); font-weight:bold; font-size:14px;">${detailUser.score || 0} Pts</span>
-               </div>
-               <div style="font-size:11px; margin-bottom:5px;">
-                  <span class="badge" style="background:var(--green);">Benar: ${jmlBenar}</span>
-                  <span class="badge" style="background:var(--red);">Salah: ${jmlSalah}</span>
-                  <span class="badge" style="background:var(--secondary);">Akurasi: ${persenBenar}%</span>
-               </div>
-               <div style="font-size:11px; background:#111; padding:6px; border-radius:5px; line-height:1.6;">
-                  ${logHTML}
-               </div>
-            `;
-            wrapper.appendChild(card);
+            const div = document.createElement('div');
+            div.className = 'report-user-card';
+            div.innerHTML = `<strong>👤 ${namaUser}</strong> <span style="float:right; color:var(--gold);">${detailUser.score || 0} Pts</span>`;
+            wrapper.appendChild(div);
          });
      });
   }
 
-  function tutupLaporanModal() {
-     document.getElementById('reportModal').style.display = 'none';
-  }
+  function tutupLaporanModal() { document.getElementById('reportModal').style.display = 'none'; }
 </script>
 </body>
 </html>
