@@ -3,11 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>JFT MASTER PANEL - FIX TOTAL</title>
-
-<script src="data_minna.js"></script>
-<script src="data_irodori.js"></script>
-<script src="data_ssw_pm.js"></script>
+<title>JFT MASTER PANEL - MANUAL TOTAL</title>
 
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
@@ -80,12 +76,12 @@
   </div>
 
   <div class="admin-box">
-     <h3 style="color: var(--secondary); font-size: 16px; margin-bottom: 15px; margin-top:0;">🆕 BUAT PAKET KUIS</h3>
+     <h3 style="color: var(--secondary); font-size: 16px; margin-bottom: 15px; margin-top:0;">🆕 BUAT PAKET KUIS (INPUT MANUAL)</h3>
 
      <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 2px;">Masa Aktif Link (Menit):</label>
      <input type="number" id="linkExpiryInput" value="30" min="1">
      
-     <div id="dynamicSoalWrapper" style="max-height: 350px; overflow-y: auto; margin-top: 10px; padding-right: 5px;"></div>
+     <div id="dynamicSoalWrapper" style="max-height: 380px; overflow-y: auto; margin-top: 10px; padding-right: 5px;"></div>
      
      <div style="display: flex; gap: 10px; margin-top: 15px;">
         <button class="mainBtn secBtn" onclick="tambahKolomSoalBaru()">➕ TAMBAH SOAL</button>
@@ -134,7 +130,6 @@
      const wrapper = document.getElementById('dynamicSoalWrapper');
      const card = document.createElement('div');
      card.className = 'soal-card-input';
-     card.id = `kolomSoal_${nomorSoalCounter}`;
      card.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
            <span class="nomor-label" style="color:var(--secondary); font-weight:bold; font-size:12px;">SOAL NO #${nomorSoalCounter}</span>
@@ -144,12 +139,16 @@
         <div class="img-preview-box"></div>
         <input type="hidden" class="inp-base64" value="">
         
-        <label style="font-size:11px; color:#aaa; display:block; margin-bottom:2px;">Tambah Gambar (Otomatis Kompres):</label>
+        <label style="font-size:11px; color:#aaa; display:block; margin-bottom:2px;">Tambah Gambar (Opsional):</label>
         <input type="file" accept="image/*" onchange="prosesDanKompresGambar(this)" style="padding:5px; font-size:11px; background:#1a1a1a;">
 
         <input type="text" class="inp-kanji" placeholder="Kanji / Judul Atas (Opsional)">
         <input type="text" class="inp-kana" placeholder="Pertanyaan / Petunjuk Kuis (Wajib)">
+        
         <input type="text" class="inp-correct" placeholder="Jawaban Benar (Wajib)" style="border-color: var(--green);">
+        <input type="text" class="inp-wrong1" placeholder="Pilihan Salah 1 (Wajib)" style="border-color: var(--red);">
+        <input type="text" class="inp-wrong2" placeholder="Pilihan Salah 2 (Wajib)" style="border-color: var(--red);">
+        <input type="text" class="inp-wrong3" placeholder="Pilihan Salah 3 (Wajib)" style="border-color: var(--red);">
      `;
      wrapper.appendChild(card);
      wrapper.scrollTop = wrapper.scrollHeight;
@@ -197,38 +196,6 @@
      });
   }
 
-  // AMBIL OTOMATIS DARI SEMUA DATA YANG ADA TANPA KECUALI
-  function dapatkanGocekanOtomatis(jawabanBenar) {
-     let megaWadah = [];
-     
-     try {
-        if (typeof irodori !== "undefined") megaWadah = megaWadah.concat(irodori);
-        if (typeof data_irodori !== "undefined") megaWadah = megaWadah.concat(data_irodori);
-        if (typeof minna !== "undefined") megaWadah = megaWadah.concat(minna);
-        if (typeof data_minna !== "undefined") megaWadah = megaWadah.concat(data_minna);
-        if (typeof ssw !== "undefined") megaWadah = megaWadah.concat(ssw);
-        if (typeof data_ssw_pm !== "undefined") megaWadah = megaWadah.concat(data_ssw_pm);
-     } catch (e) { console.warn(e); }
-
-     let listKataMentah = [];
-     if(Array.isArray(megaWadah) && megaWadah.length > 0) {
-        listKataMentah = megaWadah.map(item => {
-           if (!item) return "";
-           return item.kana || item.correct || (typeof item === 'string' ? item : "");
-        }).filter(Boolean);
-     }
-
-     if (!listKataMentah || listKataMentah.length < 5) {
-        listKataMentah = ["たべます", "のみます", "いきます", "きます", "みます", "かいます", "しんしつ", "だいどころ"];
-     }
-
-     let filterGocekan = listKataMentah.filter(kata => kata !== jawabanBenar);
-     filterGocekan = [...new Set(filterGocekan)];
-     filterGocekan.sort(() => Math.random() - 0.5);
-     
-     return filterGocekan.slice(0, 3);
-  }
-
   function mulaiKuisDanGenerateLinkBaru() {
      const cards = document.querySelectorAll('.soal-card-input');
      if(cards.length === 0) { alert("❌ Buat minimal 1 soal terlebih dahulu!"); return; }
@@ -242,13 +209,16 @@
         const kanji = card.querySelector('.inp-kanji').value.trim();
         const kana = card.querySelector('.inp-kana').value.trim();
         const correct = card.querySelector('.inp-correct').value.trim();
+        const wrong1 = card.querySelector('.inp-wrong1').value.trim();
+        const wrong2 = card.querySelector('.inp-wrong2').value.trim();
+        const wrong3 = card.querySelector('.inp-wrong3').value.trim();
 
         if(!kana) { alert(`❌ Kolom Pertanyaan di Soal No #${nomorNyata} masih kosong.`); isValid = false; return; }
         if(!correct) { alert(`❌ Kolom Jawaban Benar di Soal No #${nomorNyata} masih kosong.`); isValid = false; return; }
+        if(!wrong1 || !wrong2 || !wrong3) { alert(`❌ Pilihan Salah 1, 2, dan 3 di Soal No #${nomorNyata} harus diisi.`); isValid = false; return; }
         
-        let splitWrongs = dapatkanGocekanOtomatis(correct);
-        let choices = [correct];
-        splitWrongs.forEach(w => choices.push(w));
+        // Gabungkan jawaban benar dan salah, lalu acak posisi tampilnya kuis
+        let choices = [correct, wrong1, wrong2, wrong3];
         choices.sort(() => Math.random() - 0.5);
 
         const base64Image = card.querySelector('.inp-base64').value || "";
@@ -269,7 +239,7 @@
      const expiredTime = Date.now() + (menitAktif * 60 * 1000);
      const generateNewID = "NEW-" + Math.floor(1000 + Math.random() * 9000);
      
-     // AMAN 100%: Link dibentuk dinamis tanpa string manipulasi berbahaya
+     // Buat URL murni tanpa string manipulation yang rawan rusak di server hosting
      let fullURL = window.location.origin + window.location.pathname.replace("index.html", "") + "kuis.html?room=" + generateNewID;
 
      database.ref(`${FIREBASE_PATH}/${generateNewID}`).set({
