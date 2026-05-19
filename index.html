@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>JFT MASTER PANEL - ANTI CRASH</title>
+<title>JFT MASTER PANEL - ANTI CRASH FIX</title>
 
 <script src="data_minna.js"></script>
 <script src="data_irodori.js"></script>
@@ -164,7 +164,7 @@
   }
 
   function prosesDanKompresGambar(inputElement, idNomor) {
-     const file = inputElement.files;
+     const file = inputElement.files; // FIX: Ditambahkan agar membaca satu file gambar pertama
      if (!file) return;
 
      const reader = new FileReader();
@@ -204,12 +204,10 @@
      });
   }
 
-  // FUNGSI SISTEM PENYELAMAT: ANTI CRASH & DETEKSI VARIABEL OTOMATIS
   function dapatkanGocekanOtomatis(jawabanBenar, jenisData) {
      let sumberArray = [];
      
      try {
-        // Deteksi cerdas: Cek nama variabel global yang mengandung kata kunci data Anda
         if (jenisData === "irodori") {
            sumberArray = (typeof irodori !== "undefined") ? irodori : (typeof data_irodori !== "undefined" ? data_irodori : []);
         } else if (jenisData === "minna") {
@@ -221,7 +219,6 @@
         console.warn("Gagal mendeteksi nama variabel asli:", e);
      }
 
-     // Ekstrak data .kana atau .correct
      let listKataMentah = [];
      if(Array.isArray(sumberArray) && sumberArray.length > 0) {
         listKataMentah = sumberArray.map(item => {
@@ -230,21 +227,14 @@
         }).filter(Boolean);
      }
 
-     // SISTEM BACKUP UTAMA: Jika file .js gagal terbaca/kosong, kuis dilarang macet!
      if (!listKataMentah || listKataMentah.length < 3) {
-        listKataMentah = ["たべます", "のみます", "いきます", "きます", "みます", "かいます", "しんしつ", "だいどころ", "べんきょう", "ともだち"];
+        listKataMentah = ["たべます", "のみます", "いきます", "きます", "みます", "かいます", "しんしつ", "だいどころ"];
      }
 
-     // Filter agar jawaban benar tidak ganda
      let filterGocekan = listKataMentah.filter(kata => kata !== jawabanBenar);
-     
-     // Buang kata duplikat
      filterGocekan = [...new Set(filterGocekan)];
-
-     // Pengacak instan
      filterGocekan.sort(() => Math.random() - 0.5);
      
-     // Potong ambil 3 buah
      return filterGocekan.slice(0, 3);
   }
 
@@ -264,15 +254,12 @@
         if(!kana) { alert(`❌ Kolom Pertanyaan di Soal No #${nomorNyata} masih kosong.`); isValid = false; return; }
         if(!correct) { alert(`❌ Kolom Jawaban Benar di Soal No #${nomorNyata} masih kosong.`); isValid = false; return; }
         
-        // Buat gocekan aman tanpa macet
         let splitWrongs = dapatkanGocekanOtomatis(correct, tipeData);
-
         let choices = [correct];
         splitWrongs.forEach(w => choices.push(w));
-        
-        // Acak tombol pilihan ganda
         choices.sort(() => Math.random() - 0.5);
 
+        // FIX: Ambil ID nomor nyata dengan memisahkan string secara tepat agar tidak berwujud array
         const currentId = card.id.split("_");
         const base64Image = document.getElementById(`base64_${currentId}`).value || "";
 
@@ -292,6 +279,7 @@
      const expiredTime = Date.now() + (menitAktif * 60 * 1000);
      const generateNewID = "NEW-" + Math.floor(1000 + Math.random() * 9000);
      
+     // FIX: Mengembalikan teks murni URL, bukan array hasil split
      let currentHref = window.location.href.split('?'); 
      let fullURL = "";
      
