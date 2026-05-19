@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>JFT MASTER PANEL - FIX LIVE</title>
+<title>JFT MASTER PANEL - FIX GAMBAR & GOCEKAN</title>
 
 <script src="data_minna.js"></script>
 <script src="data_irodori.js"></script>
@@ -34,47 +34,58 @@
      database = firebase.database();
      firebaseAktif = true;
   } catch (error) {
-     console.error("Firebase Error:", error);
+     console.error("Gagal terhubung ke Firebase:", error);
   }
 </script>
 
 <style>
   :root { --primary: #ff5722; --secondary: #2196f3; --bg: #121212; --card: #1e1e1e; --text: #eee; --gold: #ffb74d; --green: #4caf50; --red: #f44336; }
   * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-  body { margin: 0; padding: 20px; background-color: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; }
+  html, body { margin: 0; padding: 0; background-color: var(--bg); color: var(--text); }
+  body { display: flex; justify-content: center; min-height: 100vh; padding: 20px; }
   #app { width: 100vw; max-width: 500px; display: flex; flex-direction: column; gap: 20px; }
+  
   .admin-box { background: var(--card); border: 1px solid #333; padding: 20px; border-radius: 15px; }
   .soal-card-input { background: #252525; border: 1px dashed var(--secondary); padding: 15px; border-radius: 12px; margin-bottom: 15px; }
+  
   input[type="text"], input[type="number"], input[type="file"] { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #444; background: #222; color: white; font-size: 14px; margin-bottom: 8px; outline: none; }
+  
   .img-preview-box { width: 100%; max-height: 150px; background: #111; border-radius: 8px; margin-bottom: 8px; display: none; justify-content: center; align-items: center; overflow: hidden; border: 1px solid #444; }
   .img-preview-box img { max-width: 100%; max-height: 150px; object-fit: contain; }
-  .mainBtn { background: var(--primary); border-radius: 12px; padding: 14px; font-weight: bold; color: white; width: 100%; border: none; cursor: pointer; font-size: 14px; text-transform: uppercase; box-shadow: 0 4px 0 #bf360c; display: block; }
+  
+  .mainBtn { position: relative; z-index: 10; background: var(--primary); border-radius: 12px; padding: 14px; font-weight: bold; color: white; width: 100%; border: none; cursor: pointer; font-size: 14px; text-transform: uppercase; box-shadow: 0 4px 0 #bf360c; transition: 0.1s; display: block; }
   .mainBtn:active { transform: translateY(2px); box-shadow: 0 2px 0 #bf360c; }
   .secBtn { background: var(--secondary); box-shadow: 0 4px 0 #1565c0; }
   .greenBtn { background: var(--green); box-shadow: 0 4px 0 #2e7d32; }
   .redBtn { background: var(--red); box-shadow: 0 4px 0 #b71c1c; }
   .goldBtn { background: var(--gold); box-shadow: 0 4px 0 #e65100; color: #000; }
+
   .link-output-box { display: none; background: #151515; border: 2px solid var(--gold); border-radius: 12px; padding: 15px; margin-top: 15px; }
   .link-text-area { background: #222; border: 1px solid #333; padding: 10px; border-radius: 8px; font-size: 13px; color: var(--gold); word-break: break-all; margin-bottom: 10px; font-family: monospace; max-height: 65px; overflow-y: auto; }
+
   .room-active-item { background: #252525; border: 1px solid #444; border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
   .status-db { font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: bold; display: inline-block; margin-top: 5px; }
+  #toast { display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #ffb74d; color: #000; padding: 12px 25px; border-radius: 25px; z-index: 9999; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 </style>
 </head>
 <body>
 
+<div id="toast"></div>
+
 <div id="app">
-  <div style="text-align: center;">
+  
+  <div style="text-align: center; margin-bottom: 5px;">
      <h1 style="color: var(--gold); margin: 0; font-size: 26px;">JFT MASTER PANEL</h1>
      <div id="dbStatusBadge" class="status-db" style="background: rgba(244, 67, 54, 0.2); color: var(--red);">Menghubungkan Server...</div>
   </div>
 
   <div class="admin-box">
-     <h3 style="color: var(--secondary); font-size: 16px; margin: 0 0 15px 0;">🆕 BUAT PAKET KUIS</h3>
+     <h3 style="color: var(--secondary); font-size: 16px; margin-bottom: 15px; margin-top:0;">🆕 BUAT PAKET KUIS (GOCEKAN + GAMBAR FIX)</h3>
 
      <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 2px;">Masa Aktif Link (Menit):</label>
      <input type="number" id="linkExpiryInput" value="120" min="1">
      
-     <div id="dynamicSoalWrapper" style="max-height: 380px; overflow-y: auto; margin-top: 10px;"></div>
+     <div id="dynamicSoalWrapper" style="max-height: 350px; overflow-y: auto; margin-top: 10px; padding-right: 5px;"></div>
      
      <div style="display: flex; gap: 10px; margin-top: 15px;">
         <button class="mainBtn secBtn" onclick="tambahKolomSoalBaru()">➕ TAMBAH SOAL</button>
@@ -82,18 +93,19 @@
      </div>
 
      <div class="link-output-box" id="linkOutputContainer">
-        <div style="font-size: 12px; font-weight: bold; color: white; margin-bottom: 5px;">🔗 LINK KUIS UNTUK SISWA:</div>
+        <div style="font-size: 12px; font-weight: bold; color: white; margin-bottom: 5px;">🔗 LINK KUIS UNTUK SISWA (BEBAS LOGIN):</div>
         <div class="link-text-area" id="textLinkSiswa">Mengecek...</div>
         <button class="mainBtn goldBtn" style="padding: 10px;" onclick="salinLinkKeClipboard()">📋 SALIN LINK KUIS</button>
      </div>
   </div>
 
   <div class="admin-box">
-     <h3 style="color: var(--gold); font-size: 16px; margin: 0 0 15px 0;">📊 DAFTAR KUIS YANG BERJALAN</h3>
+     <h3 style="color: var(--gold); font-size: 16px; margin-bottom: 15px; margin-top:0;">📊 DAFTAR KUIS YANG BERJALAN</h3>
      <div id="runningRoomsContainer" style="max-height: 200px; overflow-y: auto;">
         <p style="color: #666; font-size: 13px; text-align: center;">Tidak ada kuis aktif...</p>
      </div>
   </div>
+
 </div>
 
 <script>
@@ -101,8 +113,8 @@
   const FIREBASE_PATH = "kuis_master_baru";
 
   window.onload = function() {
+     const badge = document.getElementById('dbStatusBadge');
      if (firebaseAktif) {
-        const badge = document.getElementById('dbStatusBadge');
         badge.innerText = "🟢 SERVER AKTIF & AMAN";
         badge.style.background = "rgba(76, 175, 80, 0.2)";
         badge.style.color = "var(--green)";
@@ -111,33 +123,40 @@
      tambahKolomSoalBaru();
   };
 
+  function showToast(msg) {
+    const t = document.getElementById('toast'); 
+    t.innerText = msg; t.style.display = 'block';
+    setTimeout(() => { t.style.display = 'none'; }, 2000);
+  }
+
   function tambahKolomSoalBaru() {
      nomorSoalCounter++;
      const wrapper = document.getElementById('dynamicSoalWrapper');
      const card = document.createElement('div');
      card.className = 'soal-card-input';
-     card.id = `soalCard_${nomorSoalCounter}`;
+     card.id = `kolomSoal_${nomorSoalCounter}`;
      card.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
            <span class="nomor-label" style="color:var(--secondary); font-weight:bold; font-size:12px;">SOAL NO #${nomorSoalCounter}</span>
-           <button style="background:none; border:none; color:var(--red); font-size:12px; cursor:pointer; font-weight:bold;" onclick="hapusKolomSpesifik('${card.id}')">Hapus</button>
+           <button style="background:none; border:none; color:var(--red); font-size:12px; cursor:pointer; font-weight:bold;" onclick="hapusKolomSpesifik(this)">Hapus</button>
         </div>
         
-        <div class="img-preview-box" id="preview_${nomorSoalCounter}"></div>
-        <input type="hidden" id="baseData_${nomorSoalCounter}" class="inp-base64" value="">
+        <div class="img-preview-box" id="previewBox_${nomorSoalCounter}" style="display:none; justify-content:center; align-items:center;"></div>
+        <input type="hidden" id="hiddenBase64_${nomorSoalCounter}" class="inp-base64" value="">
         
-        <label style="font-size:11px; color:#aaa; display:block; margin-bottom:2px;">Tambah Gambar (Wajib/Opsional):</label>
-        <input type="file" accept="image/*" onchange="prosesGambar('${nomorSoalCounter}', this)" style="padding:5px; font-size:11px; background:#1a1a1a;">
+        <label style="font-size:11px; color:#aaa; display:block; margin-bottom:2px;">Tambah Gambar (Otomatis Kompres):</label>
+        <input type="file" accept="image/*" onchange="prosesDanKompresGambar(this, ${nomorSoalCounter})" style="padding:5px; font-size:11px; background:#1a1a1a;">
 
         <input type="text" class="inp-kanji" placeholder="Kanji / Judul Atas (Opsional)">
         <input type="text" class="inp-kana" placeholder="Pertanyaan / Petunjuk Kuis (Wajib)">
         <input type="text" class="inp-correct" placeholder="Jawaban Benar (Wajib)" style="border-color: var(--green);">
+        <p style="margin:4px 0 0 0; font-size:11px; color:var(--gold);">✨ Gocekan otomatis diaktifkan dari bank data .js Anda.</p>
      `;
      wrapper.appendChild(card);
      wrapper.scrollTop = wrapper.scrollHeight;
   }
 
-  function prosesGambar(idIndex, inputElement) {
+  function prosesDanKompresGambar(inputElement, currentId) {
      if (!inputElement.files || !inputElement.files) return;
      const file = inputElement.files; 
 
@@ -147,16 +166,18 @@
         img.onload = function() {
            const canvas = document.createElement('canvas');
            let width = img.width; let height = img.height;
-           if (width > 450) { height = Math.round((height * 450) / width); width = 450; }
+           const MAX_WIDTH = 450;
+           if (width > MAX_WIDTH) { height = Math.round((height * MAX_WIDTH) / width); width = MAX_WIDTH; }
            canvas.width = width; canvas.height = height;
            const ctx = canvas.getContext('2d');
            ctx.drawImage(img, 0, 0, width, height);
+           const compressedBase64 = canvas.toDataURL('image/jpeg', 0.65);
            
-           const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-           document.getElementById(`baseData_${idIndex}`).value = compressedBase64;
+           // FIX AMAN: Tembak langsung nilai ke input hidden berdasarkan ID uniknya
+           document.getElementById(`hiddenBase64_${currentId}`).value = compressedBase64;
            
-           const pBox = document.getElementById(`preview_${idIndex}`);
-           pBox.innerHTML = `<img src="${compressedBase64}">`; 
+           const pBox = document.getElementById(`previewBox_${currentId}`);
+           pBox.innerHTML = `<img src="${compressedBase64}" style="max-width:100%; max-height:150px; object-fit:contain;">`; 
            pBox.style.display = 'flex';
         };
         img.src = event.target.result;
@@ -164,49 +185,53 @@
      reader.readAsDataURL(file);
   }
 
-  function hapusKolomSpesifik(cardId) {
-     const el = document.getElementById(cardId);
-     if(el) el.remove();
+  function hapusKolomSpesifik(buttonElement) {
+     buttonElement.closest('.soal-card-input').remove();
      reIndexNomorSoal();
   }
 
   function reIndexNomorSoal() {
      const cards = document.querySelectorAll('.soal-card-input');
-     nomorSoalCounter = 0;
+     let indexBaru = 0;
      cards.forEach(card => {
-        nomorSoalCounter++;
-        card.querySelector('.nomor-label').innerText = `SOAL NO #${nomorSoalCounter}`;
+        indexBaru++;
+        card.querySelector('.nomor-label').innerText = `SOAL NO #${indexBaru}`;
      });
   }
 
-  function gabungDanAcakGocekan(jawabanBenar) {
-     let wadahData = [];
+  function dapatkanGocekanOtomatis(jawabanBenar) {
+     let megaWadah = [];
      try {
-        if (typeof irodori !== "undefined") wadahData = wadahData.concat(irodori);
-        if (typeof data_irodori !== "undefined") wadahData = wadahData.concat(data_irodori);
-        if (typeof minna !== "undefined") wadahData = wadahData.concat(minna);
-        if (typeof data_minna !== "undefined") wadahData = wadahData.concat(data_minna);
-        if (typeof ssw !== "undefined") wadahData = wadahData.concat(ssw);
-        if (typeof data_ssw_pm !== "undefined") wadahData = wadahData.concat(data_ssw_pm);
-     } catch (e) { console.log(e); }
+        if (typeof irodori !== "undefined") megaWadah = megaWadah.concat(irodori);
+        if (typeof data_irodori !== "undefined") megaWadah = megaWadah.concat(data_irodori);
+        if (typeof minna !== "undefined") megaWadah = megaWadah.concat(minna);
+        if (typeof data_minna !== "undefined") megaWadah = megaWadah.concat(data_minna);
+        if (typeof ssw !== "undefined") megaWadah = megaWadah.concat(ssw);
+        if (typeof data_ssw_pm !== "undefined") megaWadah = megaWadah.concat(data_ssw_pm);
+     } catch (e) { console.warn(e); }
 
-     let kataMentah = [];
-     if(wadahData.length > 0) {
-        kataMentah = wadahData.map(i => i ? (i.kana || i.correct || (typeof i === 'string' ? i : "")) : "").filter(Boolean);
-     }
-     if (kataMentah.length < 5) {
-        kataMentah = ["たべます", "のみます", "いきます", "きます", "みます", "かいます", "へや", "いえ"];
+     let listKataMentah = [];
+     if(Array.isArray(megaWadah) && megaWadah.length > 0) {
+        listKataMentah = megaWadah.map(item => {
+           if (!item) return "";
+           return item.kana || item.correct || (typeof item === 'string' ? item : "");
+        }).filter(Boolean);
      }
 
-     let hasilFilter = kataMentah.filter(k => k !== jawabanBenar);
-     hasilFilter = [...new Set(hasilFilter)];
-     hasilFilter.sort(() => Math.random() - 0.5);
-     return hasilFilter.slice(0, 3);
+     if (!listKataMentah || listKataMentah.length < 5) {
+        listKataMentah = ["たべます", "のみます", "いきます", "きます", "みます", "かいます", "しんしつ", "だいどころ"];
+     }
+
+     let filterGocekan = listKataMentah.filter(kata => kata !== jawabanBenar);
+     filterGocekan = [...new Set(filterGocekan)];
+     filterGocekan.sort(() => Math.random() - 0.5);
+     
+     return filterGocekan.slice(0, 3);
   }
 
   function mulaiKuisDanGenerateLinkBaru() {
      const cards = document.querySelectorAll('.soal-card-input');
-     if(cards.length === 0) { alert("Buat minimal 1 soal!"); return; }
+     if(cards.length === 0) { alert("❌ Buat minimal 1 soal terlebih dahulu!"); return; }
      
      let tempBatch = [];
      let isValid = true;
@@ -215,48 +240,64 @@
         const kanji = card.querySelector('.inp-kanji').value.trim();
         const kana = card.querySelector('.inp-kana').value.trim();
         const correct = card.querySelector('.inp-correct').value.trim();
+        
+        // FIX AMAN: Ambil data gambar dari input hiddens di dalam card kuis secara akurat
         const base64Image = card.querySelector('.inp-base64').value || "";
 
-        if(!kana || !correct) { alert("Pertanyaan dan Jawaban Benar wajib diisi!"); isValid = false; return; }
+        if(!kana) { alert(`❌ Kolom Pertanyaan masih ada yang kosong.`); isValid = false; return; }
+        if(!correct) { alert(`❌ Kolom Jawaban Benar masih ada yang kosong.`); isValid = false; return; }
         
-        let wrongs = gabungDanAcakGocekan(correct);
-        let choices = [correct, ...wrongs];
+        let splitWrongs = dapatkanGocekanOtomatis(correct);
+        let choices = [correct];
+        splitWrongs.forEach(w => choices.push(w));
         choices.sort(() => Math.random() - 0.5);
 
         tempBatch.push({ 
-           kanji: kanji, kana: kana, correct: correct, options: choices, image: base64Image
+           kanji: kanji, 
+           kana: kana, 
+           correct: correct, 
+           options: choices,
+           image: base64Image
         });
      });
 
-     if(!isValid || !firebaseAktif) return;
+     if(!isValid) return;
+     if (!firebaseAktif) { alert("❌ Gagal terhubung ke Firebase Server! Periksa internet Anda."); return; }
 
-     const menit = parseInt(document.getElementById('linkExpiryInput').value) || 120;
-     const expiredTime = Date.now() + (menit * 60 * 1000);
-     const roomID = "ROOM-" + Math.floor(1000 + Math.random() * 9000);
+     const menitAktif = parseInt(document.getElementById('linkExpiryInput').value) || 120;
+     const expiredTime = Date.now() + (menitAktif * 60 * 1000);
+     const generateNewID = "ROOM-" + Math.floor(1000 + Math.random() * 9000);
      
-     // PERBAIKAN UTAMA: Mengunci rute URL agar langsung mengarah ke halaman kuis di domain yang sama!
-     let cleanPath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
-     let fullURL = window.location.origin + cleanPath + "kuis.html?room=" + roomID;
+     // KUNCI DOMAIN: Link siswa langsung diarahkan murni ke domain bebas login Vercel Anda!
+     let fullURL = "https://rama-project.vercel.app/kuis.html?room=" + generateNewID;
 
-     database.ref(`${FIREBASE_PATH}/${roomID}`).set({
-        roomID: roomID, expiredAt: expiredTime, questions: tempBatch
+     database.ref(`${FIREBASE_PATH}/${generateNewID}`).set({
+        roomID: generateNewID, expiredAt: expiredTime, questions: tempBatch
      }, (error) => {
-        if(!error) {
+        if(error) {
+           alert("❌ Gagal ke Firebase: " + error.message);
+        } else {
            document.getElementById('textLinkSiswa').innerText = fullURL;
            document.getElementById('linkOutputContainer').style.display = 'block';
-           alert("🚀 Sukses! Link kuis telah dibuat di bawah.");
-        } else {
-           alert("Gagal simpan ke Firebase!");
+           showToast("🚀 Kuis Aktif! Silakan salin link di bawah.");
+           resetFormInputs();
         }
      });
   }
 
   function salinLinkKeClipboard() {
-     const txt = document.getElementById('textLinkSiswa').innerText;
-     navigator.clipboard.writeText(txt).then(() => { alert("📋 Link berhasil disalin!"); });
+     const linkText = document.getElementById('textLinkSiswa').innerText;
+     navigator.clipboard.writeText(linkText).then(() => { showToast("📋 LINK BERHASIL DISALIN!"); });
+  }
+
+  function resetFormInputs() {
+     document.getElementById('dynamicSoalWrapper').innerHTML = "";
+     nomorSoalCounter = 0;
+     tambahKolomSoalBaru();
   }
 
   function dengarkanDaftarRoomAktif() {
+     if (!firebaseAktif) return;
      database.ref(FIREBASE_PATH).on('value', snap => {
         const cont = document.getElementById('runningRoomsContainer');
         cont.innerHTML = "";
@@ -267,15 +308,15 @@
            div.className = 'room-active-item';
            div.innerHTML = `
               <div><strong style="color:var(--secondary);">${room.roomID}</strong><br><span style="font-size:11px; color:#aaa;">Soal: ${room.questions ? room.questions.length : 0}</span></div>
-              <button class="mainBtn redBtn" style="padding:6px 10px; font-size:11px; width:auto; box-shadow:none;" onclick="hapusRoom('${room.roomID}')">❌ HAPUS</button>
+              <button class="mainBtn redBtn" style="padding:6px 10px; font-size:11px; width:auto; box-shadow:none;" onclick="hapusKuisDanDataFirebase('${room.roomID}')">❌ HAPUS</button>
            `;
            cont.appendChild(div);
         });
      });
   }
 
-  function hapusRoom(id) {
-     if(confirm(`Hapus kuis ${id}?`)) database.ref(`${FIREBASE_PATH}/${id}`).remove();
+  function hapusKuisDanDataFirebase(idRoom) {
+     if(confirm(`Hapus kuis ${idRoom}?`) && firebaseAktif) { database.ref(`${FIREBASE_PATH}/${idRoom}`).remove(); }
   }
 </script>
 </body>
