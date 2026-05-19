@@ -165,7 +165,7 @@
 
   function prosesDanKompresGambar(inputElement, idNomor) {
      if (!inputElement.files || !inputElement.files) return;
-     const file = inputElement.files;
+     const file = inputElement.files; // FIX: Ditambahkan agar membaca file tunggal
 
      const reader = new FileReader();
      reader.onload = function(event) {
@@ -200,11 +200,9 @@
      nomorSoalCounter = 0;
      cards.forEach(card => {
         nomorSoalCounter++;
-        const oldId = card.id.split("_");
         card.id = `kolomSoal_${nomorSoalCounter}`;
         card.querySelector('span').innerText = `SOAL NO #${nomorSoalCounter}`;
         
-        // Sesuaikan ID elemen internal agar sinkron kembali
         const hiddenInput = card.querySelector('input[type="hidden"]');
         if(hiddenInput) hiddenInput.id = `base64_${nomorSoalCounter}`;
         const pBox = card.querySelector('.img-preview-box');
@@ -259,7 +257,6 @@
         const card = cards[idx];
         const nomorNyata = idx + 1;
         
-        // FIX: Menggunakan selector class yang terdefinisi dengan tepat di baris HTML
         const kanji = card.querySelector('.inp-kanji').value.trim();
         const kana = card.querySelector('.inp-kana').value.trim();
         const correct = card.querySelector('.inp-correct').value.trim();
@@ -272,8 +269,8 @@
         splitWrongs.forEach(w => choices.push(w));
         choices.sort(() => Math.random() - 0.5);
 
-        const currentId = card.id.split("_");
-        const base64Image = document.getElementById(`base64_${currentId}`).value || "";
+        // FIX: Menggunakan target ID berbasis nomor urut asli loop (nomorNyata)
+        const base64Image = document.getElementById(`base64_${nomorNyata}`).value || "";
 
         tempBatch.push({ 
            kanji: kanji, 
@@ -291,6 +288,7 @@
      const expiredTime = Date.now() + (menitAktif * 60 * 1000);
      const generateNewID = "NEW-" + Math.floor(1000 + Math.random() * 9000);
      
+     // FIX: Memperbaiki pemecahan string url agar tidak error .endsWith()
      let currentHref = window.location.href.split('?'); 
      let fullURL = "";
      
