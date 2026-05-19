@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>KUIS JFT DASHBOARD MASTER - RAMA</title>
 
+<!-- Firebase App & Database Compat -->
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
 
@@ -20,7 +21,10 @@
     databaseURL: "https://kuis-jepang-29cf5-default-rtdb.asia-southeast1.firebasedatabase.app"
   };
   
-  firebase.initializeApp(firebaseConfig);
+  // Inisialisasi Firebase secara aman
+  if (!firebase.apps.length) {
+     firebase.initializeApp(firebaseConfig);
+  }
   const database = firebase.database();
 </script>
 
@@ -32,9 +36,11 @@
   body { display: flex; justify-content: center; min-height: 100vh; }
   #app { width: 100vw; max-width: 450px; padding: 20px; display: flex; flex-direction: column; position: relative; }
   
-  .nav-header { display: flex; justify-content: flex-end; width: 100%; position: absolute; top: 15px; right: 20px; z-index: 100; }
-  .burger-btn { background: none; border: none; color: white; font-size: 28px; cursor: pointer; padding: 5px; }
+  /* Desain Tombol Hamburger Menu Utama */
+  .nav-header { display: flex; justify-content: flex-end; width: 100%; padding: 10px 0; position: relative; z-index: 100; }
+  .burger-btn { background: #222; border: 1px solid #333; color: white; font-size: 24px; cursor: pointer; padding: 8px 15px; border-radius: 8px; }
   
+  /* Sidebar Menu */
   .sidebar { position: fixed; top: 0; right: -280px; width: 280px; height: 100vh; background: #1a1a1a; box-shadow: -5px 0 15px rgba(0,0,0,0.5); z-index: 1000; transition: 0.3s ease; padding: 30px 20px; display: flex; flex-direction: column; gap: 20px; }
   .sidebar.active { right: 0; }
   .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 999; }
@@ -42,7 +48,7 @@
   .menu-item { background: #252525; padding: 15px; border-radius: 10px; color: white; font-weight: bold; border: 1px solid #333; text-align: left; cursor: pointer; width: 100%; }
   .menu-item:hover { background: var(--primary); }
 
-  .menu-container { display: none; flex-direction: column; gap: 15px; align-items: center; width: 100%; padding-top: 50px; animation: fadeIn 0.3s ease; }
+  .menu-container { display: none; flex-direction: column; gap: 15px; align-items: center; width: 100%; animation: fadeIn 0.3s ease; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   
   .mainBtn { background: var(--primary); border-radius: 15px; padding: 15px; font-weight: bold; color: white; width: 100%; border: none; cursor: pointer; font-size: 14px; text-transform: uppercase; box-shadow: 0 5px 0 #bf360c; transition: 0.1s; outline: none; }
@@ -68,32 +74,34 @@
   .optBtn.wrong { background: var(--red) !important; border-color: #c62828 !important; }
   
   .lobby-list { background: #1a1a1a; width: 100%; border-radius: 12px; padding: 15px; max-height: 250px; overflow-y: auto; text-align: left; }
-  .badge { padding: 3px 8px; border-radius: 5px; font-size: 11px; font-weight: bold; color: white; }
+  .badge { padding: 3px 8px; border-radius: 5px; font-size: 11px; font-weight: bold; color: white; display: inline-block; margin-right: 5px; }
+  
+  #toast { display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: white; padding: 12px 25px; border-radius: 25px; z-index: 2000; font-size: 13px; text-align: center; font-weight: bold; border: 1px solid #444; }
 </style>
 </head>
 <body>
 
 <div id="toast"></div>
 
-<!-- HEADER NAVIGASI (GARIS TIGA) -->
-<div class="nav-header" id="headerNav">
-   <button class="burger-btn" onclick="toggleSidebar(true)">☰</button>
-</div>
-
-<!-- OVERLAY & SIDEBAR -->
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar(false)"></div>
-<div class="sidebar" id="sidebarMenu">
-   <div style="display:flex; justify-content:space-between; align-items:center;">
-      <h3 style="margin:0; color:var(--primary);">MENU UTAMA</h3>
-      <button style="background:none; border:none; color:white; font-size:20px; cursor:pointer;" onclick="toggleSidebar(false)">✕</button>
-   </div>
-   <hr style="border:1px solid #333; width:100%;">
-   <button class="menu-item" onclick="aksesModeAdmin()">⚙️ DASHBOARD ADMIN</button>
-   <button class="menu-item" onclick="kembaliKeMenuUtamaAsli()">🏠 BERANDA LOGIN</button>
-</div>
-
 <div id="app">
   
+  <!-- HEADER NAVIGASI (Hanya muncul saat tidak sedang mengerjakan kuis) -->
+  <div class="nav-header" id="headerNav">
+     <button class="burger-btn" onclick="toggleSidebar(true)">☰ MENU</button>
+  </div>
+
+  <!-- OVERLAY & SIDEBAR -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar(false)"></div>
+  <div class="sidebar" id="sidebarMenu">
+     <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="margin:0; color:var(--primary);">MENU UTAMA</h3>
+        <button style="background:none; border:none; color:white; font-size:20px; cursor:pointer;" onclick="toggleSidebar(false)">✕</button>
+     </div>
+     <hr style="border:1px solid #333; width:100%;">
+     <button class="menu-item" onclick="aksesModeAdmin()">⚙️ DASHBOARD ADMIN</button>
+     <button class="menu-item" onclick="kembaliKeMenuUtamaAsli()">🏠 BERANDA LOGIN</button>
+  </div>
+
   <!-- ================= LAYAR LOGIN PESERTA ================= -->
   <div id="loginPage" class="menu-container">
     <h1 style="color: var(--primary); margin-bottom: 5px; text-align:center;">JFT REALTIME</h1>
@@ -102,12 +110,11 @@
     <button class="mainBtn secBtn" onclick="handleLogin()">MASUK KUIS</button>
   </div>
 
-  <!-- ================= LAYAR UTAMA ADMIN (DASHBOARD KONTROL + MONITORING) ================= -->
+  <!-- ================= LAYAR PANEL UTAMA ADMIN ================= -->
   <div id="adminMenu" class="menu-container">
     <h2 style="color: var(--gold); margin: 0;">ADMIN DASHBOARD</h2>
     <p style="color: #aaa; margin-top: -10px; font-size: 12px;">Kelola multi-kuis berjalan & tinjau laporan nilai</p>
     
-    <!-- Bagian Pembuatan Room Baru -->
     <div class="admin-box">
        <h3 style="margin-top:0; color:var(--secondary); font-size:15px;">🆕 BUAT PAKET KUIS BARU</h3>
        <label style="font-size:11px; color:#aaa; display:block; margin-bottom:3px;">Masa Aktif Link (Menit):</label>
@@ -121,7 +128,6 @@
        </div>
     </div>
 
-    <!-- Monitoring Room Kuis Yang Sedang Berjalan -->
     <div class="admin-box">
        <h3 style="margin-top:0; color:var(--gold); font-size:15px;">📊 DAFTAR KUIS YANG SEDANG BERJALAN</h3>
        <div id="runningRoomsContainer" style="max-height:200px; overflow-y:auto;">
@@ -130,7 +136,7 @@
     </div>
   </div>
 
-  <!-- ================= LAYAR DETAIL LAPORAN NILAI KUIS (REALTIME) ================= -->
+  <!-- ================= LAYAR DETAIL LAPORAN NILAI KUIS ================= -->
   <div id="reportPage" class="menu-container">
      <h2 style="color: var(--secondary); margin:0;">📋 LAPORAN KUIS</h2>
      <p style="color:var(--gold); font-size:14px; font-weight:bold; margin-top:-5px;" id="reportRoomTitle">ROOM: ID</p>
@@ -140,7 +146,7 @@
      <button class="mainBtn" style="background:#444; box-shadow:0 5px 0 #222;" onclick="tutupLaporanKembaliKeAdmin()">KEMBALI KE PANEL</button>
   </div>
 
-  <!-- ================= LAYAR UTAMA GAME ARENA KUIS (SISI SISWA) ================= -->
+  <!-- ================= LAYAR UTAMA GAME ARENA KUIS ================= -->
   <div id="wordBox" class="menu-container" style="padding-top:20px;">
     <div class="quiz-header-bar">
        <div style="color:#aaa;">SISA WAKTU: <span id="linkTimerDisplay" style="color:var(--primary);">00:00</span></div>
@@ -158,7 +164,7 @@
     <button id="submitKuisBtn" class="mainBtn goldBtn" style="margin-top:5px;" onclick="selesaiKuisManual()">Selesai & Lihat Ranking</button>
   </div>
 
-  <!-- ================= LAYAR LIVE RANKING AKHIR (SISI SISWA) ================= -->
+  <!-- ================= LAYAR LIVE RANKING AKHIR ================= -->
   <div id="resultPage" class="menu-container">
     <h2 style="margin:0; color:var(--gold);">LIVE RANKING PESERTA</h2>
     <div class="lobby-list" id="liveLeaderboardContent" style="max-height:320px;"></div>
@@ -185,21 +191,24 @@
   let roomRef = null;
   let countdownInterval = null;
   
-  let dataJawabanSiswa = {}; // Tracker internal pengerjaan siswa { nomor: { dipilihi: x, status: 'Benar'/'Salah' } }
+  let dataJawabanSiswa = {}; 
   let myScore = 0;
   let nomorSoalCounter = 0;
 
+  // Dieksekusi pertama kali secara aman
   window.onload = function() {
      const urlParams = new URLSearchParams(window.location.search);
      const roomParam = urlParams.get('room');
      
      if(roomParam) {
         currentRoomID = roomParam;
-        document.getElementById('headerNav').style.display = 'none';
+        document.getElementById('headerNav').style.display = 'none'; // Sembunyikan menu burger agar fokus ujian
         sinkronisasiKuisSiswa();
-        return;
+     } else {
+        hideSemuaLayar();
+        document.getElementById('headerNav').style.display = 'flex';
+        document.getElementById('loginPage').style.display = 'flex';
      }
-     document.getElementById('loginPage').style.display = 'flex';
   };
 
   function toggleSidebar(open) {
@@ -208,12 +217,14 @@
   }
 
   function showToast(msg) {
-    const t = document.getElementById('toast'); t.innerText = msg; t.style.display = 'block';
+    const t = document.getElementById('toast'); 
+    t.innerText = msg; 
+    t.style.display = 'block';
     setTimeout(() => { t.style.opacity = '1'; }, 10);
     setTimeout(() => { t.style.opacity = '0'; setTimeout(() => { t.style.display = 'none'; }, 400); }, 2500);
   }
 
-  // ================= PANEL KONTROL UTAMA ADMIN =================
+  // ================= ADMIN DASHBOARD CORE =================
   function aksesModeAdmin() {
      toggleSidebar(false);
      const pass = prompt("Masukkan Kunci Sandi Dashboard Admin:");
@@ -265,7 +276,6 @@
      });
   }
 
-  // ================= MULTI-ROOM MAKER & SEBAR LINK BARU =================
   function mulaiKuisDanGenerateLinkBaru() {
      const cards = document.querySelectorAll('.soal-card-input');
      if(cards.length === 0) { showToast("Buat minimal 1 soal!"); return; }
@@ -292,8 +302,6 @@
 
      const menitAktif = parseInt(document.getElementById('linkExpiryInput').value) || 30;
      const expiredTime = Date.now() + (menitAktif * 60 * 1000);
-     
-     // Generate ID baru acak (Bisa menampung banyak kuis sekaligus)
      const generateNewID = "JFT-" + Math.floor(1000 + Math.random() * 9000);
      
      database.ref(`rooms/${generateNewID}`).set({
@@ -304,14 +312,12 @@
         const fullURL = window.location.origin + window.location.pathname + "?room=" + generateNewID;
         alert(`Kuis Berhasil Dibuat!\n\nSalin Link Ini Untuk Siswa:\n${fullURL}`);
         
-        // Reset form pembuatan kuis biar admin bisa bikin kuis baru lagi dengan id baru
         document.getElementById('dynamicSoalWrapper').innerHTML = "";
         nomorSoalCounter = 0;
         tambahKolomSoalBaru();
      });
   }
 
-  // ================= DAFTAR MONITORING LIVE ROOM & AUTO HAPUS DATA =================
   function dengarkanDaftarRoomAktif() {
      database.ref('rooms').on('value', snap => {
         const cont = document.getElementById('runningRoomsContainer');
@@ -328,16 +334,15 @@
            div.innerHTML = `
               <div>
                  <strong style="color:var(--secondary); font-size:14px;">${room.roomID}</strong><br>
-                 <span style="font-size:11px; color:#aaa;">Soal: ${room.questions ? room.questions.length : 0} | Sisa Waktu: <span id="monitor_${room.roomID}">--</span></span>
+                 <span style="font-size:11px; color:#aaa;">Soal: ${room.questions ? room.questions.length : 0} | Sisa: <span id="monitor_${room.roomID}">--</span></span>
               </div>
               <div style="display:flex; gap:5px;">
-                 <button class="mainBtn goldBtn" style="padding:6px 10px; font-size:11px; box-shadow:none;" onclick="bukaLaporanNilaiRoom('${room.roomID}')">📊 LAPORAN</button>
-                 <button class="mainBtn redBtn" style="padding:6px 10px; font-size:11px; box-shadow:none;" onclick="hapusKuisDanDataFirebase('${room.roomID}')">❌ HAPUS</button>
+                 <button class="mainBtn goldBtn" style="padding:6px 10px; font-size:11px; box-shadow:none; width:auto;" onclick="bukaLaporanNilaiRoom('${room.roomID}')">📊 LAPORAN</button>
+                 <button class="mainBtn redBtn" style="padding:6px 10px; font-size:11px; box-shadow:none; width:auto;" onclick="hapusKuisDanDataFirebase('${room.roomID}')">❌ HAPUS</button>
               </div>
            `;
            cont.appendChild(div);
 
-           // Hitung mundur sisa waktu untuk dipantau Admin di panel kontrol
            let timer = setInterval(() => {
               let diff = room.expiredAt - Date.now();
               let targetEl = document.getElementById(`monitor_${room.roomID}`);
@@ -356,15 +361,13 @@
      });
   }
 
-  // ACTION HAPUS DATA KUIS DAN DATA TRACKING SISWA SEKALIGUS
   function hapusKuisDanDataFirebase(idRoom) {
-     if(confirm(`Apakah Anda yakin ingin menghapus kuis ${idRoom}?\nSeluruh data pengerjaan dan nilai siswa di room ini akan dihapus permanen dari cloud.`)) {
+     if(confirm(`Apakah Anda yakin ingin menghapus kuis ${idRoom}?\nSeluruh data pengerjaan dan nilai siswa di room ini akan dihapus dari cloud.`)) {
         database.ref(`rooms/${idRoom}`).remove()
-        .then(() => showToast(`Room ${idRoom} berhasil dibersihkan dari database.`));
+        .then(() => showToast(`Room ${idRoom} berhasil dibersihkan.`));
      }
   }
 
-  // ================= MENU LAPORAN DETAIL (BENAR/SALAH PERSENTASE) =================
   function bukaLaporanNilaiRoom(idRoom) {
      hideSemuaLayar();
      document.getElementById('reportPage').style.display = 'flex';
@@ -384,7 +387,6 @@
             return;
          }
 
-         // Iterasi membaca record jawaban tiap siswa secara detail
          Object.keys(dataSiswa).forEach(namaUser => {
             const detailUser = dataSiswa[namaUser];
             const detailJawaban = detailUser.jawabanHistory || {};
@@ -392,7 +394,6 @@
             let jmlBenar = 0;
             let logHTML = "";
 
-            // Cek status per nomor soal
             for(let i = 0; i < totalSoal; i++) {
                let itemJawab = detailJawaban[i];
                if(itemJawab && itemJawab.status === "Benar") {
@@ -432,11 +433,10 @@
      document.getElementById('adminMenu').style.display = 'flex';
   }
 
-  // ================= SISI CLIENT GAMEPLAY SISWA =================
+  // ================= SISI SISWA (CLIENT RUNTIME) =================
   function sinkronisasiKuisSiswa() {
      roomRef = database.ref(`rooms/${currentRoomID}`);
      
-     // Dengerin real-time, kalau admin klik hapus kuis di atas, siswa otomatis tertendang keluar
      roomRef.on('value', snap => {
         if(!snap.exists()) {
            clearInterval(countdownInterval);
@@ -447,7 +447,6 @@
         const dataRoom = snap.val();
         listSoalKuis = dataRoom.questions || [];
         
-        // Atur hitung mundur link expired
         clearInterval(countdownInterval);
         countdownInterval = setInterval(() => {
            const sisa = dataRoom.expiredAt - Date.now();
@@ -461,8 +460,15 @@
         }, 1000);
 
         let savedUser = localStorage.getItem("jft_live_user");
-        if(savedUser) { username = savedUser; bukaArenaKuisSiswa(); } 
-        else { hideSemuaLayar(); document.getElementById('loginPage').style.display = 'flex'; }
+        if(savedUser) { 
+           username = savedUser; 
+           bukaArenaKuisSiswa(); 
+        } else { 
+           hideSemuaLayar(); 
+           document.getElementById('loginPage').style.display = 'flex'; 
+        }
+     }, error => {
+        tampilkanLayarExpired();
      });
   }
 
@@ -471,14 +477,18 @@
      if(!val) { showToast("Masukkan Nama!"); return; }
      username = val;
      localStorage.setItem("jft_live_user", username);
-     bukaArenaKuisSiswa();
+     
+     if(currentRoomID) {
+        bukaArenaKuisSiswa();
+     } else {
+        showToast("Login Berhasil! Gunakan link khusus room kuis untuk mulai.");
+     }
   }
 
   function bukaArenaKuisSiswa() {
      hideSemuaLayar();
      document.getElementById('wordBox').style.display = 'flex';
      
-     // Buat row data siswa jika belum terdaftar di kuis ini
      roomRef.child('leaderboard').child(username).once('value', s => {
         if(!s.exists()) roomRef.child('leaderboard').child(username).set({ score: 0 });
      });
@@ -501,7 +511,6 @@
         let btn = document.createElement('button');
         btn.className = 'optBtn'; btn.innerText = pilihanTeks;
         
-        // Restore pewarnaan jika nomor ini sudah pernah dijawab
         if(dataJawabanSiswa[index] !== undefined) {
            if(pilihanTeks === dataJawabanSiswa[index].pilihan) {
               btn.classList.add(dataJawabanSiswa[index].status === 'Benar' ? 'correct' : 'wrong');
@@ -520,8 +529,6 @@
 
   function simpanJawabanSiswaSecaraLive(idxSoal, jawabanDipilih, kunciJawaban, elemenTombol) {
      let statusJawab = (jawabanDipilih === kunciJawaban) ? "Benar" : "Salah";
-     
-     // Simpan ke local variabel siswa
      dataJawabanSiswa[idxSoal] = { pilihan: jawabanDipilih, status: statusJawab };
      
      if(statusJawab === "Benar") {
@@ -536,7 +543,6 @@
 
      document.getElementById('myScoreDisplay').innerText = myScore;
      
-     // KIRIM DETAIL TRACKING JAWABAN KE FIREBASE SECARA DETIL (Agar dibaca menu laporan)
      roomRef.child('leaderboard').child(username).update({ score: myScore });
      roomRef.child('leaderboard').child(username).child('jawabanHistory').child(idxSoal).set({
         pilihanSiswa: jawabanDipilih,
@@ -547,7 +553,7 @@
   }
 
   function navigasiSoal(arah) {
-     let targetIndex = indexSoalSekarang + arah;
+     let targetIndex = indexSoalSecarang + arah;
      if(targetIndex >= 0 && targetIndex < listSoalKuis.length) {
         indexSoalSekarang = targetIndex;
         muatDataSoalNomor(indexSoalSekarang);
@@ -573,9 +579,23 @@
      });
   }
 
-  function tampilkanLayarExpired() { hideSemuaLayar(); document.getElementById('expiredPage').style.display = 'flex'; }
-  function kembaliKeMenuUtamaAsli() { clearInterval(countdownInterval); localStorage.clear(); location.href = window.location.pathname; }
-  function hideSemuaLayar() { ['loginPage','adminMenu','reportPage','wordBox','resultPage','expiredPage'].forEach(id => { document.getElementById(id).style.display = 'none'; }); }
+  function tampilkanLayarExpired() { 
+     hideSemuaLayar(); 
+     document.getElementById('expiredPage').style.display = 'flex'; 
+  }
+  
+  function kembaliKeMenuUtamaAsli() { 
+     clearInterval(countdownInterval); 
+     localStorage.clear(); 
+     window.location.href = window.location.origin + window.location.pathname; 
+  }
+  
+  function hideSemuaLayar() { 
+     ['loginPage','adminMenu','reportPage','wordBox','resultPage','expiredPage'].forEach(id => { 
+        const el = document.getElementById(id);
+        if(el) el.style.display = 'none'; 
+     }); 
+  }
 </script>
 </body>
 </html>
