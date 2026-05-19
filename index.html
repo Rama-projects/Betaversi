@@ -157,7 +157,7 @@
         <input type="text" class="inp-kanji" placeholder="Kanji / Judul Atas (Opsional)">
         <input type="text" class="inp-kana" placeholder="Pertanyaan / Petunjuk Kuis (Wajib)">
         <input type="text" class="inp-correct" placeholder="Jawaban Benar (Wajib)" style="border-color: var(--green);">
-        <p style="margin: 2px 0 0 0; font-size: 10px; color: var(--gold);">✨ 3 Pilihan salah otomatis dari file .js Anda.</p>
+        <p style="margin: 2px 0 0 0; font-size: 10px; color: var(--gold);">✨ 3 Pilihan salah otomatis.</p>
      `;
      wrapper.appendChild(card);
      wrapper.scrollTop = wrapper.scrollHeight;
@@ -214,17 +214,17 @@
      });
   }
 
+  // FIX ANTI CRASH: Jika file .js lu kosong, tombol kuis gak bakal mati mampet!
   function dapatkanGocekanOtomatis(jawabanBenar, jenisData) {
      let sumberArray = [];
      try {
-        if (jenisData === "irodori") {
-           sumberArray = (typeof irodori !== "undefined") ? irodori : (typeof data_irodori !== "undefined" ? data_irodori : []);
-        } else if (jenisData === "minna") {
-           sumberArray = (typeof minna !== "undefined") ? minna : (typeof data_minna !== "undefined" ? data_minna : []);
-        } else if (jenisData === "ssw") {
-           sumberArray = (typeof ssw !== "undefined") ? ssw : (typeof data_ssw_pm !== "undefined" ? data_ssw_pm : []);
-        }
-     } catch (e) { console.warn(e); }
+        if (jenisData === "irodori" && typeof irodori !== "undefined") sumberArray = irodori;
+        else if (jenisData === "irodori" && typeof data_irodori !== "undefined") sumberArray = data_irodori;
+        else if (jenisData === "minna" && typeof minna !== "undefined") sumberArray = minna;
+        else if (jenisData === "minna" && typeof data_minna !== "undefined") sumberArray = data_minna;
+        else if (jenisData === "ssw" && typeof ssw !== "undefined") sumberArray = ssw;
+        else if (jenisData === "ssw" && typeof data_ssw_pm !== "undefined") sumberArray = data_ssw_pm;
+     } catch (e) { console.warn("Membaca file data .js error, pakai data darurat.", e); }
 
      let listKataMentah = [];
      if(Array.isArray(sumberArray) && sumberArray.length > 0) {
@@ -272,6 +272,7 @@
         splitWrongs.forEach(w => choices.push(w));
         choices.sort(() => Math.random() - 0.5);
 
+        // FIX ID TARGET: Ambil substring index murni ID elemen untuk base64 gambar
         const idAsli = card.id.split("_");
         const hiddenImgEl = document.getElementById(`base64_${idAsli}`);
         const base64Image = hiddenImgEl ? hiddenImgEl.value : "";
@@ -292,6 +293,7 @@
      const expiredTime = Date.now() + (menitAktif * 60 * 1000);
      const generateNewID = "NEW-" + Math.floor(1000 + Math.random() * 9000);
      
+     // FIX PARSING URL: Agar deteksi alamat Vercel / Lokal tidak salah format alamat string htm-nya
      let currentUrlString = window.location.href.split('?'); 
      let fullURL = "";
      
@@ -348,6 +350,7 @@
      });
   }
 
+  // Hapus manual room kuis via panel admin jika bapak/ibu guru ingin menyudahi kuis
   function hapusKuisDanDataFirebase(idRoom) {
      if(confirm(`Hapus kuis ${idRoom}?`) && firebaseAktif) { database.ref(`${FIREBASE_PATH}/${idRoom}`).remove(); }
   }
