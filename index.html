@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>JFT MASTER PANEL - ANTI CRASH FIX</title>
+<title>JFT MASTER PANEL - FIX TOTAL</title>
 
 <script src="data_minna.js"></script>
 <script src="data_irodori.js"></script>
@@ -149,7 +149,7 @@
         </div>
         
         <div class="img-preview-box" id="prevBox_${nomorSoalCounter}"></div>
-        <input type="hidden" class="inp-img-base64" id="base64_${nomorSoalCounter}">
+        <input type="hidden" id="base64_${nomorSoalCounter}" value="">
         
         <label style="font-size:11px; color:#aaa; display:block; margin-bottom:2px;">Tambah Gambar (Otomatis Kompres):</label>
         <input type="file" accept="image/*" onchange="prosesDanKompresGambar(this, ${nomorSoalCounter})" style="padding:5px; font-size:11px; background:#1a1a1a;">
@@ -164,8 +164,8 @@
   }
 
   function prosesDanKompresGambar(inputElement, idNomor) {
-     const file = inputElement.files; // FIX: Ditambahkan agar membaca satu file gambar pertama
-     if (!file) return;
+     if (!inputElement.files || !inputElement.files) return;
+     const file = inputElement.files;
 
      const reader = new FileReader();
      reader.onload = function(event) {
@@ -173,12 +173,13 @@
         img.onload = function() {
            const canvas = document.createElement('canvas');
            let width = img.width; let height = img.height;
-           const MAX_WIDTH = 400;
+           const MAX_WIDTH = 450;
            if (width > MAX_WIDTH) { height = Math.round((height * MAX_WIDTH) / width); width = MAX_WIDTH; }
            canvas.width = width; canvas.height = height;
            const ctx = canvas.getContext('2d');
            ctx.drawImage(img, 0, 0, width, height);
-           const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+           const compressedBase64 = canvas.toDataURL('image/jpeg', 0.65);
+           
            document.getElementById(`base64_${idNomor}`).value = compressedBase64;
            const pBox = document.getElementById(`prevBox_${idNomor}`);
            pBox.innerHTML = `<img src="${compressedBase64}">`; pBox.style.display = 'flex';
@@ -199,14 +200,24 @@
      nomorSoalCounter = 0;
      cards.forEach(card => {
         nomorSoalCounter++;
+        const oldId = card.id.split("_");
         card.id = `kolomSoal_${nomorSoalCounter}`;
         card.querySelector('span').innerText = `SOAL NO #${nomorSoalCounter}`;
+        
+        // Sesuaikan ID elemen internal agar sinkron kembali
+        const hiddenInput = card.querySelector('input[type="hidden"]');
+        if(hiddenInput) hiddenInput.id = `base64_${nomorSoalCounter}`;
+        const pBox = card.querySelector('.img-preview-box');
+        if(pBox) pBox.id = `prevBox_${nomorSoalCounter}`;
+        const fileInput = card.querySelector('input[type="file"]');
+        if(fileInput) fileInput.setAttribute('onchange', `prosesDanKompresGambar(this, ${nomorSoalCounter})`);
+        const delBtn = card.querySelector('button');
+        if(delBtn) delBtn.setAttribute('onclick', `hapusKolomSpesifik(${nomorSoalCounter})`);
      });
   }
 
   function dapatkanGocekanOtomatis(jawabanBenar, jenisData) {
      let sumberArray = [];
-     
      try {
         if (jenisData === "irodori") {
            sumberArray = (typeof irodori !== "undefined") ? irodori : (typeof data_irodori !== "undefined" ? data_irodori : []);
@@ -215,9 +226,7 @@
         } else if (jenisData === "ssw") {
            sumberArray = (typeof ssw !== "undefined") ? ssw : (typeof data_ssw_pm !== "undefined" ? data_ssw_pm : []);
         }
-     } catch (e) {
-        console.warn("Gagal mendeteksi nama variabel asli:", e);
-     }
+     } catch (e) { console.warn(e); }
 
      let listKataMentah = [];
      if(Array.isArray(sumberArray) && sumberArray.length > 0) {
@@ -246,31 +255,34 @@
      let isValid = true;
      const tipeData = document.getElementById('sumberDataGocekan').value;
 
-     cards.forEach((card, idx) => {
+     for (let idx = 0; idx < cards.length; idx++) {
+        const card = cards[idx];
         const nomorNyata = idx + 1;
+        
+        // FIX: Menggunakan selector class yang terdefinisi dengan tepat di baris HTML
+        const kanji = card.querySelector('.inp-kanji').value.trim();
         const kana = card.querySelector('.inp-kana').value.trim();
         const correct = card.querySelector('.inp-correct').value.trim();
 
-        if(!kana) { alert(`❌ Kolom Pertanyaan di Soal No #${nomorNyata} masih kosong.`); isValid = false; return; }
-        if(!correct) { alert(`❌ Kolom Jawaban Benar di Soal No #${nomorNyata} masih kosong.`); isValid = false; return; }
+        if(!kana) { alert(`❌ Kolom Pertanyaan di Soal No #${nomorNyata} masih kosong.`); isValid = false; break; }
+        if(!correct) { alert(`❌ Kolom Jawaban Benar di Soal No #${nomorNyata} masih kosong.`); isValid = false; break; }
         
         let splitWrongs = dapatkanGocekanOtomatis(correct, tipeData);
         let choices = [correct];
         splitWrongs.forEach(w => choices.push(w));
         choices.sort(() => Math.random() - 0.5);
 
-        // FIX: Ambil ID nomor nyata dengan memisahkan string secara tepat agar tidak berwujud array
         const currentId = card.id.split("_");
         const base64Image = document.getElementById(`base64_${currentId}`).value || "";
 
         tempBatch.push({ 
-           kanji: card.querySelector('.inp-kanji').value.trim(), 
+           kanji: kanji, 
            kana: kana, 
            correct: correct, 
            options: choices,
            image: base64Image
         });
-     });
+     }
 
      if(!isValid) return;
      if (!firebaseAktif) { alert("❌ Gagal terhubung ke Firebase Server! Periksa internet Anda."); return; }
@@ -279,7 +291,6 @@
      const expiredTime = Date.now() + (menitAktif * 60 * 1000);
      const generateNewID = "NEW-" + Math.floor(1000 + Math.random() * 9000);
      
-     // FIX: Mengembalikan teks murni URL, bukan array hasil split
      let currentHref = window.location.href.split('?'); 
      let fullURL = "";
      
