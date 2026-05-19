@@ -21,7 +21,6 @@
     databaseURL: "https://kuis-jepang-29cf5-default-rtdb.asia-southeast1.firebasedatabase.app"
   };
   
-  // Inisialisasi Firebase secara aman
   if (!firebase.apps.length) {
      firebase.initializeApp(firebaseConfig);
   }
@@ -36,19 +35,21 @@
   body { display: flex; justify-content: center; min-height: 100vh; }
   #app { width: 100vw; max-width: 450px; padding: 20px; display: flex; flex-direction: column; position: relative; }
   
-  /* Desain Tombol Hamburger Menu Utama */
-  .nav-header { display: flex; justify-content: flex-end; width: 100%; padding: 10px 0; position: relative; z-index: 100; }
-  .burger-btn { background: #222; border: 1px solid #333; color: white; font-size: 24px; cursor: pointer; padding: 8px 15px; border-radius: 8px; }
+  /* PERBAIKAN: Tombol Menu dipaksa berada di lapisan paling atas */
+  .nav-header { display: flex; justify-content: flex-end; width: 100%; padding: 5px 0; margin-bottom: 15px; position: relative; z-index: 9999 !important; }
+  .burger-btn { background: #252525; border: 2px solid #333; color: white; font-size: 15px; font-weight: bold; cursor: pointer; padding: 10px 18px; border-radius: 10px; box-shadow: 0 4px 0 #111; transition: 0.1s; }
+  .burger-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #111; }
   
-  /* Sidebar Menu */
-  .sidebar { position: fixed; top: 0; right: -280px; width: 280px; height: 100vh; background: #1a1a1a; box-shadow: -5px 0 15px rgba(0,0,0,0.5); z-index: 1000; transition: 0.3s ease; padding: 30px 20px; display: flex; flex-direction: column; gap: 20px; }
+  /* Sidebar Menu Layar Penuh */
+  .sidebar { position: fixed; top: 0; right: -280px; width: 280px; height: 100vh; background: #1a1a1a; box-shadow: -5px 0 15px rgba(0,0,0,0.8); z-index: 100000 !important; transition: 0.3s ease; padding: 30px 20px; display: flex; flex-direction: column; gap: 20px; }
   .sidebar.active { right: 0; }
-  .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 999; }
+  .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); z-index: 99999 !important; }
   .sidebar-overlay.active { display: block; }
-  .menu-item { background: #252525; padding: 15px; border-radius: 10px; color: white; font-weight: bold; border: 1px solid #333; text-align: left; cursor: pointer; width: 100%; }
+  
+  .menu-item { background: #252525; padding: 15px; border-radius: 10px; color: white; font-weight: bold; border: 1px solid #333; text-align: left; cursor: pointer; width: 100%; box-shadow: 0 4px 0 #111; }
   .menu-item:hover { background: var(--primary); }
 
-  .menu-container { display: none; flex-direction: column; gap: 15px; align-items: center; width: 100%; animation: fadeIn 0.3s ease; }
+  .menu-container { display: none; flex-direction: column; gap: 15px; align-items: center; width: 100%; animation: fadeIn 0.3s ease; position: relative; z-index: 1; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   
   .mainBtn { background: var(--primary); border-radius: 15px; padding: 15px; font-weight: bold; color: white; width: 100%; border: none; cursor: pointer; font-size: 14px; text-transform: uppercase; box-shadow: 0 5px 0 #bf360c; transition: 0.1s; outline: none; }
@@ -58,7 +59,7 @@
   .greenBtn { background: var(--green); box-shadow: 0 5px 0 #2e7d32; }
   .redBtn { background: var(--red); box-shadow: 0 5px 0 #b71c1c; }
   
-  input[type="text"], input[type="number"], input[type="password"] { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #444; background: #222; color: white; font-size: 14px; text-align: left; outline: none; }
+  input[type="text"], input[type="number"] { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #444; background: #222; color: white; font-size: 14px; text-align: left; outline: none; }
   
   .admin-box { background: var(--card); border: 1px solid #333; padding: 15px; border-radius: 15px; width: 100%; margin-bottom: 10px; text-align: left; }
   .soal-card-input { background: #252525; border: 1px dashed var(--secondary); padding: 15px; border-radius: 12px; margin-bottom: 15px; text-align: left; }
@@ -69,14 +70,15 @@
   .quiz-header-bar { display: flex; justify-content: space-between; width: 100%; background: #222; padding: 10px 15px; border-radius: 10px; font-size: 13px; font-weight: bold; border: 1px solid #333; }
   #displayWord { font-size: 32px; color: var(--text); font-weight: bold; margin: 20px 0; text-align: center; width: 100%; min-height: 60px; display: flex; align-items: center; justify-content: center; }
   #options { display: flex; flex-direction: column; gap: 12px; width: 100%; }
-  .optBtn { background: #252525; border: 2px solid #333; padding: 16px; border-radius: 12px; color: white; font-size: 16px; cursor: pointer; text-align: left; transition: 0.2s; }
-  .optBtn.correct { background: var(--green) !important; border-color: #2e7d32 !important; }
-  .optBtn.wrong { background: var(--red) !important; border-color: #c62828 !important; }
+  .optBtn { background: #252525; border: 2px solid #333; padding: 16px; border-radius: 12px; color: white; font-size: 16px; cursor: pointer; text-align: left; transition: 0.2s; box-shadow: 0 4px 0 #111; }
+  .optBtn:active { transform: translateY(2px); box-shadow: 0 2px 0 #111; }
+  .optBtn.correct { background: var(--green) !important; border-color: #2e7d32 !important; box-shadow: none !important; transform: none !important; }
+  .optBtn.wrong { background: var(--red) !important; border-color: #c62828 !important; box-shadow: none !important; transform: none !important; }
   
   .lobby-list { background: #1a1a1a; width: 100%; border-radius: 12px; padding: 15px; max-height: 250px; overflow-y: auto; text-align: left; }
   .badge { padding: 3px 8px; border-radius: 5px; font-size: 11px; font-weight: bold; color: white; display: inline-block; margin-right: 5px; }
   
-  #toast { display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: white; padding: 12px 25px; border-radius: 25px; z-index: 2000; font-size: 13px; text-align: center; font-weight: bold; border: 1px solid #444; }
+  #toast { display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.9); color: white; padding: 12px 25px; border-radius: 25px; z-index: 999999; font-size: 13px; text-align: center; font-weight: bold; border: 1px solid #444; }
 </style>
 </head>
 <body>
@@ -85,17 +87,17 @@
 
 <div id="app">
   
-  <!-- HEADER NAVIGASI (Hanya muncul saat tidak sedang mengerjakan kuis) -->
+  <!-- HEADER NAVIGASI (Tombol menu utama yang diperbaiki letak posisinya) -->
   <div class="nav-header" id="headerNav">
-     <button class="burger-btn" onclick="toggleSidebar(true)">☰ MENU</button>
+     <button class="burger-btn" onclick="toggleSidebar(true)">☰ MENU KONTROL</button>
   </div>
 
   <!-- OVERLAY & SIDEBAR -->
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar(false)"></div>
   <div class="sidebar" id="sidebarMenu">
      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h3 style="margin:0; color:var(--primary);">MENU UTAMA</h3>
-        <button style="background:none; border:none; color:white; font-size:20px; cursor:pointer;" onclick="toggleSidebar(false)">✕</button>
+        <h3 style="margin:0; color:var(--primary); font-size:18px;">MENU UTAMA</h3>
+        <button style="background:none; border:none; color:white; font-size:24px; cursor:pointer;" onclick="toggleSidebar(false)">✕</button>
      </div>
      <hr style="border:1px solid #333; width:100%;">
      <button class="menu-item" onclick="aksesModeAdmin()">⚙️ DASHBOARD ADMIN</button>
@@ -104,7 +106,7 @@
 
   <!-- ================= LAYAR LOGIN PESERTA ================= -->
   <div id="loginPage" class="menu-container">
-    <h1 style="color: var(--primary); margin-bottom: 5px; text-align:center;">JFT REALTIME</h1>
+    <h1 style="color: var(--primary); margin-bottom: 5px; text-align:center; font-size:28px;">JFT REALTIME</h1>
     <p style="color: #888; font-size: 13px; margin-bottom: 20px; text-align:center;">Silakan masukkan nama Anda untuk bergabung</p>
     <input type="text" id="loginInput" placeholder="NAMA ANDA" autocomplete="off" style="text-align:center; margin-bottom:10px;">
     <button class="mainBtn secBtn" onclick="handleLogin()">MASUK KUIS</button>
@@ -112,8 +114,8 @@
 
   <!-- ================= LAYAR PANEL UTAMA ADMIN ================= -->
   <div id="adminMenu" class="menu-container">
-    <h2 style="color: var(--gold); margin: 0;">ADMIN DASHBOARD</h2>
-    <p style="color: #aaa; margin-top: -10px; font-size: 12px;">Kelola multi-kuis berjalan & tinjau laporan nilai</p>
+    <h2 style="color: var(--gold); margin: 0; font-size:22px;">ADMIN DASHBOARD</h2>
+    <p style="color: #aaa; margin-top: -5px; font-size: 12px;">Kelola multi-kuis berjalan & tinjau laporan nilai</p>
     
     <div class="admin-box">
        <h3 style="margin-top:0; color:var(--secondary); font-size:15px;">🆕 BUAT PAKET KUIS BARU</h3>
@@ -123,8 +125,8 @@
        <div id="dynamicSoalWrapper" style="max-height:200px; overflow-y:auto; margin-bottom:10px;"></div>
        
        <div style="display:flex; gap:10px;">
-          <button class="mainBtn secBtn" style="padding:10px; font-size:12px;" onclick="tambahKolomSoalBaru()">➕ TAMBAH SOAL</button>
-          <button class="mainBtn greenBtn" style="padding:10px; font-size:12px;" onclick="mulaiKuisDanGenerateLinkBaru()">🚀 MULAI KUIS INI</button>
+          <button class="mainBtn secBtn" style="padding:10px; font-size:12px; box-shadow:0 3px 0 #1565c0;" onclick="tambahKolomSoalBaru()">➕ TAMBAH SOAL</button>
+          <button class="mainBtn greenBtn" style="padding:10px; font-size:12px; box-shadow:0 3px 0 #2e7d32;" onclick="mulaiKuisDanGenerateLinkBaru()">🚀 MULAI KUIS INI</button>
        </div>
     </div>
 
@@ -138,7 +140,7 @@
 
   <!-- ================= LAYAR DETAIL LAPORAN NILAI KUIS ================= -->
   <div id="reportPage" class="menu-container">
-     <h2 style="color: var(--secondary); margin:0;">📋 LAPORAN KUIS</h2>
+     <h2 style="color: var(--secondary); margin:0; font-size:20px;">📋 LAPORAN KUIS</h2>
      <p style="color:var(--gold); font-size:14px; font-weight:bold; margin-top:-5px;" id="reportRoomTitle">ROOM: ID</p>
      
      <div style="width:100%; max-height:350px; overflow-y:auto;" id="reportSiswaWrapper"></div>
@@ -147,7 +149,7 @@
   </div>
 
   <!-- ================= LAYAR UTAMA GAME ARENA KUIS ================= -->
-  <div id="wordBox" class="menu-container" style="padding-top:20px;">
+  <div id="wordBox" class="menu-container" style="padding-top:10px;">
     <div class="quiz-header-bar">
        <div style="color:#aaa;">SISA WAKTU: <span id="linkTimerDisplay" style="color:var(--primary);">00:00</span></div>
        <div style="color:var(--gold);">SKOR: <span id="myScoreDisplay">0</span></div>
@@ -166,7 +168,7 @@
 
   <!-- ================= LAYAR LIVE RANKING AKHIR ================= -->
   <div id="resultPage" class="menu-container">
-    <h2 style="margin:0; color:var(--gold);">LIVE RANKING PESERTA</h2>
+    <h2 style="margin:0; color:var(--gold); font-size:22px;">LIVE RANKING PESERTA</h2>
     <div class="lobby-list" id="liveLeaderboardContent" style="max-height:320px;"></div>
     <button class="mainBtn" style="background:#444; box-shadow:0 5px 0 #222;" onclick="kembaliKeMenuUtamaAsli()">KEMBALI KE BERANDA</button>
   </div>
@@ -195,18 +197,17 @@
   let myScore = 0;
   let nomorSoalCounter = 0;
 
-  // Dieksekusi pertama kali secara aman
   window.onload = function() {
      const urlParams = new URLSearchParams(window.location.search);
      const roomParam = urlParams.get('room');
      
      if(roomParam) {
         currentRoomID = roomParam;
-        document.getElementById('headerNav').style.display = 'none'; // Sembunyikan menu burger agar fokus ujian
+        document.getElementById('headerNav').style.display = 'none'; // Sembunyikan menu kontrol saat ujian berlangsung
         sinkronisasiKuisSiswa();
      } else {
         hideSemuaLayar();
-        document.getElementById('headerNav').style.display = 'flex';
+        document.getElementById('headerNav').style.display = 'flex'; // Tampilkan menu kontrol di beranda login utama
         document.getElementById('loginPage').style.display = 'flex';
      }
   };
@@ -232,6 +233,7 @@
      
      role = "admin";
      hideSemuaLayar();
+     document.getElementById('headerNav').style.display = 'flex';
      document.getElementById('adminMenu').style.display = 'flex';
      document.getElementById('dynamicSoalWrapper').innerHTML = "";
      nomorSoalCounter = 0;
@@ -370,6 +372,7 @@
 
   function bukaLaporanNilaiRoom(idRoom) {
      hideSemuaLayar();
+     document.getElementById('headerNav').style.display = 'flex';
      document.getElementById('reportPage').style.display = 'flex';
      document.getElementById('reportRoomTitle').innerText = "ROOM DETAIL REPORT: " + idRoom;
      
@@ -430,6 +433,7 @@
 
   function tutupLaporanKembaliKeAdmin() {
      hideSemuaLayar();
+     document.getElementById('headerNav').style.display = 'flex';
      document.getElementById('adminMenu').style.display = 'flex';
   }
 
@@ -553,7 +557,7 @@
   }
 
   function navigasiSoal(arah) {
-     let targetIndex = indexSoalSecarang + arah;
+     let targetIndex = indexSoalSekarang + arah;
      if(targetIndex >= 0 && targetIndex < listSoalKuis.length) {
         indexSoalSekarang = targetIndex;
         muatDataSoalNomor(indexSoalSekarang);
@@ -591,6 +595,7 @@
   }
   
   function hideSemuaLayar() { 
+     // Menyembunyikan seluruh menu kontainer kuis
      ['loginPage','adminMenu','reportPage','wordBox','resultPage','expiredPage'].forEach(id => { 
         const el = document.getElementById(id);
         if(el) el.style.display = 'none'; 
