@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>JFT MASTER PANEL - ADMIN</title>
 
+<!-- Firebase App & Database Compat -->
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
 
@@ -61,7 +62,7 @@
 
   .room-active-item { background: #252525; border: 1px solid #444; border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
   .status-db { font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: bold; display: inline-block; margin-top: 5px; }
-  #toast { display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #ffb74d; color: #000; padding: 12px 25px; border-radius: 25px; z-index: 9999; font-weight: bold; box-shadow: 0 4px 15 rgba(0,0,0,0.5); }
+  #toast { display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #ffb74d; color: #000; padding: 12px 25px; border-radius: 25px; z-index: 9999; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 </style>
 </head>
 <body>
@@ -153,7 +154,7 @@
   }
 
   function prosesDanKompresGambar(inputElement, idNomor) {
-     const file = inputElement.files;
+     const file = inputElement.files[0];
      if (!file) return;
 
      const reader = new FileReader();
@@ -215,14 +216,14 @@
      cards.forEach((card, idx) => {
         const kana = card.querySelector('.inp-kana').value.trim();
         const correct = card.querySelector('.inp-correct').value.trim();
-        if(!kana || !correct) { showToast("❌ Kolom wajib belum terisi!"); isValid = false; return; }
+        if(!kana || !correct) { showToast(`❌ Soal #${idx+1} Belum Lengkap!`); isValid = false; return; }
         
         let choices = [correct];
         const wrongsRaw = card.querySelector('.inp-wrongs').value.trim();
         if(wrongsRaw) wrongsRaw.split(",").forEach(w => { if(w.trim()) choices.push(w.trim()); });
         choices.sort(() => Math.random() - 0.5);
 
-        const currentId = card.id.split("_");
+        const currentId = card.id.split("_")[1];
         const base64Image = document.getElementById(`base64_${currentId}`).value || "";
 
         tempBatch.push({ 
@@ -240,17 +241,16 @@
      const expiredTime = Date.now() + (menitAktif * 60 * 1000);
      const generateNewID = "NEW-" + Math.floor(1000 + Math.random() * 9000);
      
-     // LOGIKA BARU JIKA ADMIN ADALAH index.html:
-     let currentHref = window.location.href.split('?'); 
+     let currentHref = window.location.href.split('?')[0]; 
      let fullURL = "";
      
-     if(currentHref.endsWith("index.html")) {
-        fullURL = currentHref.replace("index.html", "kuis.html") + "?room=" + generateNewID;
+     if(currentHref.includes("admin.html")) {
+        fullURL = currentHref.replace("admin.html", "index.html") + "?room=" + generateNewID;
      } else if(currentHref.endsWith("/")) {
-        fullURL = currentHref + "kuis.html?room=" + generateNewID;
+        fullURL = currentHref + "index.html?room=" + generateNewID;
      } else {
         let lastSlash = currentHref.lastIndexOf("/");
-        fullURL = currentHref.substring(0, lastSlash + 1) + "kuis.html?room=" + generateNewID;
+        fullURL = currentHref.substring(0, lastSlash + 1) + "index.html?room=" + generateNewID;
      }
 
      if (firebaseAktif) {
