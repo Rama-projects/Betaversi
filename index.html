@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>JFT MASTER PANEL - AMAN TOTAL</title>
+<title>JFT MASTER PANEL - FIX TOTAL</title>
 
 <script src="data_minna.js"></script>
 <script src="data_irodori.js"></script>
@@ -80,14 +80,12 @@
   </div>
 
   <div class="admin-box">
-     <h3 style="color: var(--secondary); font-size: 16px; margin-bottom: 15px; margin-top:0;">🆕 BUAT PAKET KUIS (SUPER KILAT)</h3>
-
-     <p style="margin: 0 0 10px 0; font-size: 11px; color: #aaa;">💡 Sistem otomatis menggabungkan & mengacak pilihan salah dari seluruh file bank data (.js) yang terdeteksi.</p>
+     <h3 style="color: var(--secondary); font-size: 16px; margin-bottom: 15px; margin-top:0;">🆕 BUAT PAKET KUIS</h3>
 
      <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 2px;">Masa Aktif Link (Menit):</label>
      <input type="number" id="linkExpiryInput" value="30" min="1">
      
-     <div id="dynamicSoalWrapper" style="max-height: 320px; overflow-y: auto; margin-top: 10px; padding-right: 5px;"></div>
+     <div id="dynamicSoalWrapper" style="max-height: 350px; overflow-y: auto; margin-top: 10px; padding-right: 5px;"></div>
      
      <div style="display: flex; gap: 10px; margin-top: 15px;">
         <button class="mainBtn secBtn" onclick="tambahKolomSoalBaru()">➕ TAMBAH SOAL</button>
@@ -139,15 +137,15 @@
      card.id = `kolomSoal_${nomorSoalCounter}`;
      card.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-           <span style="color:var(--secondary); font-weight:bold; font-size:12px;">SOAL NO #${nomorSoalCounter}</span>
-           <button style="background:none; border:none; color:var(--red); font-size:12px; cursor:pointer; font-weight:bold;" onclick="hapusKolomSpesifik(${nomorSoalCounter})">Hapus</button>
+           <span class="nomor-label" style="color:var(--secondary); font-weight:bold; font-size:12px;">SOAL NO #${nomorSoalCounter}</span>
+           <button style="background:none; border:none; color:var(--red); font-size:12px; cursor:pointer; font-weight:bold;" onclick="hapusKolomSpesifik(this)">Hapus</button>
         </div>
         
-        <div class="img-preview-box" id="prevBox_${nomorSoalCounter}"></div>
-        <input type="hidden" id="base64_${nomorSoalCounter}" value="">
+        <div class="img-preview-box"></div>
+        <input type="hidden" class="inp-base64" value="">
         
         <label style="font-size:11px; color:#aaa; display:block; margin-bottom:2px;">Tambah Gambar (Otomatis Kompres):</label>
-        <input type="file" accept="image/*" onchange="prosesDanKompresGambar(this, ${nomorSoalCounter})" style="padding:5px; font-size:11px; background:#1a1a1a;">
+        <input type="file" accept="image/*" onchange="prosesDanKompresGambar(this)" style="padding:5px; font-size:11px; background:#1a1a1a;">
 
         <input type="text" class="inp-kanji" placeholder="Kanji / Judul Atas (Opsional)">
         <input type="text" class="inp-kana" placeholder="Pertanyaan / Petunjuk Kuis (Wajib)">
@@ -157,9 +155,10 @@
      wrapper.scrollTop = wrapper.scrollHeight;
   }
 
-  function prosesDanKompresGambar(inputElement, idNomor) {
+  function prosesDanKompresGambar(inputElement) {
      if (!inputElement.files || !inputElement.files) return;
      const file = inputElement.files; 
+     const card = inputElement.closest('.soal-card-input');
 
      const reader = new FileReader();
      reader.onload = function(event) {
@@ -174,18 +173,18 @@
            ctx.drawImage(img, 0, 0, width, height);
            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.65);
            
-           document.getElementById(`base64_${idNomor}`).value = compressedBase64;
-           const pBox = document.getElementById(`prevBox_${idNomor}`);
-           pBox.innerHTML = `<img src="${compressedBase64}">`; pBox.style.display = 'flex';
+           card.querySelector('.inp-base64').value = compressedBase64;
+           const pBox = card.querySelector('.img-preview-box');
+           pBox.innerHTML = `<img src="${compressedBase64}">`; 
+           pBox.style.display = 'flex';
         };
         img.src = event.target.result;
      };
      reader.readAsDataURL(file);
   }
 
-  function hapusKolomSpesifik(idNomor) {
-     const target = document.getElementById(`kolomSoal_${idNomor}`);
-     if(target) target.remove();
+  function hapusKolomSpesifik(buttonElement) {
+     buttonElement.closest('.soal-card-input').remove();
      reIndexNomorSoal();
   }
 
@@ -194,21 +193,11 @@
      nomorSoalCounter = 0;
      cards.forEach(card => {
         nomorSoalCounter++;
-        card.id = `kolomSoal_${nomorSoalCounter}`;
-        card.querySelector('span').innerText = `SOAL NO #${nomorSoalCounter}`;
-        
-        const hiddenInput = card.querySelector('input[type="hidden"]');
-        if(hiddenInput) hiddenInput.id = `base64_${nomorSoalCounter}`;
-        const pBox = card.querySelector('.img-preview-box');
-        if(pBox) pBox.id = `prevBox_${nomorSoalCounter}`;
-        const fileInput = card.querySelector('input[type="file"]');
-        if(fileInput) fileInput.setAttribute('onchange', `prosesDanKompresGambar(this, ${nomorSoalCounter})`);
-        const delBtn = card.querySelector('button');
-        if(delBtn) delBtn.setAttribute('onclick', `hapusKolomSpesifik(${nomorSoalCounter})`);
+        card.querySelector('.nomor-label').innerText = `SOAL NO #${nomorSoalCounter}`;
      });
   }
 
-  // PENGGABUNGAN TOTAL: Mengambil gocekan dari 3 sumber sekaligus agar anti-error
+  // AMBIL OTOMATIS DARI SEMUA DATA YANG ADA TANPA KECUALI
   function dapatkanGocekanOtomatis(jawabanBenar) {
      let megaWadah = [];
      
@@ -219,7 +208,7 @@
         if (typeof data_minna !== "undefined") megaWadah = megaWadah.concat(data_minna);
         if (typeof ssw !== "undefined") megaWadah = megaWadah.concat(ssw);
         if (typeof data_ssw_pm !== "undefined") megaWadah = megaWadah.concat(data_ssw_pm);
-     } catch (e) { console.warn("Ada error pembacaan data, beralih ke array cadangan."); }
+     } catch (e) { console.warn(e); }
 
      let listKataMentah = [];
      if(Array.isArray(megaWadah) && megaWadah.length > 0) {
@@ -250,13 +239,9 @@
      cards.forEach((card, index) => {
         const nomorNyata = index + 1;
         
-        const kanjiInput = card.querySelector('.inp-kanji');
-        const kanaInput = card.querySelector('.inp-kana');
-        const correctInput = card.querySelector('.inp-correct');
-
-        const kanji = kanjiInput ? kanjiInput.value.trim() : "";
-        const kana = kanaInput ? kanaInput.value.trim() : "";
-        const correct = correctInput ? correctInput.value.trim() : "";
+        const kanji = card.querySelector('.inp-kanji').value.trim();
+        const kana = card.querySelector('.inp-kana').value.trim();
+        const correct = card.querySelector('.inp-correct').value.trim();
 
         if(!kana) { alert(`❌ Kolom Pertanyaan di Soal No #${nomorNyata} masih kosong.`); isValid = false; return; }
         if(!correct) { alert(`❌ Kolom Jawaban Benar di Soal No #${nomorNyata} masih kosong.`); isValid = false; return; }
@@ -266,9 +251,7 @@
         splitWrongs.forEach(w => choices.push(w));
         choices.sort(() => Math.random() - 0.5);
 
-        const idAsli = card.id.split("_");
-        const hiddenImgEl = document.getElementById(`base64_${idAsli}`);
-        const base64Image = hiddenImgEl ? hiddenImgEl.value : "";
+        const base64Image = card.querySelector('.inp-base64').value || "";
 
         tempBatch.push({ 
            kanji: kanji, 
@@ -286,11 +269,8 @@
      const expiredTime = Date.now() + (menitAktif * 60 * 1000);
      const generateNewID = "NEW-" + Math.floor(1000 + Math.random() * 9000);
      
-     // FIX TOTAL: Menggunakan Object URL agar rute ke kuis.html 100% aman dan dinamis
-     let baseLocation = new URL(window.location.href);
-     let pathName = baseLocation.pathname;
-     let newPath = pathName.substring(0, pathName.lastIndexOf('/') + 1) + 'kuis.html';
-     let fullURL = baseLocation.origin + newPath + "?room=" + generateNewID;
+     // AMAN 100%: Link dibentuk dinamis tanpa string manipulasi berbahaya
+     let fullURL = window.location.origin + window.location.pathname.replace("index.html", "") + "kuis.html?room=" + generateNewID;
 
      database.ref(`${FIREBASE_PATH}/${generateNewID}`).set({
         roomID: generateNewID, expiredAt: expiredTime, questions: tempBatch
