@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>JFT MASTER PANEL - FIX TOTAL</title>
+<title>JFT MASTER PANEL - AMAN TOTAL</title>
 
 <script src="data_minna.js"></script>
 <script src="data_irodori.js"></script>
@@ -48,7 +48,7 @@
   .admin-box { background: var(--card); border: 1px solid #333; padding: 20px; border-radius: 15px; }
   .soal-card-input { background: #252525; border: 1px dashed var(--secondary); padding: 15px; border-radius: 12px; margin-bottom: 15px; }
   
-  input[type="text"], input[type="number"], input[type="file"], select { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #444; background: #222; color: white; font-size: 14px; margin-bottom: 8px; outline: none; }
+  input[type="text"], input[type="number"], input[type="file"] { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #444; background: #222; color: white; font-size: 14px; margin-bottom: 8px; outline: none; }
   
   .img-preview-box { width: 100%; max-height: 150px; background: #111; border-radius: 8px; margin-bottom: 8px; display: none; justify-content: center; align-items: center; overflow: hidden; border: 1px solid #444; }
   .img-preview-box img { max-width: 100%; max-height: 150px; object-fit: contain; }
@@ -81,13 +81,8 @@
 
   <div class="admin-box">
      <h3 style="color: var(--secondary); font-size: 16px; margin-bottom: 15px; margin-top:0;">🆕 BUAT PAKET KUIS (SUPER KILAT)</h3>
-     
-     <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 2px;">Sumber Bank Data Gocekan:</label>
-     <select id="sumberDataGocekan">
-        <option value="irodori">Ambil Gocekan dari Irodori</option>
-        <option value="minna">Ambil Gocekan dari Minna no Nihongo</option>
-        <option value="ssw">Ambil Gocekan dari SSW PM</option>
-     </select>
+
+     <p style="margin: 0 0 10px 0; font-size: 11px; color: #aaa;">💡 Sistem otomatis menggabungkan & mengacak pilihan salah dari seluruh file bank data (.js) yang terdeteksi.</p>
 
      <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 2px;">Masa Aktif Link (Menit):</label>
      <input type="number" id="linkExpiryInput" value="30" min="1">
@@ -157,7 +152,6 @@
         <input type="text" class="inp-kanji" placeholder="Kanji / Judul Atas (Opsional)">
         <input type="text" class="inp-kana" placeholder="Pertanyaan / Petunjuk Kuis (Wajib)">
         <input type="text" class="inp-correct" placeholder="Jawaban Benar (Wajib)" style="border-color: var(--green);">
-        <p style="margin: 2px 0 0 0; font-size: 10px; color: var(--gold);">✨ 3 Pilihan salah otomatis.</p>
      `;
      wrapper.appendChild(card);
      wrapper.scrollTop = wrapper.scrollHeight;
@@ -214,27 +208,28 @@
      });
   }
 
-  // FIX ANTI CRASH: Jika file .js lu kosong, tombol kuis gak bakal mati mampet!
-  function dapatkanGocekanOtomatis(jawabanBenar, jenisData) {
-     let sumberArray = [];
+  // PENGGABUNGAN TOTAL: Mengambil gocekan dari 3 sumber sekaligus agar anti-error
+  function dapatkanGocekanOtomatis(jawabanBenar) {
+     let megaWadah = [];
+     
      try {
-        if (jenisData === "irodori" && typeof irodori !== "undefined") sumberArray = irodori;
-        else if (jenisData === "irodori" && typeof data_irodori !== "undefined") sumberArray = data_irodori;
-        else if (jenisData === "minna" && typeof minna !== "undefined") sumberArray = minna;
-        else if (jenisData === "minna" && typeof data_minna !== "undefined") sumberArray = data_minna;
-        else if (jenisData === "ssw" && typeof ssw !== "undefined") sumberArray = ssw;
-        else if (jenisData === "ssw" && typeof data_ssw_pm !== "undefined") sumberArray = data_ssw_pm;
-     } catch (e) { console.warn("Membaca file data .js error, pakai data darurat.", e); }
+        if (typeof irodori !== "undefined") megaWadah = megaWadah.concat(irodori);
+        if (typeof data_irodori !== "undefined") megaWadah = megaWadah.concat(data_irodori);
+        if (typeof minna !== "undefined") megaWadah = megaWadah.concat(minna);
+        if (typeof data_minna !== "undefined") megaWadah = megaWadah.concat(data_minna);
+        if (typeof ssw !== "undefined") megaWadah = megaWadah.concat(ssw);
+        if (typeof data_ssw_pm !== "undefined") megaWadah = megaWadah.concat(data_ssw_pm);
+     } catch (e) { console.warn("Ada error pembacaan data, beralih ke array cadangan."); }
 
      let listKataMentah = [];
-     if(Array.isArray(sumberArray) && sumberArray.length > 0) {
-        listKataMentah = sumberArray.map(item => {
+     if(Array.isArray(megaWadah) && megaWadah.length > 0) {
+        listKataMentah = megaWadah.map(item => {
            if (!item) return "";
            return item.kana || item.correct || (typeof item === 'string' ? item : "");
         }).filter(Boolean);
      }
 
-     if (!listKataMentah || listKataMentah.length < 3) {
+     if (!listKataMentah || listKataMentah.length < 5) {
         listKataMentah = ["たべます", "のみます", "いきます", "きます", "みます", "かいます", "しんしつ", "だいどころ"];
      }
 
@@ -251,7 +246,6 @@
      
      let tempBatch = [];
      let isValid = true;
-     const tipeData = document.getElementById('sumberDataGocekan').value;
 
      cards.forEach((card, index) => {
         const nomorNyata = index + 1;
@@ -267,12 +261,11 @@
         if(!kana) { alert(`❌ Kolom Pertanyaan di Soal No #${nomorNyata} masih kosong.`); isValid = false; return; }
         if(!correct) { alert(`❌ Kolom Jawaban Benar di Soal No #${nomorNyata} masih kosong.`); isValid = false; return; }
         
-        let splitWrongs = dapatkanGocekanOtomatis(correct, tipeData);
+        let splitWrongs = dapatkanGocekanOtomatis(correct);
         let choices = [correct];
         splitWrongs.forEach(w => choices.push(w));
         choices.sort(() => Math.random() - 0.5);
 
-        // FIX ID TARGET: Ambil substring index murni ID elemen untuk base64 gambar
         const idAsli = card.id.split("_");
         const hiddenImgEl = document.getElementById(`base64_${idAsli}`);
         const base64Image = hiddenImgEl ? hiddenImgEl.value : "";
@@ -293,18 +286,11 @@
      const expiredTime = Date.now() + (menitAktif * 60 * 1000);
      const generateNewID = "NEW-" + Math.floor(1000 + Math.random() * 9000);
      
-     // FIX PARSING URL: Agar deteksi alamat Vercel / Lokal tidak salah format alamat string htm-nya
-     let currentUrlString = window.location.href.split('?'); 
-     let fullURL = "";
-     
-     if(currentUrlString.endsWith("index.html")) {
-        fullURL = currentUrlString.replace("index.html", "kuis.html") + "?room=" + generateNewID;
-     } else if(currentUrlString.endsWith("/")) {
-        fullURL = currentUrlString + "kuis.html?room=" + generateNewID;
-     } else {
-        let lastSlash = currentUrlString.lastIndexOf("/");
-        fullURL = currentUrlString.substring(0, lastSlash + 1) + "kuis.html?room=" + generateNewID;
-     }
+     // FIX TOTAL: Menggunakan Object URL agar rute ke kuis.html 100% aman dan dinamis
+     let baseLocation = new URL(window.location.href);
+     let pathName = baseLocation.pathname;
+     let newPath = pathName.substring(0, pathName.lastIndexOf('/') + 1) + 'kuis.html';
+     let fullURL = baseLocation.origin + newPath + "?room=" + generateNewID;
 
      database.ref(`${FIREBASE_PATH}/${generateNewID}`).set({
         roomID: generateNewID, expiredAt: expiredTime, questions: tempBatch
@@ -350,7 +336,6 @@
      });
   }
 
-  // Hapus manual room kuis via panel admin jika bapak/ibu guru ingin menyudahi kuis
   function hapusKuisDanDataFirebase(idRoom) {
      if(confirm(`Hapus kuis ${idRoom}?`) && firebaseAktif) { database.ref(`${FIREBASE_PATH}/${idRoom}`).remove(); }
   }
