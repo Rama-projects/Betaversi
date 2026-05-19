@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>KUIS JFT REALTIME - RAMA</title>
+<title>KUIS JFT DASHBOARD MASTER - RAMA</title>
 
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
@@ -25,18 +25,16 @@
 </script>
 
 <style>
-  :root { --primary: #ff5722; --secondary: #2196f3; --bg: #121212; --card: #1e1e1e; --text: #eee; --gold: #ffb74d; --green: #4caf50; }
+  :root { --primary: #ff5722; --secondary: #2196f3; --bg: #121212; --card: #1e1e1e; --text: #eee; --gold: #ffb74d; --green: #4caf50; --red: #f44336; }
   * { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
   input, select, textarea { -webkit-user-select: text; user-select: text; }
   html, body { margin: 0; padding: 0; background-color: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
   body { display: flex; justify-content: center; min-height: 100vh; }
   #app { width: 100vw; max-width: 450px; padding: 20px; display: flex; flex-direction: column; position: relative; }
   
-  /* Tombol Garis Tiga (Hamburger Menu) */
   .nav-header { display: flex; justify-content: flex-end; width: 100%; position: absolute; top: 15px; right: 20px; z-index: 100; }
   .burger-btn { background: none; border: none; color: white; font-size: 28px; cursor: pointer; padding: 5px; }
   
-  /* Sidebar Menu */
   .sidebar { position: fixed; top: 0; right: -280px; width: 280px; height: 100vh; background: #1a1a1a; box-shadow: -5px 0 15px rgba(0,0,0,0.5); z-index: 1000; transition: 0.3s ease; padding: 30px 20px; display: flex; flex-direction: column; gap: 20px; }
   .sidebar.active { right: 0; }
   .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 999; }
@@ -47,27 +45,30 @@
   .menu-container { display: none; flex-direction: column; gap: 15px; align-items: center; width: 100%; padding-top: 50px; animation: fadeIn 0.3s ease; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   
-  .mainBtn { background: var(--primary); border-radius: 15px; padding: 15px; font-weight: bold; color: white; width: 100%; border: none; cursor: pointer; font-size: 15px; text-transform: uppercase; box-shadow: 0 5px 0 #bf360c; transition: 0.1s; outline: none; }
+  .mainBtn { background: var(--primary); border-radius: 15px; padding: 15px; font-weight: bold; color: white; width: 100%; border: none; cursor: pointer; font-size: 14px; text-transform: uppercase; box-shadow: 0 5px 0 #bf360c; transition: 0.1s; outline: none; }
   .mainBtn:active { transform: translateY(3px); box-shadow: 0 2px 0 #bf360c; }
   .secBtn { background: var(--secondary); box-shadow: 0 5px 0 #1565c0; }
   .goldBtn { background: var(--gold); box-shadow: 0 5px 0 #e65100; color: #000; }
   .greenBtn { background: var(--green); box-shadow: 0 5px 0 #2e7d32; }
+  .redBtn { background: var(--red); box-shadow: 0 5px 0 #b71c1c; }
   
   input[type="text"], input[type="number"], input[type="password"] { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #444; background: #222; color: white; font-size: 14px; text-align: left; outline: none; }
   
-  .admin-box { background: var(--card); border: 1px solid #333; padding: 15px; border-radius: 15px; width: 100%; margin-bottom: 10px; }
-  .soal-card-input { background: #252525; border: 1px dashed var(--secondary); padding: 15px; border-radius: 12px; margin-bottom: 15px; position: relative; text-align: left; }
-  .soal-item { border-bottom: 1px solid #333; padding: 10px 0; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+  .admin-box { background: var(--card); border: 1px solid #333; padding: 15px; border-radius: 15px; width: 100%; margin-bottom: 10px; text-align: left; }
+  .soal-card-input { background: #252525; border: 1px dashed var(--secondary); padding: 15px; border-radius: 12px; margin-bottom: 15px; text-align: left; }
   
-  #displayWord { font-size: 36px; color: var(--text); font-weight: bold; margin-bottom: 10px; text-align: center; }
-  #options { display: none; flex-direction: column; gap: 12px; width: 100%; margin-top: 20px; }
+  .room-active-item { background: #252525; border: 1px solid #444; border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+  .report-user-card { background: #1a1a1a; border-radius: 10px; padding: 12px; margin-bottom: 10px; border-left: 4px solid var(--secondary); }
+
+  .quiz-header-bar { display: flex; justify-content: space-between; width: 100%; background: #222; padding: 10px 15px; border-radius: 10px; font-size: 13px; font-weight: bold; border: 1px solid #333; }
+  #displayWord { font-size: 32px; color: var(--text); font-weight: bold; margin: 20px 0; text-align: center; width: 100%; min-height: 60px; display: flex; align-items: center; justify-content: center; }
+  #options { display: flex; flex-direction: column; gap: 12px; width: 100%; }
   .optBtn { background: #252525; border: 2px solid #333; padding: 16px; border-radius: 12px; color: white; font-size: 16px; cursor: pointer; text-align: left; transition: 0.2s; }
   .optBtn.correct { background: var(--green) !important; border-color: #2e7d32 !important; }
-  .optBtn.wrong { background: #f44336 !important; border-color: #c62828 !important; }
+  .optBtn.wrong { background: var(--red) !important; border-color: #c62828 !important; }
   
-  #timerDisplay { font-family: monospace; font-size: 24px; color: var(--gold); font-weight: bold; text-align: center; margin-bottom: 10px; }
-  #toast { display: none; position: fixed; bottom: 50px; left: 50%; transform: translateX(-50%); background: var(--primary); color: white; padding: 12px 25px; border-radius: 30px; font-size: 14px; font-weight: bold; z-index: 10000; text-align: center; }
-  .lobby-list { background: #1a1a1a; width: 100%; border-radius: 12px; padding: 15px; max-height: 180px; overflow-y: auto; text-align: left; }
+  .lobby-list { background: #1a1a1a; width: 100%; border-radius: 12px; padding: 15px; max-height: 250px; overflow-y: auto; text-align: left; }
+  .badge { padding: 3px 8px; border-radius: 5px; font-size: 11px; font-weight: bold; color: white; }
 </style>
 </head>
 <body>
@@ -87,8 +88,8 @@
       <button style="background:none; border:none; color:white; font-size:20px; cursor:pointer;" onclick="toggleSidebar(false)">✕</button>
    </div>
    <hr style="border:1px solid #333; width:100%;">
-   <button class="menu-item" onclick="aksesModeAdmin()">⚙️ MODE OWNER ADMIN</button>
-   <button class="menu-item" onclick="kembaliKeMenuUtamaAsli()">🏠 KEMBALI KE BERANDA</button>
+   <button class="menu-item" onclick="aksesModeAdmin()">⚙️ DASHBOARD ADMIN</button>
+   <button class="menu-item" onclick="kembaliKeMenuUtamaAsli()">🏠 BERANDA LOGIN</button>
 </div>
 
 <div id="app">
@@ -101,84 +102,103 @@
     <button class="mainBtn secBtn" onclick="handleLogin()">MASUK KUIS</button>
   </div>
 
-  <!-- ================= LAYAR PANEL UTAMA ADMIN (INPUT SOAL BERTUMPUK) ================= -->
+  <!-- ================= LAYAR UTAMA ADMIN (DASHBOARD KONTROL + MONITORING) ================= -->
   <div id="adminMenu" class="menu-container">
-    <h2 style="color: var(--gold); margin: 0;">PANEL INPUT SOAL JFT</h2>
-    <p style="color: #a8a8a8; margin-top: -10px; font-size: 12px;">Isi kumpulan soal berurutan, lalu klik Mulai Kuis</p>
+    <h2 style="color: var(--gold); margin: 0;">ADMIN DASHBOARD</h2>
+    <p style="color: #aaa; margin-top: -10px; font-size: 12px;">Kelola multi-kuis berjalan & tinjau laporan nilai</p>
     
-    <div class="admin-box" style="margin-bottom:5px;">
-       <label style="font-size:12px; color:#aaa; display:block; margin-bottom:5px;">Waktu Per Soal (Detik):</label>
-       <input type="number" id="roomTimerInput" value="20" min="5" style="text-align:center;">
+    <!-- Bagian Pembuatan Room Baru -->
+    <div class="admin-box">
+       <h3 style="margin-top:0; color:var(--secondary); font-size:15px;">🆕 BUAT PAKET KUIS BARU</h3>
+       <label style="font-size:11px; color:#aaa; display:block; margin-bottom:3px;">Masa Aktif Link (Menit):</label>
+       <input type="number" id="linkExpiryInput" value="30" min="1" style="margin-bottom:10px;">
+       
+       <div id="dynamicSoalWrapper" style="max-height:200px; overflow-y:auto; margin-bottom:10px;"></div>
+       
+       <div style="display:flex; gap:10px;">
+          <button class="mainBtn secBtn" style="padding:10px; font-size:12px;" onclick="tambahKolomSoalBaru()">➕ TAMBAH SOAL</button>
+          <button class="mainBtn greenBtn" style="padding:10px; font-size:12px;" onclick="mulaiKuisDanGenerateLinkBaru()">🚀 MULAI KUIS INI</button>
+       </div>
     </div>
 
-    <!-- Wadah Kolom Soal Dinamis Berseri -->
-    <div id="dynamicSoalWrapper" style="width:100%; max-height:320px; overflow-y:auto; margin-top:5px; padding-right:5px;"></div>
-    
-    <button class="mainBtn secBtn" style="padding:10px; font-size:13px;" onclick="tambahKolomSoalBaru()">➕ TAMBAH KOLOM SOAL BARU</button>
-    <button class="mainBtn greenBtn" onclick="mulaiKuisDanGenerateLinkBaru()">🚀 MULAI KUIS & SEBAR LINK BARU</button>
+    <!-- Monitoring Room Kuis Yang Sedang Berjalan -->
+    <div class="admin-box">
+       <h3 style="margin-top:0; color:var(--gold); font-size:15px;">📊 DAFTAR KUIS YANG SEDANG BERJALAN</h3>
+       <div id="runningRoomsContainer" style="max-height:200px; overflow-y:auto;">
+          <p style="color:#666; font-size:13px;">Tidak ada kuis aktif saat ini...</p>
+       </div>
+    </div>
   </div>
 
-  <!-- ================= LAYAR LOBBY ROOM / MENUNGGU ================= -->
-  <div id="lobbyPage" class="menu-container">
-     <h2 style="color: var(--primary); margin:0;" id="lobbyTitle">RUANG TUNGGU</h2>
-     <div class="admin-box" style="text-align:center;">
-        <span style="font-size:12px; color:#aaa;">LINK KUIS AKTIF ANDA:</span><br>
-        <input type="text" id="linkShareUrl" readonly onclick="this.select();" style="font-size:12px; background:#111; color:var(--gold); margin-top:5px; cursor:pointer; text-align:center;">
-     </div>
-     <h4 style="margin:10px 0 0 0; align-self:flex-start;">Peserta Terhubung (<span id="playerCount">0</span>):</h4>
-     <div class="lobby-list" id="lobbyPlayers"></div>
-     <div style="color:var(--gold); font-size:14px; text-align:center; margin-top:15px; font-weight:bold; animation: pulse 1.5s infinite;">
-        ⏳ Menunggu Soal Pertama Dimulai...
-     </div>
+  <!-- ================= LAYAR DETAIL LAPORAN NILAI KUIS (REALTIME) ================= -->
+  <div id="reportPage" class="menu-container">
+     <h2 style="color: var(--secondary); margin:0;">📋 LAPORAN KUIS</h2>
+     <p style="color:var(--gold); font-size:14px; font-weight:bold; margin-top:-5px;" id="reportRoomTitle">ROOM: ID</p>
+     
+     <div style="width:100%; max-height:350px; overflow-y:auto;" id="reportSiswaWrapper"></div>
+     
+     <button class="mainBtn" style="background:#444; box-shadow:0 5px 0 #222;" onclick="tutupLaporanKembaliKeAdmin()">KEMBALI KE PANEL</button>
   </div>
 
-  <!-- ================= LAYAR UTAMA GAME ARENA KUIS ================= -->
+  <!-- ================= LAYAR UTAMA GAME ARENA KUIS (SISI SISWA) ================= -->
   <div id="wordBox" class="menu-container" style="padding-top:20px;">
-    <div id="timerDisplay">00</div>
-    <div id="quizInfo" style="font-size:12px; color:var(--secondary); font-weight:bold;">LIVE GAMEPLAY ACTIVE</div>
+    <div class="quiz-header-bar">
+       <div style="color:#aaa;">SISA WAKTU: <span id="linkTimerDisplay" style="color:var(--primary);">00:00</span></div>
+       <div style="color:var(--gold);">SKOR: <span id="myScoreDisplay">0</span></div>
+    </div>
+    
+    <div id="quizInfo" style="font-size:13px; color:var(--secondary); font-weight:bold; align-self: flex-start; margin-top:10px;">SOAL NO: 1/1</div>
     <div id="displayWord"></div>
     <div id="options"></div>
+    
+    <div style="display:flex; gap:10px; width:100%; margin-top:15px;">
+       <button id="prevBtn" class="mainBtn" style="padding:10px; background:#444; box-shadow:0 4px 0 #222;" onclick="navigasiSoal(-1)">⬅️ SEBELUMNYA</button>
+       <button id="nextBtn" class="mainBtn greenBtn" style="padding:10px;" onclick="navigasiSoal(1)">SELANJUTNYA ➡️</button>
+    </div>
+    <button id="submitKuisBtn" class="mainBtn goldBtn" style="margin-top:5px;" onclick="selesaiKuisManual()">Selesai & Lihat Ranking</button>
   </div>
 
-  <!-- ================= LAYAR LIVE RANKING MULTIPLAYER ================= -->
+  <!-- ================= LAYAR LIVE RANKING AKHIR (SISI SISWA) ================= -->
   <div id="resultPage" class="menu-container">
-    <h2 style="margin:0; color:var(--gold);">LIVE RANKING AKHIR</h2>
+    <h2 style="margin:0; color:var(--gold);">LIVE RANKING PESERTA</h2>
     <div class="lobby-list" id="liveLeaderboardContent" style="max-height:320px;"></div>
     <button class="mainBtn" style="background:#444; box-shadow:0 5px 0 #222;" onclick="kembaliKeMenuUtamaAsli()">KEMBALI KE BERANDA</button>
+  </div>
+
+  <!-- ================= LAYAR LINK KEDALUWARSA / DIHAPUS ADMIN ================= -->
+  <div id="expiredPage" class="menu-container">
+     <div style="font-size: 20px; color: var(--red); font-weight: bold; text-align: center;">❌ LINK TIDAK AKTIF / DIHAPUS</div>
+     <p style="color:#aaa; text-align:center; font-size:14px; padding:0 10px;">Akses kuis ini telah berakhir atau room telah dihapus oleh Admin pemilik kuis.</p>
+     <button class="mainBtn" style="background:#333; box-shadow:0 5px 0 #111;" onclick="kembaliKeMenuUtamaAsli()">KEMBALI KE BERANDA</button>
   </div>
 
 </div>
 
 <script>
-  const ADMIN_SECRET_PASS = "RAMA123"; // Sandi Pengunci Menu Admin
+  const ADMIN_SECRET_PASS = "RAMA123"; 
 
   let username = "";
   let role = "peserta"; 
   let currentRoomID = "";
-  let batchSoalKuis = [];
+  let listSoalKuis = [];
+  let indexSoalSekarang = 0;
   let roomRef = null;
-  let timerInterval = null;
-  let canAnswer = false;
+  let countdownInterval = null;
+  
+  let dataJawabanSiswa = {}; // Tracker internal pengerjaan siswa { nomor: { dipilihi: x, status: 'Benar'/'Salah' } }
   let myScore = 0;
   let nomorSoalCounter = 0;
 
   window.onload = function() {
      const urlParams = new URLSearchParams(window.location.search);
      const roomParam = urlParams.get('room');
-     const statusParam = urlParams.get('status');
      
      if(roomParam) {
         currentRoomID = roomParam;
-        document.getElementById('headerNav').style.display = 'none'; // Sembunyikan menu burger di link kuis biar ga diotak-atik
-        if(statusParam === 'playing') {
-           checkAutoSavedLogin(true);
-           return;
-        }
-        checkAutoSavedLogin(false);
+        document.getElementById('headerNav').style.display = 'none';
+        sinkronisasiKuisSiswa();
         return;
      }
-     
-     // Mode Beranda Normal
      document.getElementById('loginPage').style.display = 'flex';
   };
 
@@ -193,20 +213,19 @@
     setTimeout(() => { t.style.opacity = '0'; setTimeout(() => { t.style.display = 'none'; }, 400); }, 2500);
   }
 
-  // ================= AKSES PROTOKOL MODE ADMIN VIA SIDEBAR =================
+  // ================= PANEL KONTROL UTAMA ADMIN =================
   function aksesModeAdmin() {
      toggleSidebar(false);
-     const pass = prompt("Masukkan Kunci Sandi Keamanan Admin:");
-     if(pass === null) return;
-     if(pass !== ADMIN_SECRET_PASS) { showToast("Sandi Salah! Akses Ditolak."); return; }
+     const pass = prompt("Masukkan Kunci Sandi Dashboard Admin:");
+     if(pass !== ADMIN_SECRET_PASS) { showToast("Akses Ditolak!"); return; }
      
      role = "admin";
-     username = "Admin (Rama)";
      hideSemuaLayar();
      document.getElementById('adminMenu').style.display = 'flex';
      document.getElementById('dynamicSoalWrapper').innerHTML = "";
      nomorSoalCounter = 0;
      tambahKolomSoalBaru();
+     dengarkanDaftarRoomAktif();
   }
 
   function tambahKolomSoalBaru() {
@@ -216,14 +235,14 @@
      card.className = 'soal-card-input';
      card.id = `kolomSoal_${nomorSoalCounter}`;
      card.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-           <span style="color:var(--secondary); font-weight:bold;">SOAL NO #${nomorSoalCounter}</span>
-           <button type="button" style="background:none; border:none; color:#ff4444; font-weight:bold; cursor:pointer;" onclick="hapusKolomSpesifik(${nomorSoalCounter})">Hapus</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+           <span style="color:var(--secondary); font-weight:bold; font-size:12px;">SOAL NO #${nomorSoalCounter}</span>
+           <button style="background:none; border:none; color:var(--red); font-size:11px; cursor:pointer;" onclick="hapusKolomSpesifik(${nomorSoalCounter})">Hapus</button>
         </div>
-        <input type="text" class="inp-kanji" placeholder="Kanji (Opsional)" style="margin-bottom:5px;">
-        <input type="text" class="inp-kana" placeholder="Kana / Cara Baca (Wajib)" style="margin-bottom:5px;">
-        <input type="text" class="inp-correct" placeholder="Jawaban BENAR (Wajib)" style="margin-bottom:5px; border-color:var(--green);">
-        <input type="text" class="inp-wrongs" placeholder="3 Pilihan Salah (Pisah dengan koma)">
+        <input type="text" class="inp-kanji" placeholder="Kanji (Opsional)" style="padding:8px; margin-bottom:4px; font-size:12px;">
+        <input type="text" class="inp-kana" placeholder="Kana / Bacaan (Wajib)" style="padding:8px; margin-bottom:4px; font-size:12px;">
+        <input type="text" class="inp-correct" placeholder="Jawaban Benar (Wajib)" style="padding:8px; margin-bottom:4px; font-size:12px; border-color:var(--green);">
+        <input type="text" class="inp-wrongs" placeholder="3 Pilihan Salah (Pisahkan dengan koma)" style="padding:8px; font-size:12px;">
      `;
      wrapper.appendChild(card);
      wrapper.scrollTop = wrapper.scrollHeight;
@@ -246,10 +265,10 @@
      });
   }
 
-  // ================= KLIK MULAI KUIS -> GENERATE LINK KUIS BARU =================
+  // ================= MULTI-ROOM MAKER & SEBAR LINK BARU =================
   function mulaiKuisDanGenerateLinkBaru() {
      const cards = document.querySelectorAll('.soal-card-input');
-     if(cards.length === 0) { showToast("Buat minimal 1 soal dulu!"); return; }
+     if(cards.length === 0) { showToast("Buat minimal 1 soal!"); return; }
      
      let tempBatch = [];
      let isValid = true;
@@ -260,218 +279,303 @@
         const correct = card.querySelector('.inp-correct').value.trim();
         const wrongsRaw = card.querySelector('.inp-wrongs').value.trim();
 
-        if(!kana || !correct) {
-           showToast(`Soal #${idx+1} Belum Lengkap!`); isValid = false; return;
-        }
+        if(!kana || !correct) { showToast(`Soal #${idx+1} Belum Lengkap!`); isValid = false; return; }
 
-        let answers = [correct];
-        if(wrongsRaw) wrongsRaw.split(",").forEach(w => { if(w.trim()) answers.push(w.trim()); });
-        tempBatch.push({ kanji: kanji, kana: kana, correct: correct, answers: answers });
+        let choices = [correct];
+        if(wrongsRaw) wrongsRaw.split(",").forEach(w => { if(w.trim()) choices.push(w.trim()); });
+        choices.sort(() => Math.random() - 0.5);
+
+        tempBatch.push({ kanji: kanji, kana: kana, correct: correct, options: choices });
      });
 
      if(!isValid) return;
 
-     const timerDur = parseInt(document.getElementById('roomTimerInput').value) || 20;
-     currentRoomID = "ROOM-" + Math.floor(1000 + Math.random() * 9000);
+     const menitAktif = parseInt(document.getElementById('linkExpiryInput').value) || 30;
+     const expiredTime = Date.now() + (menitAktif * 60 * 1000);
      
-     // Set data room baru ke Firebase
-     roomRef = database.ref(`rooms/${currentRoomID}`);
-     roomRef.set({
-        status: "lobby",
-        timerDuration: timerDur,
-        currentQuestionIndex: -1,
+     // Generate ID baru acak (Bisa menampung banyak kuis sekaligus)
+     const generateNewID = "JFT-" + Math.floor(1000 + Math.random() * 9000);
+     
+     database.ref(`rooms/${generateNewID}`).set({
+        roomID: generateNewID,
+        expiredAt: expiredTime,
         questions: tempBatch
      }, () => {
-        // BERHASIL GENERATE LINK BARU LANGSUNG KE LOBBY GAMEPLAY
-        const linkBaruKuis = window.location.origin + window.location.pathname + "?room=" + currentRoomID;
-        hideSemuaLayar();
-        document.getElementById('headerNav').style.display = 'none'; // Lock pengaman
+        const fullURL = window.location.origin + window.location.pathname + "?room=" + generateNewID;
+        alert(`Kuis Berhasil Dibuat!\n\nSalin Link Ini Untuk Siswa:\n${fullURL}`);
         
-        // Buka otomatis link kuis baru tersebut di browser Admin agar admin siap mengontrol permainan
-        window.location.href = linkBaruKuis;
+        // Reset form pembuatan kuis biar admin bisa bikin kuis baru lagi dengan id baru
+        document.getElementById('dynamicSoalWrapper').innerHTML = "";
+        nomorSoalCounter = 0;
+        tambahKolomSoalBaru();
      });
   }
 
-  // ================= ENGINE LOGIN & SINKRONISASI GAMEPLAY =================
-  function checkAutoSavedLogin(isDirectQuiz) {
-     let savedUser = localStorage.getItem("jft_live_user");
-     if(savedUser) {
-        username = savedUser;
-        if(isDirectQuiz) { hubungkanKeKuisBerjalan(); } 
-        else { joinLobbyRoom(); }
-     } else {
-        document.getElementById('loginPage').style.display = 'flex';
+  // ================= DAFTAR MONITORING LIVE ROOM & AUTO HAPUS DATA =================
+  function dengarkanDaftarRoomAktif() {
+     database.ref('rooms').on('value', snap => {
+        const cont = document.getElementById('runningRoomsContainer');
+        cont.innerHTML = "";
+        if(!snap.exists()) {
+           cont.innerHTML = `<p style="color:#666; font-size:13px;">Tidak ada kuis aktif saat ini...</p>`;
+           return;
+        }
+
+        snap.forEach(child => {
+           const room = child.val();
+           const div = document.createElement('div');
+           div.className = 'room-active-item';
+           div.innerHTML = `
+              <div>
+                 <strong style="color:var(--secondary); font-size:14px;">${room.roomID}</strong><br>
+                 <span style="font-size:11px; color:#aaa;">Soal: ${room.questions ? room.questions.length : 0} | Sisa Waktu: <span id="monitor_${room.roomID}">--</span></span>
+              </div>
+              <div style="display:flex; gap:5px;">
+                 <button class="mainBtn goldBtn" style="padding:6px 10px; font-size:11px; box-shadow:none;" onclick="bukaLaporanNilaiRoom('${room.roomID}')">📊 LAPORAN</button>
+                 <button class="mainBtn redBtn" style="padding:6px 10px; font-size:11px; box-shadow:none;" onclick="hapusKuisDanDataFirebase('${room.roomID}')">❌ HAPUS</button>
+              </div>
+           `;
+           cont.appendChild(div);
+
+           // Hitung mundur sisa waktu untuk dipantau Admin di panel kontrol
+           let timer = setInterval(() => {
+              let diff = room.expiredAt - Date.now();
+              let targetEl = document.getElementById(`monitor_${room.roomID}`);
+              if(!targetEl) { clearInterval(timer); return; }
+              if(diff <= 0) {
+                 targetEl.innerText = "Habis";
+                 targetEl.style.color = "var(--red)";
+                 clearInterval(timer);
+              } else {
+                 let m = Math.floor(diff / 60000);
+                 let s = Math.floor((diff % 60000) / 1000);
+                 targetEl.innerText = `${m}m ${s}s`;
+              </div>
+           }, 1000);
+        });
+     });
+  }
+
+  // ACTION HAPUS DATA KUIS DAN DATA TRACKING SISWA SEKALIGUS
+  function hapusKuisDanDataFirebase(idRoom) {
+     if(confirm(`Apakah Anda yakin ingin menghapus kuis ${idRoom}?\nSeluruh data pengerjaan dan nilai siswa di room ini akan dihapus permanen dari cloud.`)) {
+        database.ref(`rooms/${idRoom}`).remove()
+        .then(() => showToast(`Room ${idRoom} berhasil dibersihkan dari database.`));
      }
+  }
+
+  // ================= MENU LAPORAN DETAIL (BENAR/SALAH PERSENTASE) =================
+  function bukaLaporanNilaiRoom(idRoom) {
+     hideSemuaLayar();
+     document.getElementById('reportPage').style.display = 'flex';
+     document.getElementById('reportRoomTitle').innerText = "ROOM DETAIL REPORT: " + idRoom;
+     
+     database.ref(`rooms/${idRoom}`).on('value', snap => {
+         const wrapper = document.getElementById('reportSiswaWrapper');
+         wrapper.innerHTML = "";
+         if(!snap.exists()) { wrapper.innerHTML = "<p style='color:#666;'>Data room tidak tersedia.</p>"; return; }
+         
+         const roomData = snap.val();
+         const totalSoal = roomData.questions ? roomData.questions.length : 0;
+         const dataSiswa = roomData.leaderboard;
+
+         if(!dataSiswa) {
+            wrapper.innerHTML = "<p style='color:#aaa; text-align:center; font-size:13px; margin-top:20px;'>Belum ada peserta yang mengisi kuis ini.</p>";
+            return;
+         }
+
+         // Iterasi membaca record jawaban tiap siswa secara detail
+         Object.keys(dataSiswa).forEach(namaUser => {
+            const detailUser = dataSiswa[namaUser];
+            const detailJawaban = detailUser.jawabanHistory || {};
+            
+            let jmlBenar = 0;
+            let logHTML = "";
+
+            // Cek status per nomor soal
+            for(let i = 0; i < totalSoal; i++) {
+               let itemJawab = detailJawaban[i];
+               if(itemJawab && itemJawab.status === "Benar") {
+                  jmlBenar++;
+                  logHTML += `<span style="color:var(--green); margin-right:8px;">No.${i+1}(✔)</span>`;
+               } else {
+                  logHTML += `<span style="color:var(--red); margin-right:8px;">No.${i+1}(❌)</span>`;
+               }
+            }
+
+            let jmlSalah = totalSoal - jmlBenar;
+            let persenBenar = totalSoal > 0 ? Math.round((jmlBenar / totalSoal) * 100) : 0;
+            let persenSalah = 100 - persenBenar;
+
+            const card = document.createElement('div');
+            card.className = 'report-user-card';
+            card.innerHTML = `
+               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                  <strong style="color:white; font-size:15px;">👤 ${namaUser}</strong>
+                  <span style="color:var(--gold); font-weight:bold; font-size:14px;">Total: ${detailUser.score || 0} Pts</span>
+               </div>
+               <div style="font-size:12px; margin-bottom:8px; color:#ccc;">
+                  <span class="badge" style="background:var(--green);">Benar: ${persenBenar}% (${jmlBenar})</span>
+                  <span class="badge" style="background:var(--red);">Salah: ${persenSalah}% (${jmlSalah})</span>
+               </div>
+               <div style="font-size:11px; background:#111; padding:6px; border-radius:5px; line-height:1.6;">
+                  ${logHTML}
+               </div>
+            `;
+            wrapper.appendChild(card);
+         });
+     });
+  }
+
+  function tutupLaporanKembaliKeAdmin() {
+     hideSemuaLayar();
+     document.getElementById('adminMenu').style.display = 'flex';
+  }
+
+  // ================= SISI CLIENT GAMEPLAY SISWA =================
+  function sinkronisasiKuisSiswa() {
+     roomRef = database.ref(`rooms/${currentRoomID}`);
+     
+     // Dengerin real-time, kalau admin klik hapus kuis di atas, siswa otomatis tertendang keluar
+     roomRef.on('value', snap => {
+        if(!snap.exists()) {
+           clearInterval(countdownInterval);
+           tampilkanLayarExpired();
+           return;
+        }
+        
+        const dataRoom = snap.val();
+        listSoalKuis = dataRoom.questions || [];
+        
+        // Atur hitung mundur link expired
+        clearInterval(countdownInterval);
+        countdownInterval = setInterval(() => {
+           const sisa = dataRoom.expiredAt - Date.now();
+           if(sisa <= 0) {
+              clearInterval(countdownInterval);
+              tampilkanLayarExpired();
+           } else {
+              let m = Math.floor(sisa / 60000); let s = Math.floor((sisa % 60000) / 1000);
+              document.getElementById('linkTimerDisplay').innerText = `${m < 10 ? "0"+m:m}:${s < 10 ? "0"+s:s}`;
+           }
+        }, 1000);
+
+        let savedUser = localStorage.getItem("jft_live_user");
+        if(savedUser) { username = savedUser; bukaArenaKuisSiswa(); } 
+        else { hideSemuaLayar(); document.getElementById('loginPage').style.display = 'flex'; }
+     });
   }
 
   function handleLogin() {
      const val = document.getElementById('loginInput').value.trim();
-     if(!val) { showToast("Isi Nama Anda!"); return; }
+     if(!val) { showToast("Masukkan Nama!"); return; }
      username = val;
      localStorage.setItem("jft_live_user", username);
-     
-     if(new URLSearchParams(window.location.search).get('status') === 'playing') {
-        hubungkanKeKuisBerjalan();
-     } else {
-        joinLobbyRoom();
-     }
+     bukaArenaKuisSiswa();
   }
 
-  function joinLobbyRoom() {
-     hideSemuaLayar();
-     document.getElementById('lobbyPage').style.display = 'flex';
-     document.getElementById('lobbyTitle').innerText = "ROOM: " + currentRoomID;
-     
-     document.getElementById('linkShareUrl').value = window.location.origin + window.location.pathname + "?room=" + currentRoomID;
-     
-     roomRef = database.ref(`rooms/${currentRoomID}`);
-     roomRef.child('players').child(username).set({ score: 0, lastAnswerStatus: "waiting" });
-     
-     roomRef.child('players').on('value', snap => {
-        const pContainer = document.getElementById('lobbyPlayers'); pContainer.innerHTML = "";
-        if(snap.exists()) {
-           document.getElementById('playerCount').innerText = snap.numChildren();
-           snap.forEach(p => {
-              let d = document.createElement('div'); d.style.cssText = "padding:6px 0; border-bottom:1px solid #222; font-weight:bold; color:var(--green);";
-              d.innerText = "👤 " + p.key; pContainer.appendChild(d);
-           });
-        }
-     });
-
-     // Deteksi jika kuis siap dilempar dari pusat kontrol
-     roomRef.child('status').on('value', snap => {
-        if(snap.val() === 'playing') {
-           window.location.href = window.location.origin + window.location.pathname + "?room=" + currentRoomID + "&status=playing"; 
-        }
-     });
-
-     // Tombol darurat khusus jika Admin terdeteksi berada di halaman lobby ini untuk trigger soal ke-1
-     if(role === 'admin' || localStorage.getItem("jft_live_user") === "Admin (Rama)") {
-        let btnMulai = document.createElement('button');
-        btnMulai.className = "mainBtn greenBtn"; btnMulai.style.marginTop = "15px";
-        btnMulai.innerText = "START PERTANDINGAN 🚀";
-        btnMulai.onclick = () => { roomRef.update({ status: "playing", currentQuestionIndex: 0 }); };
-        document.getElementById('lobbyPage').appendChild(btnMulai);
-     }
-  }
-
-  function hubungkanKeKuisBerjalan() {
+  function bukaArenaKuisSiswa() {
      hideSemuaLayar();
      document.getElementById('wordBox').style.display = 'flex';
-     roomRef = database.ref(`rooms/${currentRoomID}`);
-     roomRef.child('players').child(username).update({ score: myScore });
-
-     roomRef.child('currentQuestionIndex').on('value', snap => {
-        let idx = snap.val();
-        if(idx !== null && idx >= 0) {
-           roomRef.child('questions').child(idx).once('value', qSnap => {
-              if(qSnap.exists()) renderSoalRealtime(qSnap.val(), idx);
-           });
-        }
+     
+     // Buat row data siswa jika belum terdaftar di kuis ini
+     roomRef.child('leaderboard').child(username).once('value', s => {
+        if(!s.exists()) roomRef.child('leaderboard').child(username).set({ score: 0 });
      });
-
-     roomRef.child('status').on('value', snap => {
-        if(snap.val() === 'finished') tampilkanLeaderboardAkhir();
-     });
+     
+     muatDataSoalNomor(indexSoalSekarang);
   }
 
-  function renderSoalRealtime(qData, index) {
-     canAnswer = true;
-     document.getElementById('options').style.display = 'flex';
-     document.getElementById('options').innerHTML = '';
+  function muatDataSoalNomor(index) {
+     if(listSoalKuis.length === 0) return;
+     document.getElementById('quizInfo').innerText = `SOAL NO: ${index + 1} / ${listSoalKuis.length}`;
      
+     const soal = listSoalKuis[index];
      const display = document.getElementById('displayWord');
-     display.innerHTML = (qData.kanji) ? `<ruby>${qData.kanji}<rt>${qData.kana}</rt></ruby>` : qData.kana;
+     display.innerHTML = (soal.kanji) ? `<ruby>${soal.kanji}<rt>${soal.kana}</rt></ruby>` : soal.kana;
      
-     let finalChoices = [...qData.answers].sort(() => Math.random() - 0.5);
-     finalChoices.forEach(txt => {
-         let b = document.createElement('button'); b.className = 'optBtn'; b.innerText = txt;
-         b.onclick = () => verifikasiJawabanRealtime(txt, qData.correct, b);
-         document.getElementById('options').appendChild(b);
+     const optionsContainer = document.getElementById('options');
+     optionsContainer.innerHTML = "";
+
+     soal.options.forEach(pilihanTeks => {
+        let btn = document.createElement('button');
+        btn.className = 'optBtn'; btn.innerText = pilihanTeks;
+        
+        // Restore pewarnaan jika nomor ini sudah pernah dijawab
+        if(dataJawabanSiswa[index] !== undefined) {
+           if(pilihanTeks === dataJawabanSiswa[index].pilihan) {
+              btn.classList.add(dataJawabanSiswa[index].status === 'Benar' ? 'correct' : 'wrong');
+           } else if(pilihanTeks === soal.correct) {
+              btn.classList.add('correct');
+           }
+        } else {
+           btn.onclick = () => simpanJawabanSiswaSecaraLive(index, pilihanTeks, soal.correct, btn);
+        }
+        optionsContainer.appendChild(btn);
      });
-     
-     roomRef.child('timerDuration').once('value', timeSnap => {
-         let hitung = timeSnap.val();
-         document.getElementById('timerDisplay').innerText = hitung;
-         clearInterval(timerInterval);
-         
-         timerInterval = setInterval(() => {
-            hitung--;
-            document.getElementById('timerDisplay').innerText = hitung < 10 ? "0" + hitung : hitung;
-            if(hitung <= 0) {
-               clearInterval(timerInterval);
-               kunciJawabanOtomatis(qData.correct);
-               
-               // Kontrol alur dari pusat Admin
-               if(role === 'admin' || localStorage.getItem("jft_live_user") === "Admin (Rama)") {
-                  setTimeout(() => {
-                     roomRef.child('questions').once('value', allQ => {
-                        if(index + 1 < allQ.numChildren()) {
-                           roomRef.update({ currentQuestionIndex: index + 1 });
-                        } else {
-                           roomRef.update({ status: "finished" });
-                        }
-                     });
-                  }, 2500); 
-               }
-            }
-         }, 1000);
-     });
+
+     document.getElementById('prevBtn').style.opacity = index === 0 ? "0.4" : "1";
+     document.getElementById('nextBtn').style.opacity = index === listSoalKuis.length - 1 ? "0.4" : "1";
   }
 
-  function verifikasiJawabanRealtime(pilihan, jawabanBenar, elemenTombol) {
-     if(!canAnswer) return;
-     canAnswer = false;
-     clearInterval(timerInterval);
+  function simpanJawabanSiswaSecaraLive(idxSoal, jawabanDipilih, kunciJawaban, elemenTombol) {
+     let statusJawab = (jawabanDipilih === kunciJawaban) ? "Benar" : "Salah";
      
-     if(pilihan === jawabanBenar) {
+     // Simpan ke local variabel siswa
+     dataJawabanSiswa[idxSoal] = { pilihan: jawabanDipilih, status: statusJawab };
+     
+     if(statusJawab === "Benar") {
         elemenTombol.classList.add('correct');
         myScore += 10;
-        roomRef.child('players').child(username).update({ score: myScore, lastAnswerStatus: "Benar" });
      } else {
         elemenTombol.classList.add('wrong');
-        roomRef.child('players').child(username).update({ lastAnswerStatus: "Salah" });
         Array.from(document.getElementById('options').children).forEach(b => {
-           if(b.innerText === jawabanBenar) b.classList.add('correct');
+           if(b.innerText === kunciJawaban) b.classList.add('correct');
         });
+     }
+
+     document.getElementById('myScoreDisplay').innerText = myScore;
+     
+     // KIRIM DETAIL TRACKING JAWABAN KE FIREBASE SECARA DETIL (Agar dibaca menu laporan)
+     roomRef.child('leaderboard').child(username).update({ score: myScore });
+     roomRef.child('leaderboard').child(username).child('jawabanHistory').child(idxSoal).set({
+        pilihanSiswa: jawabanDipilih,
+        status: statusJawab
+     });
+
+     Array.from(document.getElementById('options').children).forEach(b => b.onclick = null);
+  }
+
+  function navigasiSoal(arah) {
+     let targetIndex = indexSoalSekarang + arah;
+     if(targetIndex >= 0 && targetIndex < listSoalKuis.length) {
+        indexSoalSekarang = targetIndex;
+        muatDataSoalNomor(indexSoalSekarang);
      }
   }
 
-  function kunciJawabanOtomatis(jawabanBenar) {
-     if(!canAnswer) return;
-     canAnswer = false;
-     Array.from(document.getElementById('options').children).forEach(b => {
-        if(b.innerText === jawabanBenar) b.classList.add('correct');
-     });
-  }
-
-  function tampilkanLeaderboardAkhir() {
-     clearInterval(timerInterval);
-     document.getElementById('wordBox').style.display = 'none';
+  function selesaiKuisManual() {
+     hideSemuaLayar();
      document.getElementById('resultPage').style.display = 'flex';
      
-     roomRef.child('players').on('value', snap => {
+     roomRef.child('leaderboard').on('value', snap => {
          const lbContent = document.getElementById('liveLeaderboardContent'); lbContent.innerHTML = "";
-         let urutanScore = [];
-         snap.forEach(player => { urutanScore.push({ name: player.key, ...player.val() }); });
-         urutanScore.sort((a,b) => b.score - a.score);
+         let urutan = [];
+         snap.forEach(p => { urutan.push({ nama: p.key, ...p.val() }); });
+         urutan.sort((a,b) => b.score - a.score);
          
-         urutanScore.forEach((p, index) => {
+         urutan.forEach((p, r) => {
             let div = document.createElement('div');
-            div.style.cssText = "display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #333; font-size:15px;";
-            let medal = index === 0 ? "👑 " : `${index + 1}. `;
-            div.innerHTML = `<span><b>${medal}${p.name}</b></span> <span style="color:var(--gold); font-weight:bold;">${p.score} POIN</span>`;
+            div.style.cssText = "display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #333; font-size:15px; font-weight:bold;";
+            div.innerHTML = `<span>${r === 0 ? "👑 " : r+1+". "}${p.nama}</span> <span style="color:var(--gold);">${p.score} Pts</span>`;
             lbContent.appendChild(div);
          });
      });
   }
 
-  function kembaliKeMenuUtamaAsli() { localStorage.clear(); location.href = window.location.pathname; }
-  
-  function hideSemuaLayar() {
-    ['loginPage','adminMenu','lobbyPage','wordBox','options','resultPage']
-    .forEach(id => { document.getElementById(id).style.display = 'none'; });
-  }
+  function tampilkanLayarExpired() { hideSemuaLayar(); document.getElementById('expiredPage').style.display = 'flex'; }
+  function kembaliKeMenuUtamaAsli() { clearInterval(countdownInterval); localStorage.clear(); location.href = window.location.pathname; }
+  function hideSemuaLayar() { ['loginPage','adminMenu','reportPage','wordBox','resultPage','expiredPage'].forEach(id => { document.getElementById(id).style.display = 'none'; }); }
 </script>
 </body>
 </html>
