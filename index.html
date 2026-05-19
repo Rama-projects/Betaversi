@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>JFT KILAT - ALL IN ONE PANEL</title>
+<title>JFT KILAT - FINAL PANEL</title>
 
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
@@ -26,7 +26,7 @@
      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
      database = firebase.database();
      firebaseAktif = true;
-  } catch (error) { console.error(error); }
+  } catch (error) { console.error("Firebase Error:", error); }
 </script>
 
 <style>
@@ -38,7 +38,7 @@
   
   input[type="text"], input[type="number"], input[type="file"] { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #444; background: #222; color: white; margin-bottom: 10px; outline: none; }
   
-  .btn { background: #ff5722; color: white; border: none; padding: 14px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 0 #bf360c; }
+  .btn { background: #ff5722; color: white; border: none; padding: 14px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 0 #bf360c; width: 100%; display: block; margin-top: 10px; }
   .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #bf360c; }
   .secBtn { background: var(--primary); box-shadow: 0 4px 0 #1565c0; }
   .greenBtn { background: var(--green); box-shadow: 0 4px 0 #2e7d32; }
@@ -63,14 +63,14 @@
      <div id="wrapperSoal"></div>
      
      <div style="display: flex; gap: 10px; margin-top: 10px;">
-        <button class="btn secBtn" onclick="tambahKolomSoal()">➕ TAMBAH SOAL</button>
-        <button class="btn greenBtn" onclick="simpanDanBikinLink()">🚀 BUAT LINK KUIS</button>
+        <button class="btn secBtn" type="button" onclick="tambahKolomSoal()">➕ TAMBAH SOAL</button>
+        <button class="btn greenBtn" type="button" onclick="simpanDanBikinLink()">🚀 BUAT LINK KUIS</button>
      </div>
 
      <div class="output-box" id="outputLinkContainer">
         <div style="font-size: 12px; font-weight: bold; margin-bottom: 5px;">🔗 LINK KUIS UNTUK SISWA:</div>
         <div class="url-text" id="textLinkSiswa">Mengecek...</div>
-        <button class="btn" style="background:var(--gold); color:#000; box-shadow:0 4px 0 #e65100;" onclick="salinLinkKuis()">📋 SALIN LINK KUIS</button>
+        <button class="btn" style="background:var(--gold); color:#000; box-shadow:0 4px 0 #e65100;" type="button" onclick="salinLinkKuis()">📋 SALIN LINK KUIS</button>
      </div>
   </div>
 
@@ -89,7 +89,7 @@
      </p>
 
      <input type="text" id="jawabanSiswaInput" placeholder="Ketik jawaban di sini..." autocomplete="off" style="text-align: center; font-size: 18px;">
-     <button class="btn secBtn" onclick="cekJawabanSiswa()">Kirim Jawaban</button>
+     <button class="btn secBtn" type="button" onclick="cekJawabanSiswa()">Kirim Jawaban</button>
      
      <div id="statusJawaban" style="text-align: center; font-size: 20px; font-weight: bold; margin-top: 15px;"></div>
   </div>
@@ -100,7 +100,6 @@
   let counterSoal = 0;
   let daftarSoalFirebase = [];
   let indexSoalBerjalan = 0;
-  const DB_PATH = "kuis_master_baru";
 
   window.onload = function() {
      const urlParams = new URLSearchParams(window.location.search);
@@ -153,9 +152,7 @@
            canvas.width = w; canvas.height = h;
            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
            
-           const finalBase64 = canvas.toDataURL('image/jpeg', 0.6);
-           
-           // TEMBAK LANGSUNG KE ID YANG DIKUNCI
+           const finalBase64 = canvas.toDataURL('image/jpeg', 0.5);
            document.getElementById(`stringBase_${idTarget}`).value = finalBase64;
            
            const pv = document.getElementById(`pvBox_${idTarget}`);
@@ -175,32 +172,30 @@
      let aman = true;
 
      cards.forEach((card) => {
-        // Ambil ID digit asli dari card element
         const currentId = card.id.split('_');
-        
         const imgData = document.getElementById(`stringBase_${currentId}`).value;
         const jawaban = document.getElementById(`jawabanBenar_${currentId}`).value.trim();
 
-        if(!imgData) { alert(`Gambar di Soal No #${currentId} belum masuk! Silakan pilih ulang file gambarnya.`); aman = false; return; }
+        if(!imgData) { alert(`Gambar di Soal No #${currentId} belum masuk!`); aman = false; return; }
         if(!jawaban) { alert(`Jawaban di Soal No #${currentId} masih kosong!`); aman = false; return; }
 
         paketSoal.push({ image: imgData, correct: jawaban });
      });
 
      if(!aman) return;
-     if(!firebaseAktif) { alert("Firebase putus koneksi!"); return; }
+     if(!firebaseAktif || !database) { alert("Firebase putus koneksi atau belum siap!"); return; }
 
      const menit = parseInt(document.getElementById('expiryInput').value) || 180;
      const expired = Date.now() + (menit * 60 * 1000);
      const roomID = "JFT-" + Math.floor(1000 + Math.random() * 9000);
 
-     // Otomatis deteksi URL asal tempat admin dibuka biar gak perlu login Vercel
      let linkSiswa = window.location.origin + window.location.pathname + "?room=" + roomID;
 
-     database.ref(`${DB_PATH}/${roomID}`).set({
+     // FIX PATH ABSOLUT: Tembak langsung menggunakan path murni string agar tidak crash di Vercel
+     database.ref("kuis_master_baru/" + roomID).set({
         roomID: roomID, expiredAt: expired, questions: paketSoal
      }, (err) => {
-        if(err) { alert(err.message); } else {
+        if(err) { alert("Gagal Simpan: " + err.message); } else {
            document.getElementById('textLinkSiswa').innerText = linkSiswa;
            document.getElementById('outputLinkContainer').style.display = 'block';
            alert("🚀 LINK KUIS SELESAI DICREATE!");
@@ -215,19 +210,25 @@
 
   // ================= ENGINE HALAMAN KUIS SISWA =================
   function bukaDataKuisSiswa(room) {
-     database.ref(`${DB_PATH}/${room}`).once('value').then((snap) => {
+     if(!database) {
+        setTimeout(() => { bukaDataKuisSiswa(room); }, 1000);
+        return;
+     }
+     database.ref("kuis_master_baru/" + room).once('value').then((snap) => {
         if(!snap.exists()) {
            document.getElementById('viewKuis').innerHTML = `<h2 style="color:var(--red);">KUIS EXPIRED / TIDAK ADA</h2>`;
            return;
         }
         daftarSoalFirebase = snap.val().questions || [];
         tampilkanSoalSiswa();
+     }).catch(err => {
+        document.getElementById('viewKuis').innerHTML = `<h2 style="color:var(--red);">ERROR SERVER: ${err.message}</h2>`;
      });
   }
 
   function tampilkanSoalSiswa() {
      if(indexSoalBerjalan >= daftarSoalFirebase.length) {
-        document.getElementById('viewKuis').innerHTML = `<h2 style="color:var(--green);">🎉 KUIS SELESAI!</h2><p>Semoga besok lulus ujian JFT-Basic!</p>`;
+        document.getElementById('viewKuis').innerHTML = `<h2 style="color:var(--green);">🎉 KUIS SELESAI!</h2><p>Semoga lulus ujian JFT-Basic!</p>`;
         return;
      }
 
@@ -238,6 +239,7 @@
 
      const wadahGambar = document.getElementById('wadahGambarSiswa');
      wadahGambar.innerHTML = `<img src="${soal.image}" style="max-width:100%; max-height:250px; object-fit:contain;">`;
+     wadahGambar.style.display = "flex";
   }
 
   function cekJawabanSiswa() {
