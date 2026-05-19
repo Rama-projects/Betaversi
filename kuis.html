@@ -1,17 +1,63 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>JFT KUIS PORTAL - MAHASISWA</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>KUIS JFT KILAT - LIVE SOAL</title>
 
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
 
-<script>
-  let database = null;
-  let firebaseAktif = false;
+<style>
+  :root { --bg: #121212; --card: #1e1e1e; --text: #eee; --primary: #2196f3; --green: #4caf50; --red: #f44336; --gold: #ffb74d; }
+  * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+  body { margin: 0; padding: 20px; background: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; }
+  #kuisContainer { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 20px; }
+  .box { background: var(--card); border: 1px solid #333; padding: 20px; border-radius: 15px; text-align: center; }
+  
+  /* UKURAN GAMBAR SOAL DIASSURANSIKAN MUNCUL BESAR & JELAS */
+  .wadah-gambar-soal { width: 100%; min-height: 200px; max-height: 350px; background: #000; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: center; align-items: center; overflow: hidden; border: 2px solid #444; }
+  .wadah-gambar-soal img { max-width: 100%; max-height: 350px; object-fit: contain; display: block; }
+  
+  input[type="text"] { width: 100%; padding: 14px; border-radius: 10px; border: 2px solid #555; background: #222; color: white; font-size: 16px; text-align: center; outline: none; margin-bottom: 15px; }
+  input[type="text"]:focus { border-color: var(--primary); }
+  
+  .btn { background: var(--primary); color: white; border: none; padding: 14px; width: 100%; border-radius: 12px; font-weight: bold; font-size: 15px; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 0 #1565c0; }
+  .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #1565c0; }
+  
+  .status-text { font-size: 18px; font-weight: bold; margin-top: 10px; }
+</style>
+</head>
+<body>
 
+<div id="kuisContainer">
+  <div class="box" id="loadingBox">
+     <h2 style="color:var(--gold);">Memuat Soal JFT...</h2>
+     <p>Tunggu sebentar, sedang mengambil data gambar dari server.</p>
+  </div>
+
+  <div class="box" id="mainKuisBox" style="display: none;">
+     <div style="display: flex; justify-content: space-between; color: #aaa; font-size: 13px; margin-bottom: 10px;">
+        <span id="infoNoSoal">Soal 1 dari 1</span>
+        <span id="infoRoom">ROOM: -</span>
+     </div>
+
+     <div class="wadah-gambar-soal" id="tempatGambar">
+        <p style="color:#666;">Gambar tidak ditemukan</p>
+     </div>
+
+     <p style="font-size: 14px; color: var(--gold); font-weight: bold; margin-bottom: 15px;">
+        Lihat gambar di atas, lalu ketik jawabannya di bawah:
+     </p>
+
+     <input type="text" id="inputJawabanSiswa" placeholder="Ketik jawaban di sini..." autocomplete="off">
+     <button class="btn" onclick="periksaJawabanSiswa()">Kirim Jawaban</button>
+     
+     <div id="feedbackHasil" class="status-text"></div>
+  </div>
+</div>
+
+<script>
   const firebaseConfig = {
     apiKey: "AIzaSyBZSps-natL_AFexEnQl9-chHFiLO0GXes",
     authDomain: "kuis-jepang-29cf5.firebaseapp.com",
@@ -22,208 +68,91 @@
     measurementId: "G-WJMY1D0Q6F",
     databaseURL: "https://kuis-jepang-29cf5-default-rtdb.asia-southeast1.firebasedatabase.app"
   };
-  
-  try {
-     if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-     }
-     database = firebase.database();
-     firebaseAktif = true;
-  } catch (error) {
-     console.error("Firebase error:", error);
-  }
-</script>
 
-<style>
-  :root { --primary: #ff5722; --secondary: #2196f3; --bg: #121212; --card: #1e1e1e; --text: #eee; --green: #4caf50; --gold: #ffb74d; }
-  * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-  body { margin: 0; padding: 20px; background-color: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; }
-  #quiz-container { width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 15px; }
-  
-  .box-siswa { background: var(--card); border: 1px solid #333; padding: 20px; border-radius: 15px; text-align: center; }
-  input[type="text"] { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #444; background: #222; color: white; margin-bottom: 15px; text-align: center; outline: none; }
-  
-  .soal-image-render { width: 100%; max-width: 100%; height: auto; border-radius: 10px; margin-bottom: 15px; border: 1px solid #444; background: #111; display: block; object-fit: contain; }
+  firebase.initializeApp(firebaseConfig);
+  const database = firebase.database();
 
-  .btn-jawaban { width: 100%; background: #252525; border: 2px solid #444; color: white; padding: 14px; border-radius: 12px; margin-bottom: 8px; font-weight: bold; cursor: pointer; text-align: left; transition: 0.2s; }
-  .btn-jawaban:hover { border-color: var(--secondary); background: #2a2a2a; }
-  
-  .mainBtn { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 12px; width: 100%; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-  .info-text { font-size: 13px; color: #aaa; margin-bottom: 15px; }
-</style>
-</head>
-<body>
+  let listSoal = [];
+  let indexSekarang = 0;
 
-<div id="quiz-container">
-  
-  <div class="box-siswa" id="loginScreen">
-     <h2 style="color: var(--gold); margin-top:0;">JFT KUIS PORTAL</h2>
-     <p class="info-text" id="statusRoomLabel">Mengecek kode kamar kuis...</p>
-     <div id="formLoginBody" style="display: none;">
-        <input type="text" id="namaSiswaInput" placeholder="Masukkan Nama Lengkap Anda" maxlength="30">
-        <button class="mainBtn" onclick="mulaiMengerjakanKuis()">MASUK KUIS</button>
-     </div>
-  </div>
-
-  <div class="box-siswa" id="quizScreen" style="display: none;">
-     <div style="display:flex; justify-content:space-between; font-size:12px; color:#aaa; margin-bottom:10px;">
-        <span id="progressSoalLabel">Soal 0/0</span>
-        <span id="timerLabel" style="color:var(--gold); font-weight:bold;">Sisa Waktu: --:--</span>
-     </div>
-     
-     <img src="" id="renderBoxGambarSoal" class="soal-image-render" style="display: none;">
-     
-     <h3 id="renderKanjiText" style="font-size:24px; margin:5px 0; color:white;"></h3>
-     <p id="renderKanaText" style="font-size:16px; color:var(--secondary); margin-bottom:20px;"></p>
-     
-     <div id="optionsWrapper"></div>
-  </div>
-
-  <div class="box-siswa" id="resultScreen" style="display: none;">
-     <h2 style="color: var(--green); margin-top: 0;">KUIS SELESAI 🎉</h2>
-     <p>Terima kasih telah mengikuti kuis ini.</p>
-     <div style="font-size: 45px; font-weight: bold; color: var(--gold); margin: 20px 0;" id="finalScoreLabel">0</div>
-     <p class="info-text">Nilai Anda telah otomatis disimpan ke server guru.</p>
-  </div>
-
-</div>
-
-<script>
-  const FIREBASE_PATH = "kuis_master_baru";
-  let urlParams = new URLSearchParams(window.location.search);
-  let parsedRoomID = urlParams.get('room');
-  
-  let currentRoomData = null;
-  let namaSiswa = "";
-  let currentIndex = 0;
-  let totalBenar = 0;
-  let sisaWaktuDetik = 0;
-  let penandaIntervalTimer = null;
-  let kuisSudahMulai = false;
+  // Ambil parameter ?room=ROOM-XXXX dari URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const roomID = urlParams.get('room');
 
   window.onload = function() {
-     if(!parsedRoomID) {
-        document.getElementById('statusRoomLabel').innerText = "❌ Link tidak valid. Kamar Room tidak ditemukan.";
+     if(!roomID) {
+        document.getElementById('loadingBox').innerHTML = `<h2 style="color:var(--red);">KUIS ERROR</h2><p>Link tidak sah atau ID Room hilang.</p>`;
         return;
      }
-     
-     if(firebaseAktif) {
-        database.ref(`${FIREBASE_PATH}/${parsedRoomID}`).once('value', snap => {
-           if(!snap.exists()) {
-              document.getElementById('statusRoomLabel').innerText = "❌ Kuis tidak ditemukan atau sudah dihapus.";
-              return;
-           }
-           
-           currentRoomData = snap.val();
-           let limitBatas = currentRoomData.expiredAt || 0;
-           
-           if(Date.now() > limitBatas) {
-              document.getElementById('statusRoomLabel').innerText = "❌ Maaf, waktu kuis ini sudah kedaluwarsa.";
-              return;
-           }
-
-           sisaWaktuDetik = Math.floor((limitBatas - Date.now()) / 1000);
-           
-           document.getElementById('statusRoomLabel').innerText = `Kamar Berhasil Ditemukan: Room ${parsedRoomID}`;
-           document.getElementById('formLoginBody').style.display = 'block';
-           mulaiTimerHitungMundur();
-        });
-     } else {
-        document.getElementById('statusRoomLabel').innerText = "❌ Gagal menyambungkan ke Database.";
-     }
+     document.getElementById('infoRoom').innerText = "ROOM: " + roomID;
+     ambilDataKuisDariFirebase();
   };
 
-  function mulaiTimerHitungMundur() {
-     if (penandaIntervalTimer) clearInterval(penandaIntervalTimer);
-     penandaIntervalTimer = setInterval(() => {
-        if(sisaWaktuDetik <= 0) {
-           clearInterval(penandaIntervalTimer);
-           kirimHasilAkhirOtomatis();
+  function ambilDataKuisDariFirebase() {
+     database.ref(`kuis_master_baru/${roomID}`).once('value').then((snap) => {
+        if(!snap.exists()) {
+           document.getElementById('loadingBox').innerHTML = `<h2 style="color:var(--red);">KUIS KADALUARSA</h2><p>Kuis tidak ditemukan atau sudah dihapus.</p>`;
            return;
         }
-        sisaWaktuDetik--;
-        let m = Math.floor(sisaWaktuDetik / 60);
-        let s = sisaWaktuDetik % 60;
-        document.getElementById('timerLabel').innerText = `Sisa Waktu: ${m}:${s < 10 ? '0'+s : s}`;
-     }, 1000);
+        
+        const data = snap.val();
+        listSoal = data.questions || [];
+        
+        if(listSoal.length === 0) {
+           document.getElementById('loadingBox').innerHTML = `<h2 style="color:var(--red);">KUIS KOSONG</h2><p>Tidak ada soal di dalam kuis ini.</p>`;
+           return;
+        }
+
+        document.getElementById('loadingBox').style.display = 'none';
+        document.getElementById('mainKuisBox').style.display = 'block';
+        tampilkanSoalAktif();
+     }).catch(err => {
+        document.getElementById('loadingBox').innerHTML = `<h2 style="color:var(--red);">GAGAL KONEKSI</h2><p>${err.message}</p>`;
+     });
   }
 
-  function mulaiMengerjakanKuis() {
-     let input = document.getElementById('namaSiswaInput').value.trim();
-     if(!input) { alert("Isi nama Anda!"); return; }
-     
-     namaSiswa = input.replace(/[\.\$\#\[\]\/]/g, "-");
-     kuisSudahMulai = true;
-     
-     document.getElementById('loginScreen').style.display = 'none';
-     document.getElementById('quizScreen').style.display = 'block';
-     tampilkanButirSoal();
-  }
+  function tampilkanSoalAktif() {
+     if(indexSekarang >= listSoal.length) {
+        // Kuis Selesai
+        document.getElementById('mainKuisBox').innerHTML = `
+           <h2 style="color:var(--green);">🎉 KUIS SELESAI!</h2>
+           <p style="font-size:16px;">Semua soal gambar berhasil lu selesaikan.</p>
+           <button class="btn" style="background:var(--gold); color:#000; box-shadow:0 4px 0 #e65100;" onclick="location.reload()">Ulangi Kuis</button>
+        `;
+        return;
+     }
 
-  function tampilkanButirSoal() {
-     if(!currentRoomData || !currentRoomData.questions) return;
-     
-     let totalSoal = currentRoomData.questions.length;
-     document.getElementById('progressSoalLabel').innerText = `Soal ${currentIndex + 1} / ${totalSoal}`;
-     
-     let soalSekarang = currentRoomData.questions[currentIndex];
-     
-     let imgBox = document.getElementById('renderBoxGambarSoal');
-     if(soalSekarang.image && soalSekarang.image.trim() !== "") {
-        imgBox.src = soalSekarang.image;
-        imgBox.style.display = 'block';
+     const soal = listSoal[indexSekarang];
+     document.getElementById('infoNoSoal').innerText = `Soal ${indexSekarang + 1} dari ${listSoal.length}`;
+     document.getElementById('inputJawabanSiswa').value = "";
+     document.getElementById('feedbackHasil').innerText = "";
+
+     // FIX ABADI: Membuka paksa string gambar base64 ke tag img HTML
+     const tempatGambar = document.getElementById('tempatGambar');
+     if(soal.image && soal.image.startsWith("data:image")) {
+        tempatGambar.innerHTML = `<img src="${soal.image}" alt="Soal Gambar JFT">`;
      } else {
-        imgBox.style.display = 'none';
-     }
-
-     document.getElementById('renderKanjiText').innerText = soalSekarang.kanji || "";
-     document.getElementById('renderKanaText').innerText = soalSekarang.kana || "";
-     
-     let wrapper = document.getElementById('optionsWrapper');
-     wrapper.innerHTML = "";
-     
-     if(soalSekarang.options && Array.isArray(soalSekarang.options)) {
-        soalSekarang.options.forEach(opsi => {
-           let btn = document.createElement('button');
-           btn.className = "btn-jawaban";
-           btn.innerText = opsi;
-           btn.onclick = function() { evaluasiJawabanSiswa(opsi, soalSekarang.correct); };
-           wrapper.appendChild(btn);
-        });
+        tempatGambar.innerHTML = `<p style="color:var(--red); font-weight:bold; padding:20px;">Gagal memuat gambar kuis!<br><span style="font-size:11px;color:#666;">Data base64 rusak/tidak terkirim dari admin.</span></p>`;
      }
   }
 
-  function evaluasiJawabanSiswa(pilihan, kunci) {
-     if(pilihan === kunci) {
-        totalBenar++;
-     }
-     
-     let totalSoal = currentRoomData.questions.length;
-     if(currentIndex < totalSoal - 1) {
-        currentIndex++;
-        tampilkanButirSoal();
+  function periksaJawabanSiswa() {
+     const jawabanSiswa = document.getElementById('inputJawabanSiswa').value.trim().toLowerCase();
+     const jawabanBenar = listSoal[indexSekarang].correct.trim().toLowerCase();
+     const feedback = document.getElementById('feedbackHasil');
+
+     if(!jawabanSiswa) { alert("Ketik dulu jawaban lu, bro!"); return; }
+
+     if(jawabanSiswa === jawabanBenar) {
+        feedback.innerText = "⭕ BENAR!";
+        feedback.style.color = "var(--green)";
+        setTimeout(() => {
+           indexSekarang++;
+           tampilkanSoalAktif();
+        }, 1200);
      } else {
-        clearInterval(penandaIntervalTimer);
-        kirimHasilAkhirOtomatis();
-     }
-  }
-
-  function kirimHasilAkhirOtomatis() {
-     let totalSoal = (currentRoomData && currentRoomData.questions) ? currentRoomData.questions.length : 0;
-     let skorAkhir = totalSoal > 0 ? Math.round((totalBenar / totalSoal) * 100) : 0;
-     
-     document.getElementById('quizScreen').style.display = 'none';
-     document.getElementById('loginScreen').style.display = 'none';
-     document.getElementById('resultScreen').style.display = 'block';
-     document.getElementById('finalScoreLabel').innerText = skorAkhir;
-     
-     if(firebaseAktif && kuisSudahMulai && namaSiswa) {
-        let uniqueID = Date.now().toString().slice(-4);
-        database.ref(`${FIREBASE_PATH}/${parsedRoomID}/leaderboard/${namaSiswa}_${uniqueID}`).set({
-           namaAsli: namaSiswa,
-           score: skorAkhir,
-           waktuSelesai: new Date().toLocaleTimeString()
-        });
+        feedback.innerText = `❌ SALAH! (Jawaban: ${listSoal[indexSekarang].correct})`;
+        feedback.style.color = "var(--red)";
      }
   }
 </script>
