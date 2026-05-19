@@ -43,7 +43,6 @@
   .box-siswa { background: var(--card); border: 1px solid #333; padding: 20px; border-radius: 15px; text-align: center; }
   input[type="text"] { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #444; background: #222; color: white; margin-bottom: 15px; text-align: center; outline: none; }
   
-  /* Desain Gambar Responsive di HP Mahasiswa */
   .soal-image-render { width: 100%; max-width: 100%; height: auto; border-radius: 10px; margin-bottom: 15px; border: 1px solid #444; background: #111; display: block; object-fit: contain; }
 
   .btn-jawaban { width: 100%; background: #252525; border: 2px solid #444; color: white; padding: 14px; border-radius: 12px; margin-bottom: 8px; font-weight: bold; cursor: pointer; text-align: left; transition: 0.2s; }
@@ -69,7 +68,7 @@
   <div class="box-siswa" id="quizScreen" style="display: none;">
      <div style="display:flex; justify-content:space-between; font-size:12px; color:#aaa; margin-bottom:10px;">
         <span id="progressSoalLabel">Soal 0/0</span>
-        <span id="timerLabel" style="color:var(--gold); font-weight:bold;">Waktu: --:--</span>
+        <span id="timerLabel" style="color:var(--gold); font-weight:bold;">Sisa Waktu: --:--</span>
      </div>
      
      <img src="" id="renderBoxGambarSoal" class="soal-image-render" style="display: none;">
@@ -81,7 +80,7 @@
   </div>
 
   <div class="box-siswa" id="resultScreen" style="display: none;">
-     <h2 style="color: var(--green); margin-top: 0;">KUIS SELESAI </h2>
+     <h2 style="color: var(--green); margin-top: 0;">KUIS SELESAI 🎉</h2>
      <p>Terima kasih telah mengikuti kuis ini.</p>
      <div style="font-size: 45px; font-weight: bold; color: var(--gold); margin: 20px 0;" id="finalScoreLabel">0</div>
      <p class="info-text">Nilai Anda telah otomatis disimpan ke server guru.</p>
@@ -100,17 +99,18 @@
   let totalBenar = 0;
   let sisaWaktuDetik = 0;
   let penandaIntervalTimer = null;
+  let kuisSudahMulai = false;
 
   window.onload = function() {
      if(!parsedRoomID) {
-        document.getElementById('statusRoomLabel').innerText = " Link tidak valid. Kamar Room tidak ditemukan.";
+        document.getElementById('statusRoomLabel').innerText = "❌ Link tidak valid. Kamar Room tidak ditemukan.";
         return;
      }
      
      if(firebaseAktif) {
         database.ref(`${FIREBASE_PATH}/${parsedRoomID}`).once('value', snap => {
            if(!snap.exists()) {
-              document.getElementById('statusRoomLabel').innerText = " Kuis tidak ditemukan atau sudah dihapus.";
+              document.getElementById('statusRoomLabel').innerText = "❌ Kuis tidak ditemukan atau sudah dihapus.";
               return;
            }
            
@@ -118,7 +118,7 @@
            let limitBatas = currentRoomData.expiredAt || 0;
            
            if(Date.now() > limitBatas) {
-              document.getElementById('statusRoomLabel').innerText = " Maaf, waktu kuis ini sudah kedaluwarsa.";
+              document.getElementById('statusRoomLabel').innerText = "❌ Maaf, waktu kuis ini sudah kedaluwarsa.";
               return;
            }
 
@@ -128,10 +128,13 @@
            document.getElementById('formLoginBody').style.display = 'block';
            mulaiTimerHitungMundur();
         });
+     } else {
+        document.getElementById('statusRoomLabel').innerText = "❌ Gagal menyambungkan ke Database.";
      }
   };
 
   function mulaiTimerHitungMundur() {
+     if (penandaIntervalTimer) clearInterval(penandaIntervalTimer);
      penandaIntervalTimer = setInterval(() => {
         if(sisaWaktuDetik <= 0) {
            clearInterval(penandaIntervalTimer);
@@ -148,7 +151,9 @@
   function mulaiMengerjakanKuis() {
      let input = document.getElementById('namaSiswaInput').value.trim();
      if(!input) { alert("Isi nama Anda!"); return; }
-     namaSiswa = input;
+     
+     namaSiswa = input.replace(/[\.\$\#\[\]\/]/g, "-");
+     kuisSudahMulai = true;
      
      document.getElementById('loginScreen').style.display = 'none';
      document.getElementById('quizScreen').style.display = 'block';
@@ -156,6 +161,8 @@
   }
 
   function tampilkanButirSoal() {
+     if(!currentRoomData || !currentRoomData.questions) return;
+     
      let totalSoal = currentRoomData.questions.length;
      document.getElementById('progressSoalLabel').innerText = `Soal ${currentIndex + 1} / ${totalSoal}`;
      
@@ -175,13 +182,15 @@
      let wrapper = document.getElementById('optionsWrapper');
      wrapper.innerHTML = "";
      
-     soalSekarang.options.forEach(opsi => {
-        let btn = document.createElement('button');
-        btn.className = "btn-jawaban";
-        btn.innerText = opsi;
-        btn.onclick = function() { evaluasiJawabanSiswa(opsi, soalSekarang.correct); };
-        wrapper.appendChild(btn);
-     });
+     if(soalSekarang.options && Array.isArray(soalSekarang.options)) {
+        soalSekarang.options.forEach(opsi => {
+           let btn = document.createElement('button');
+           btn.className = "btn-jawaban";
+           btn.innerText = opsi;
+           btn.onclick = function() { evaluasiJawabanSiswa(opsi, soalSekarang.correct); };
+           wrapper.appendChild(btn);
+        });
+     }
   }
 
   function evaluasiJawabanSiswa(pilihan, kunci) {
@@ -200,15 +209,18 @@
   }
 
   function kirimHasilAkhirOtomatis() {
-     let totalSoal = currentRoomData.questions.length;
-     let skorAkhir = Math.round((totalBenar / totalSoal) * 100);
+     let totalSoal = (currentRoomData && currentRoomData.questions) ? currentRoomData.questions.length : 0;
+     let skorAkhir = totalSoal > 0 ? Math.round((totalBenar / totalSoal) * 100) : 0;
      
      document.getElementById('quizScreen').style.display = 'none';
+     document.getElementById('loginScreen').style.display = 'none';
      document.getElementById('resultScreen').style.display = 'block';
      document.getElementById('finalScoreLabel').innerText = skorAkhir;
      
-     if(firebaseAktif) {
-        database.ref(`${FIREBASE_PATH}/${parsedRoomID}/leaderboard/${namaSiswa}`).set({
+     if(firebaseAktif && kuisSudahMulai && namaSiswa) {
+        let uniqueID = Date.now().toString().slice(-4);
+        database.ref(`${FIREBASE_PATH}/${parsedRoomID}/leaderboard/${namaSiswa}_${uniqueID}`).set({
+           namaAsli: namaSiswa,
            score: skorAkhir,
            waktuSelesai: new Date().toLocaleTimeString()
         });
