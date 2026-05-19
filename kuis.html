@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>JFT KUIS PORTAL - MAHASISWA</title>
+
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+
+<script>
+  let database = null;
+  let firebaseAktif = false;
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBZSps-natL_AFexEnQl9-chHFiLO0GXes",
+    authDomain: "kuis-jepang-29cf5.firebaseapp.com",
+    projectId: "kuis-jepang-29cf5",
+    storageBucket: "kuis-jepang-29cf5.firebasestorage.app",
+    messagingSenderId: "720051856565",
+    appId: "1:720051856565:web:6f068222f5d37dd8210afc",
+    measurementId: "G-WJMY1D0Q6F",
+    databaseURL: "https://kuis-jepang-29cf5-default-rtdb.asia-southeast1.firebasedatabase.app"
+  };
+  
+  try {
+     if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+     }
+     database = firebase.database();
+     firebaseAktif = true;
+  } catch (error) {
+     console.error("Firebase error:", error);
+  }
+</script>
+
+<style>
+  :root { --primary: #ff5722; --secondary: #2196f3; --bg: #121212; --card: #1e1e1e; --text: #eee; --green: #4caf50; --gold: #ffb74d; }
+  * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+  body { margin: 0; padding: 20px; background-color: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; }
+  #quiz-container { width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 15px; }
+  
+  .box-siswa { background: var(--card); border: 1px solid #333; padding: 20px; border-radius: 15px; text-align: center; }
+  input[type="text"] { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #444; background: #222; color: white; margin-bottom: 15px; text-align: center; outline: none; }
+  
+  /* Desain Gambar Responsive di HP Mahasiswa */
+  .soal-image-render { width: 100%; max-width: 100%; height: auto; border-radius: 10px; margin-bottom: 15px; border: 1px solid #444; background: #111; display: block; object-fit: contain; }
+
+  .btn-jawaban { width: 100%; background: #252525; border: 2px solid #444; color: white; padding: 14px; border-radius: 12px; margin-bottom: 8px; font-weight: bold; cursor: pointer; text-align: left; transition: 0.2s; }
+  .btn-jawaban:hover { border-color: var(--secondary); background: #2a2a2a; }
+  
+  .mainBtn { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 12px; width: 100%; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+  .info-text { font-size: 13px; color: #aaa; margin-bottom: 15px; }
+</style>
+</head>
+<body>
+
+<div id="quiz-container">
+  
+  <div class="box-siswa" id="loginScreen">
+     <h2 style="color: var(--gold); margin-top:0;">JFT KUIS PORTAL</h2>
+     <p class="info-text" id="statusRoomLabel">Mengecek kode kamar kuis...</p>
+     <div id="formLoginBody" style="display: none;">
+        <input type="text" id="namaSiswaInput" placeholder="Masukkan Nama Lengkap Anda" maxlength="30">
+        <button class="mainBtn" onclick="mulaiMengerjakanKuis()">MASUK KUIS</button>
+     </div>
+  </div>
+
+  <div class="box-siswa" id="quizScreen" style="display: none;">
+     <div style="display:flex; justify-content:space-between; font-size:12px; color:#aaa; margin-bottom:10px;">
+        <span id="progressSoalLabel">Soal 0/0</span>
+        <span id="timerLabel" style="color:var(--gold); font-weight:bold;">Waktu: --:--</span>
+     </div>
+     
+     <img src="" id="renderBoxGambarSoal" class="soal-image-render" style="display: none;">
+     
+     <h3 id="renderKanjiText" style="font-size:24px; margin:5px 0; color:white;"></h3>
+     <p id="renderKanaText" style="font-size:16px; color:var(--secondary); margin-bottom:20px;"></p>
+     
+     <div id="optionsWrapper"></div>
+  </div>
+
+  <div class="box-siswa" id="resultScreen" style="display: none;">
+     <h2 style="color: var(--green); margin-top: 0;">KUIS SELESAI </h2>
+     <p>Terima kasih telah mengikuti kuis ini.</p>
+     <div style="font-size: 45px; font-weight: bold; color: var(--gold); margin: 20px 0;" id="finalScoreLabel">0</div>
+     <p class="info-text">Nilai Anda telah otomatis disimpan ke server guru.</p>
+  </div>
+
+</div>
+
+<script>
+  const FIREBASE_PATH = "kuis_master_baru";
+  let urlParams = new URLSearchParams(window.location.search);
+  let parsedRoomID = urlParams.get('room');
+  
+  let currentRoomData = null;
+  let namaSiswa = "";
+  let currentIndex = 0;
+  let totalBenar = 0;
+  let sisaWaktuDetik = 0;
+  let penandaIntervalTimer = null;
+
+  window.onload = function() {
+     if(!parsedRoomID) {
+        document.getElementById('statusRoomLabel').innerText = " Link tidak valid. Kamar Room tidak ditemukan.";
+        return;
+     }
+     
+     if(firebaseAktif) {
+        database.ref(`${FIREBASE_PATH}/${parsedRoomID}`).once('value', snap => {
+           if(!snap.exists()) {
+              document.getElementById('statusRoomLabel').innerText = " Kuis tidak ditemukan atau sudah dihapus.";
+              return;
+           }
+           
+           currentRoomData = snap.val();
+           let limitBatas = currentRoomData.expiredAt || 0;
+           
+           if(Date.now() > limitBatas) {
+              document.getElementById('statusRoomLabel').innerText = " Maaf, waktu kuis ini sudah kedaluwarsa.";
+              return;
+           }
+
+           sisaWaktuDetik = Math.floor((limitBatas - Date.now()) / 1000);
+           
+           document.getElementById('statusRoomLabel').innerText = `Kamar Berhasil Ditemukan: Room ${parsedRoomID}`;
+           document.getElementById('formLoginBody').style.display = 'block';
+           mulaiTimerHitungMundur();
+        });
+     }
+  };
+
+  function mulaiTimerHitungMundur() {
+     penandaIntervalTimer = setInterval(() => {
+        if(sisaWaktuDetik <= 0) {
+           clearInterval(penandaIntervalTimer);
+           kirimHasilAkhirOtomatis();
+           return;
+        }
+        sisaWaktuDetik--;
+        let m = Math.floor(sisaWaktuDetik / 60);
+        let s = sisaWaktuDetik % 60;
+        document.getElementById('timerLabel').innerText = `Sisa Waktu: ${m}:${s < 10 ? '0'+s : s}`;
+     }, 1000);
+  }
+
+  function mulaiMengerjakanKuis() {
+     let input = document.getElementById('namaSiswaInput').value.trim();
+     if(!input) { alert("Isi nama Anda!"); return; }
+     namaSiswa = input;
+     
+     document.getElementById('loginScreen').style.display = 'none';
+     document.getElementById('quizScreen').style.display = 'block';
+     tampilkanButirSoal();
+  }
+
+  function tampilkanButirSoal() {
+     let totalSoal = currentRoomData.questions.length;
+     document.getElementById('progressSoalLabel').innerText = `Soal ${currentIndex + 1} / ${totalSoal}`;
+     
+     let soalSekarang = currentRoomData.questions[currentIndex];
+     
+     let imgBox = document.getElementById('renderBoxGambarSoal');
+     if(soalSekarang.image && soalSekarang.image.trim() !== "") {
+        imgBox.src = soalSekarang.image;
+        imgBox.style.display = 'block';
+     } else {
+        imgBox.style.display = 'none';
+     }
+
+     document.getElementById('renderKanjiText').innerText = soalSekarang.kanji || "";
+     document.getElementById('renderKanaText').innerText = soalSekarang.kana || "";
+     
+     let wrapper = document.getElementById('optionsWrapper');
+     wrapper.innerHTML = "";
+     
+     soalSekarang.options.forEach(opsi => {
+        let btn = document.createElement('button');
+        btn.className = "btn-jawaban";
+        btn.innerText = opsi;
+        btn.onclick = function() { evaluasiJawabanSiswa(opsi, soalSekarang.correct); };
+        wrapper.appendChild(btn);
+     });
+  }
+
+  function evaluasiJawabanSiswa(pilihan, kunci) {
+     if(pilihan === kunci) {
+        totalBenar++;
+     }
+     
+     let totalSoal = currentRoomData.questions.length;
+     if(currentIndex < totalSoal - 1) {
+        currentIndex++;
+        tampilkanButirSoal();
+     } else {
+        clearInterval(penandaIntervalTimer);
+        kirimHasilAkhirOtomatis();
+     }
+  }
+
+  function kirimHasilAkhirOtomatis() {
+     let totalSoal = currentRoomData.questions.length;
+     let skorAkhir = Math.round((totalBenar / totalSoal) * 100);
+     
+     document.getElementById('quizScreen').style.display = 'none';
+     document.getElementById('resultScreen').style.display = 'block';
+     document.getElementById('finalScoreLabel').innerText = skorAkhir;
+     
+     if(firebaseAktif) {
+        database.ref(`${FIREBASE_PATH}/${parsedRoomID}/leaderboard/${namaSiswa}`).set({
+           score: skorAkhir,
+           waktuSelesai: new Date().toLocaleTimeString()
+        });
+     }
+  }
+</script>
+</body>
+</html>
