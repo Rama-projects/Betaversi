@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>JFT MASTER PANEL - AUTO DISTRACTOR</title>
+<title>JFT MASTER PANEL - AUTO DISTRACTOR FIX</title>
 
-<script src="data_irodori.js"></script>
 <script src="data_minna.js"></script>
+<script src="data_irodori.js"></script>
+<script src="data_ssw_pm.js"></script>
 
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
@@ -79,12 +80,13 @@
   </div>
 
   <div class="admin-box">
-     <h3 style="color: var(--secondary); font-size: 16px; margin-bottom: 15px; margin-top:0;">🆕 BUAT PAKET KUIS (AUTO GOCEKAN)</h3>
+     <h3 style="color: var(--secondary); font-size: 16px; margin-bottom: 15px; margin-top:0;">🆕 BUAT PAKET KUIS (SUPER KILAT)</h3>
      
-     <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 2px;">Sumber Bank Data Gocekan Otomatis:</label>
+     <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 2px;">Sumber Bank Data Gocekan:</label>
      <select id="sumberDataGocekan">
-        <option value="irodori">Ambil Kosakata dari data_irodori.js</option>
-        <option value="minna">Ambil Kosakata dari data_minna.js</option>
+        <option value="irodori">Ambil Gocekan dari Irodori</option>
+        <option value="minna">Ambil Gocekan dari Minna no Nihongo</option>
+        <option value="ssw">Ambil Gocekan dari SSW PM</option>
      </select>
 
      <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 2px;">Masa Aktif Link (Menit):</label>
@@ -152,10 +154,10 @@
         <label style="font-size:11px; color:#aaa; display:block; margin-bottom:2px;">Tambah Gambar (Otomatis Kompres):</label>
         <input type="file" accept="image/*" onchange="prosesDanKompresGambar(this, ${nomorSoalCounter})" style="padding:5px; font-size:11px; background:#1a1a1a;">
 
-        <input type="text" class="inp-kanji" placeholder="Kanji (Opsional)">
-        <input type="text" class="inp-kana" placeholder="Kana / Bacaan Pertanyaan (Wajib)">
+        <input type="text" class="inp-kanji" placeholder="Kanji / Judul Atas (Opsional)">
+        <input type="text" class="inp-kana" placeholder="Pertanyaan / Petunjuk Kuis (Wajib)">
         <input type="text" class="inp-correct" placeholder="Jawaban Benar (Wajib)" style="border-color: var(--green);">
-        <p style="margin: 2px 0 0 0; font-size: 10px; color: var(--gold);">*3 Pilihan salah akan diisi otomatis oleh sistem</p>
+        <p style="margin: 2px 0 0 0; font-size: 10px; color: var(--gold);">✨ 3 Pilihan salah akan diacak otomatis dari file data Anda.</p>
      `;
      wrapper.appendChild(card);
      wrapper.scrollTop = wrapper.scrollHeight;
@@ -202,34 +204,45 @@
      });
   }
 
-  // LOGIKA AMBIL GOCEKAN ACAK DARI FILE JS GITHUB ANDA
+  // LOGIKA UTAMA EKSTRAK DATA GOCEKAN OTOMATIS SESUAI STRUKTUR ANDA
   function dapatkanGocekanOtomatis(jawabanBenar, jenisData) {
-     let listKosakata = [];
+     let sumberArray = [];
      
      try {
-        // Deteksi pilihan data berdasarkan dropdown select
-        if (jenisData === "irodori" && typeof data_irodori !== "undefined") {
-           listKosakata = data_irodori.map(item => item.kana || item.kosakata || item).filter(Boolean);
-        } else if (jenisData === "minna" && typeof data_minna !== "undefined") {
-           listKosakata = data_minna.map(item => item.kana || item.kosakata || item).filter(Boolean);
+        if (jenisData === "irodori" && typeof irodori !== "undefined") {
+           sumberArray = irodori;
+        } else if (jenisData === "minna" && typeof minna !== "undefined") {
+           // Menyesuaikan jika nama variabel di file Anda adalah 'minna'
+           sumberArray = minna;
+        } else if (jenisData === "ssw" && typeof ssw !== "undefined") {
+           sumberArray = ssw;
+        } else {
+           // Jika nama variabel di file js Anda memakai windows/global object, coba cari otomatis
+           sumberArray = window[jenisData] || window["data_" + jenisData] || [];
         }
      } catch (e) {
-        console.log("Gagal membaca file js bank data: ", e);
+        console.error("Gagal mendeteksi bank data js:", e);
      }
 
-     // Jika file JS kosong/tidak terbaca, pakai backup gocekan standar ini agar kuis tidak crash
-     if (listKosakata.length < 5) {
-        listKosakata = ["たべます", "のみます", "いきます", "きます", "みます", "かいます", "はなします", "ききます"];
+     // Ambil isi teks kana dari data mentah
+     let listKataMentah = sumberArray.map(item => item.kana || item.correct || "").filter(Boolean);
+
+     // Backup jika file data .js gagal ter-load di web agar kuis tidak macet
+     if (listKataMentah.length < 5) {
+        listKataMentah = ["たべます", "のみます", "いきます", "きます", "みます", "かいます", "しんしつ", "だいどころ"];
      }
 
-     // Filter agar jawaban benar tidak ikut menjadi pilihan salah
-     let filterSalah = listKosakata.filter(kata => kata !== jawabanBenar);
+     // Filter agar jawaban benar tidak ganda dengan pilihan salah
+     let filterGocekan = listKataMentah.filter(kata => kata !== jawabanBenar);
      
-     // Acak isi array
-     filterSalah.sort(() => Math.random() - 0.5);
+     // Hilangkan duplikat kata agar pilihan ganda tidak ada yang kembar
+     filterGocekan = [...new Set(filterGocekan)];
+
+     // Acak tumpukan data gocekan
+     filterGocekan.sort(() => Math.random() - 0.5);
      
-     // Ambil 3 teratas
-     return filterSalah.slice(0, 3);
+     // Ambil 3 kata acak teratas
+     return filterGocekan.slice(0, 3);
   }
 
   function mulaiKuisDanGenerateLinkBaru() {
@@ -245,14 +258,16 @@
         const kana = card.querySelector('.inp-kana').value.trim();
         const correct = card.querySelector('.inp-correct').value.trim();
 
-        if(!kana) { alert(`❌ Kolom Kana/Pertanyaan di Soal No #${nomorNyata} kosong.`); isValid = false; return; }
-        if(!correct) { alert(`❌ Kolom Jawaban Benar di Soal No #${nomorNyata} kosong.`); isValid = false; return; }
+        if(!kana) { alert(`❌ Kolom Pertanyaan di Soal No #${nomorNyata} masih kosong.`); isValid = false; return; }
+        if(!correct) { alert(`❌ Kolom Jawaban Benar di Soal No #${nomorNyata} masih kosong.`); isValid = false; return; }
         
-        // AUTO GENERATE 3 PILIHAN SALAH DI SINI
+        // MENYUSUN OPSI JAWABAN (1 BENAR + 3 GOCEKAN OTOMATIS)
         let splitWrongs = dapatkanGocekanOtomatis(correct, tipeData);
 
         let choices = [correct];
         splitWrongs.forEach(w => choices.push(w));
+        
+        // Acak posisi urutan tombol jawaban agar posisi jawaban benar tidak selalu di atas
         choices.sort(() => Math.random() - 0.5);
 
         const currentId = card.id.split("_");
@@ -316,14 +331,14 @@
      database.ref(FIREBASE_PATH).on('value', snap => {
         const cont = document.getElementById('runningRoomsContainer');
         cont.innerHTML = "";
-        if(!snap.exists()) { cont.innerHTML = `<p style="text-align: center;">Tidak ada kuis aktif...</p>`; return; }
+        if(!snap.exists()) { cont.innerHTML = `<p style="text-align: center; color: #666; font-size: 13px;">Tidak ada kuis aktif...</p>`; return; }
         snap.forEach(child => {
            const room = child.val();
            const div = document.createElement('div');
            div.className = 'room-active-item';
            div.innerHTML = `
-              <div><strong>${room.roomID}</strong> (Soal: ${room.questions ? room.questions.length : 0})</div>
-              <button class="mainBtn redBtn" style="padding:6px 10px; font-size:11px; width:auto;" onclick="hapusKuisDanDataFirebase('${room.roomID}')">❌ HAPUS</button>
+              <div><strong style="color:var(--secondary);">${room.roomID}</strong><br><span style="font-size:11px; color:#aaa;">Soal: ${room.questions ? room.questions.length : 0}</span></div>
+              <button class="mainBtn redBtn" style="padding:6px 10px; font-size:11px; width:auto; box-shadow:none;" onclick="hapusKuisDanDataFirebase('${room.roomID}')">❌ HAPUS</button>
            `;
            cont.appendChild(div);
         });
