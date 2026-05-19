@@ -3,11 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>JFT MASTER PANEL - FIX GAMBAR & GOCEKAN</title>
-
-<script src="data_minna.js"></script>
-<script src="data_irodori.js"></script>
-<script src="data_ssw_pm.js"></script>
+<title>JFT MASTER PANEL - KILAT TANPA GOCEKAN</title>
 
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
@@ -80,10 +76,10 @@
   </div>
 
   <div class="admin-box">
-     <h3 style="color: var(--secondary); font-size: 16px; margin-bottom: 15px; margin-top:0;">🆕 BUAT PAKET KUIS (GOCEKAN + GAMBAR FIX)</h3>
+     <h3 style="color: var(--secondary); font-size: 16px; margin-bottom: 15px; margin-top:0;">🆕 KUIS KILAT (GAMBAR + JAWABAN SAJA)</h3>
 
      <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 2px;">Masa Aktif Link (Menit):</label>
-     <input type="number" id="linkExpiryInput" value="120" min="1">
+     <input type="number" id="linkExpiryInput" value="180" min="1">
      
      <div id="dynamicSoalWrapper" style="max-height: 350px; overflow-y: auto; margin-top: 10px; padding-right: 5px;"></div>
      
@@ -142,15 +138,12 @@
         </div>
         
         <div class="img-preview-box" id="previewBox_${nomorSoalCounter}" style="display:none; justify-content:center; align-items:center;"></div>
-        <input type="hidden" id="hiddenBase64_${nomorSoalCounter}" class="inp-base64" value="">
+        <input type="text" class="inp-base64" style="display:none;" value="">
         
-        <label style="font-size:11px; color:#aaa; display:block; margin-bottom:2px;">Tambah Gambar (Otomatis Kompres):</label>
+        <label style="font-size:11px; color:#aaa; display:block; margin-bottom:2px;">Upload Gambar Soal (Wajib):</label>
         <input type="file" accept="image/*" onchange="prosesDanKompresGambar(this, ${nomorSoalCounter})" style="padding:5px; font-size:11px; background:#1a1a1a;">
 
-        <input type="text" class="inp-kanji" placeholder="Kanji / Judul Atas (Opsional)">
-        <input type="text" class="inp-kana" placeholder="Pertanyaan / Petunjuk Kuis (Wajib)">
         <input type="text" class="inp-correct" placeholder="Jawaban Benar (Wajib)" style="border-color: var(--green);">
-        <p style="margin:4px 0 0 0; font-size:11px; color:var(--gold);">✨ Gocekan otomatis diaktifkan dari bank data .js Anda.</p>
      `;
      wrapper.appendChild(card);
      wrapper.scrollTop = wrapper.scrollHeight;
@@ -159,6 +152,7 @@
   function prosesDanKompresGambar(inputElement, currentId) {
      if (!inputElement.files || !inputElement.files) return;
      const file = inputElement.files; 
+     const card = inputElement.closest('.soal-card-input');
 
      const reader = new FileReader();
      reader.onload = function(event) {
@@ -166,15 +160,15 @@
         img.onload = function() {
            const canvas = document.createElement('canvas');
            let width = img.width; let height = img.height;
-           const MAX_WIDTH = 450;
+           const MAX_WIDTH = 500;
            if (width > MAX_WIDTH) { height = Math.round((height * MAX_WIDTH) / width); width = MAX_WIDTH; }
            canvas.width = width; canvas.height = height;
            const ctx = canvas.getContext('2d');
            ctx.drawImage(img, 0, 0, width, height);
-           const compressedBase64 = canvas.toDataURL('image/jpeg', 0.65);
            
-           // FIX AMAN: Tembak langsung nilai ke input hidden berdasarkan ID uniknya
-           document.getElementById(`hiddenBase64_${currentId}`).value = compressedBase64;
+           // Simpan string gambar kualitas tinggi tapi ukuran kompres optimal
+           const compressedBase64 = canvas.toDataURL('image/jpeg', 0.75);
+           card.querySelector('.inp-base64').value = compressedBase64;
            
            const pBox = document.getElementById(`previewBox_${currentId}`);
            pBox.innerHTML = `<img src="${compressedBase64}" style="max-width:100%; max-height:150px; object-fit:contain;">`; 
@@ -199,87 +193,49 @@
      });
   }
 
-  function dapatkanGocekanOtomatis(jawabanBenar) {
-     let megaWadah = [];
-     try {
-        if (typeof irodori !== "undefined") megaWadah = megaWadah.concat(irodori);
-        if (typeof data_irodori !== "undefined") megaWadah = megaWadah.concat(data_irodori);
-        if (typeof minna !== "undefined") megaWadah = megaWadah.concat(minna);
-        if (typeof data_minna !== "undefined") megaWadah = megaWadah.concat(data_minna);
-        if (typeof ssw !== "undefined") megaWadah = megaWadah.concat(ssw);
-        if (typeof data_ssw_pm !== "undefined") megaWadah = megaWadah.concat(data_ssw_pm);
-     } catch (e) { console.warn(e); }
-
-     let listKataMentah = [];
-     if(Array.isArray(megaWadah) && megaWadah.length > 0) {
-        listKataMentah = megaWadah.map(item => {
-           if (!item) return "";
-           return item.kana || item.correct || (typeof item === 'string' ? item : "");
-        }).filter(Boolean);
-     }
-
-     if (!listKataMentah || listKataMentah.length < 5) {
-        listKataMentah = ["たべます", "のみます", "いきます", "きます", "みます", "かいます", "しんしつ", "だいどころ"];
-     }
-
-     let filterGocekan = listKataMentah.filter(kata => kata !== jawabanBenar);
-     filterGocekan = [...new Set(filterGocekan)];
-     filterGocekan.sort(() => Math.random() - 0.5);
-     
-     return filterGocekan.slice(0, 3);
-  }
-
   function mulaiKuisDanGenerateLinkBaru() {
      const cards = document.querySelectorAll('.soal-card-input');
-     if(cards.length === 0) { alert("❌ Buat minimal 1 soal terlebih dahulu!"); return; }
+     if(cards.length === 0) { alert("❌ Tambah minimal 1 gambar kuis!"); return; }
      
      let tempBatch = [];
      let isValid = true;
 
-     cards.forEach((card) => {
-        const kanji = card.querySelector('.inp-kanji').value.trim();
-        const kana = card.querySelector('.inp-kana').value.trim();
+     cards.forEach((card, index) => {
+        const nomorNyata = index + 1;
         const correct = card.querySelector('.inp-correct').value.trim();
-        
-        // FIX AMAN: Ambil data gambar dari input hiddens di dalam card kuis secara akurat
         const base64Image = card.querySelector('.inp-base64').value || "";
 
-        if(!kana) { alert(`❌ Kolom Pertanyaan masih ada yang kosong.`); isValid = false; return; }
-        if(!correct) { alert(`❌ Kolom Jawaban Benar masih ada yang kosong.`); isValid = false; return; }
+        if(!base64Image) { alert(`❌ Gambar di Soal No #${nomorNyata} belum di-upload!`); isValid = false; return; }
+        if(!correct) { alert(`❌ Jawaban Benar di Soal No #${nomorNyata} wajib diisi!`); isValid = false; return; }
         
-        let splitWrongs = dapatkanGocekanOtomatis(correct);
-        let choices = [correct];
-        splitWrongs.forEach(w => choices.push(w));
-        choices.sort(() => Math.random() - 0.5);
-
         tempBatch.push({ 
-           kanji: kanji, 
-           kana: kana, 
-           correct: correct, 
-           options: choices,
-           image: base64Image
+           image: base64Image,
+           correct: correct,
+           kanji: "", 
+           kana: "Lihat gambar dan ketik jawaban yang benar:", 
+           options: [correct] // Tanpa gocekan sama sekali!
         });
      });
 
      if(!isValid) return;
-     if (!firebaseAktif) { alert("❌ Gagal terhubung ke Firebase Server! Periksa internet Anda."); return; }
+     if (!firebaseAktif) { alert("❌ Putus koneksi server Firebase!"); return; }
 
-     const menitAktif = parseInt(document.getElementById('linkExpiryInput').value) || 120;
+     const menitAktif = parseInt(document.getElementById('linkExpiryInput').value) || 180;
      const expiredTime = Date.now() + (menitAktif * 60 * 1000);
-     const generateNewID = "ROOM-" + Math.floor(1000 + Math.random() * 9000);
+     const generateNewID = "JFT-" + Math.floor(1000 + Math.random() * 9000);
      
-     // KUNCI DOMAIN: Link siswa langsung diarahkan murni ke domain bebas login Vercel Anda!
+     // KUNCI ABSOLUT DOMAIN BEBAS LOGIN VERCEL LU!
      let fullURL = "https://rama-project.vercel.app/kuis.html?room=" + generateNewID;
 
      database.ref(`${FIREBASE_PATH}/${generateNewID}`).set({
         roomID: generateNewID, expiredAt: expiredTime, questions: tempBatch
      }, (error) => {
         if(error) {
-           alert("❌ Gagal ke Firebase: " + error.message);
+           alert("❌ Gagal simpan: " + error.message);
         } else {
            document.getElementById('textLinkSiswa').innerText = fullURL;
            document.getElementById('linkOutputContainer').style.display = 'block';
-           showToast("🚀 Kuis Aktif! Silakan salin link di bawah.");
+           showToast("🚀 Link kuis kilat berhasil dibuat!");
            resetFormInputs();
         }
      });
@@ -307,7 +263,7 @@
            const div = document.createElement('div');
            div.className = 'room-active-item';
            div.innerHTML = `
-              <div><strong style="color:var(--secondary);">${room.roomID}</strong><br><span style="font-size:11px; color:#aaa;">Soal: ${room.questions ? room.questions.length : 0}</span></div>
+              <div><strong style="color:var(--secondary);">${room.roomID}</strong><br><span style="font-size:11px; color:#aaa;">Soal Gambar: ${room.questions ? room.questions.length : 0}</span></div>
               <button class="mainBtn redBtn" style="padding:6px 10px; font-size:11px; width:auto; box-shadow:none;" onclick="hapusKuisDanDataFirebase('${room.roomID}')">❌ HAPUS</button>
            `;
            cont.appendChild(div);
