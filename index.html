@@ -165,7 +165,7 @@
 
   function prosesDanKompresGambar(inputElement, idNomor) {
      if (!inputElement.files || !inputElement.files) return;
-     const file = inputElement.files; // FIX: Ditambahkan agar membaca file tunggal
+     const file = inputElement.files; 
 
      const reader = new FileReader();
      reader.onload = function(event) {
@@ -253,24 +253,28 @@
      let isValid = true;
      const tipeData = document.getElementById('sumberDataGocekan').value;
 
-     for (let idx = 0; idx < cards.length; idx++) {
-        const card = cards[idx];
-        const nomorNyata = idx + 1;
+     cards.forEach((card, index) => {
+        const nomorNyata = index + 1;
         
-        const kanji = card.querySelector('.inp-kanji').value.trim();
-        const kana = card.querySelector('.inp-kana').value.trim();
-        const correct = card.querySelector('.inp-correct').value.trim();
+        const kanjiInput = card.querySelector('.inp-kanji');
+        const kanaInput = card.querySelector('.inp-kana');
+        const correctInput = card.querySelector('.inp-correct');
 
-        if(!kana) { alert(`❌ Kolom Pertanyaan di Soal No #${nomorNyata} masih kosong.`); isValid = false; break; }
-        if(!correct) { alert(`❌ Kolom Jawaban Benar di Soal No #${nomorNyata} masih kosong.`); isValid = false; break; }
+        const kanji = kanjiInput ? kanjiInput.value.trim() : "";
+        const kana = kanaInput ? kanaInput.value.trim() : "";
+        const correct = correctInput ? correctInput.value.trim() : "";
+
+        if(!kana) { alert(`❌ Kolom Pertanyaan di Soal No #${nomorNyata} masih kosong.`); isValid = false; return; }
+        if(!correct) { alert(`❌ Kolom Jawaban Benar di Soal No #${nomorNyata} masih kosong.`); isValid = false; return; }
         
         let splitWrongs = dapatkanGocekanOtomatis(correct, tipeData);
         let choices = [correct];
         splitWrongs.forEach(w => choices.push(w));
         choices.sort(() => Math.random() - 0.5);
 
-        // FIX: Menggunakan target ID berbasis nomor urut asli loop (nomorNyata)
-        const base64Image = document.getElementById(`base64_${nomorNyata}`).value || "";
+        const idAsli = card.id.split("_");
+        const hiddenImgEl = document.getElementById(`base64_${idAsli}`);
+        const base64Image = hiddenImgEl ? hiddenImgEl.value : "";
 
         tempBatch.push({ 
            kanji: kanji, 
@@ -279,7 +283,7 @@
            options: choices,
            image: base64Image
         });
-     }
+     });
 
      if(!isValid) return;
      if (!firebaseAktif) { alert("❌ Gagal terhubung ke Firebase Server! Periksa internet Anda."); return; }
@@ -288,17 +292,16 @@
      const expiredTime = Date.now() + (menitAktif * 60 * 1000);
      const generateNewID = "NEW-" + Math.floor(1000 + Math.random() * 9000);
      
-     // FIX: Memperbaiki pemecahan string url agar tidak error .endsWith()
-     let currentHref = window.location.href.split('?'); 
+     let currentUrlString = window.location.href.split('?'); 
      let fullURL = "";
      
-     if(currentHref.endsWith("index.html")) {
-        fullURL = currentHref.replace("index.html", "kuis.html") + "?room=" + generateNewID;
-     } else if(currentHref.endsWith("/")) {
-        fullURL = currentHref + "kuis.html?room=" + generateNewID;
+     if(currentUrlString.endsWith("index.html")) {
+        fullURL = currentUrlString.replace("index.html", "kuis.html") + "?room=" + generateNewID;
+     } else if(currentUrlString.endsWith("/")) {
+        fullURL = currentUrlString + "kuis.html?room=" + generateNewID;
      } else {
-        let lastSlash = currentHref.lastIndexOf("/");
-        fullURL = currentHref.substring(0, lastSlash + 1) + "kuis.html?room=" + generateNewID;
+        let lastSlash = currentUrlString.lastIndexOf("/");
+        fullURL = currentUrlString.substring(0, lastSlash + 1) + "kuis.html?room=" + generateNewID;
      }
 
      database.ref(`${FIREBASE_PATH}/${generateNewID}`).set({
@@ -343,6 +346,10 @@
            cont.appendChild(div);
         });
      });
+  }
+
+  function deleteExpiredRoomsAutomatically(snap) {
+      // Fitur opsional pembersih otomatis jika diperlukan di masa mendatang
   }
 
   function hapusKuisDanDataFirebase(idRoom) {
