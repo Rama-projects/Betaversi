@@ -42,17 +42,17 @@
   input[type="text"], input[type="number"], input[type="file"] { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #444; background: #222; color: white; margin-bottom: 10px; outline: none; font-size: 14px; }
   input:focus { border-color: var(--primary); }
   
-  .btn { background: #ff5722; color: white; border: none; padding: 14px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 0 #bf360c; display: block; margin-top: 5px; font-size: 14px; }
+  .btn { background: #ff5722; color: white; border: none; padding: 14px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 0 #bf360c; display: block; margin-top: 5px; font-size: 14px; -webkit-tap-highlight-color: transparent; }
   .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #bf360c; }
   
   .blueBtn { background: var(--primary); box-shadow: 0 4px 0 #1565c0; }
   .greenBtn { background: var(--green); box-shadow: 0 4px 0 #2e7d32; }
   
-  /* Desain Kartu Per Nomor Soal */
   .card-soal { background: #252525; padding: 15px; border-radius: 12px; margin-top: 15px; border: 2px dashed #444; }
   
-  .preview-img-box { width: 100%; min-height: 100px; max-height: 200px; background: #000; border-radius: 8px; margin-bottom: 10px; display: none; justify-content: center; align-items: center; overflow: hidden; border: 1px dashed var(--gold); }
-  .preview-img-box img { max-width: 100%; max-height: 200px; object-fit: contain; }
+  /* BOX PREVIEW GAMBAR ASLI */
+  .preview-img-box { width: 100%; min-height: 120px; max-height: 250px; background: #000; border-radius: 8px; margin-bottom: 10px; display: none; justify-content: center; align-items: center; overflow: hidden; border: 1px dashed var(--gold); }
+  .preview-img-box img { max-width: 100%; max-height: 250px; object-fit: contain; display: block; }
   
   .output-box { display: none; background: #151515; border: 2px solid var(--gold); border-radius: 12px; padding: 15px; margin-top: 15px; text-align: center; }
   .url-text { background: #222; padding: 10px; border-radius: 8px; font-size: 13px; color: var(--gold); word-break: break-all; margin-bottom: 10px; font-family: monospace; }
@@ -88,12 +88,11 @@
 <script>
   let totalSoalSaatIni = 0;
 
-  // Halaman kebuka langsung otomatis ngasih slot soal pertama
+  // Halaman kebuka langsung ngasih slot soal pertama otomatis
   window.onload = function() {
      tambahKolomSoalBaru();
   };
 
-  // Fungsi untuk membuat form soal baru (bisa dipencet berkali-kali tanpa batas)
   function tambahKolomSoalBaru() {
      totalSoalSaatIni++;
      const wadah = document.getElementById('wrapperSoal');
@@ -103,8 +102,8 @@
      card.id = `boxSoal_${totalSoalSaatIni}`;
      
      card.innerHTML = `
-        <div style="display:flex; justify-content:between; align-items:center; margin-bottom:10px; font-size:13px; font-weight:bold; color:var(--gold);">
-           <span style="flex:1;">📝 PERTANYAAN NO. ${totalSoalSaatIni}</span>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:13px; font-weight:bold; color:var(--gold);">
+           <span>📝 PERTANYAAN NO. ${totalSoalSaatIni}</span>
            <span style="color:var(--red); cursor:pointer; font-size:12px; background:#331111; padding:3px 8px; border-radius:5px;" onclick="hapusSoalTertentu(${totalSoalSaatIni})">Hapus</span>
         </div>
         
@@ -134,17 +133,16 @@
 
   function hapusSoalTertentu(idNomor) {
      const elemen = document.getElementById(`boxSoal_${idNomor}`);
-     if(elemen) {
-        elemen.remove();
-        // Catatan: totalSoalSaatIni tidak dikurangi agar ID input tidak bentrok.
-     }
+     if(elemen) elemen.remove();
   }
 
+  // FIX UTAMA: Fungsi pembaca gambar disamakan namanya agar tidak macet lagi
   function prosesGambarKeBase64(fileInput, idNomor) {
      if (!fileInput.files || !fileInput.files) return;
      const pv = document.getElementById(`pvBox_${idNomor}`);
+     
      pv.style.display = 'flex';
-     pv.innerHTML = `<span style="color:#aaa; font-size:11px;">Membaca gambar...</span>`;
+     pv.innerHTML = `<span style="color:#aaa; font-size:11px;">Memuat gambar asli...</span>`;
 
      const reader = new FileReader();
      reader.onload = function(e) {
@@ -152,11 +150,17 @@
         img.onload = function() {
            const canvas = document.createElement('canvas');
            let w = img.width; let h = img.height;
+           
+           // Kompresi aman biar tidak lemot di Firebase
            if (w > 500) { h = Math.round((h * 500) / w); w = 500; }
            canvas.width = w; canvas.height = h;
-           canvas.getContext('2d').drawImage(img, 0, 0, w, h);
            
-           const finalBase64 = canvas.toDataURL('image/jpeg', 0.5);
+           const ctx = canvas.getContext('2d');
+           ctx.drawImage(img, 0, 0, w, h);
+           
+           const finalBase64 = canvas.toDataURL('image/jpeg', 0.6);
+           
+           // Mengunci data gambar dan menampilkan GAMBAR ASLI di kotak preview
            document.getElementById(`stringBase_${idNomor}`).value = finalBase64;
            pv.innerHTML = `<img src="${finalBase64}">`;
         };
@@ -169,17 +173,16 @@
      const semuaKartuSoal = document.querySelectorAll('.card-soal');
      const babGocekan = document.getElementById('babOpsiInput').value.trim();
 
-     if(semuaKartuSoal.length === 0) { alert("Minimal harus memasukkan 1 pertanyaan, bro!"); return; }
-     if(typeof babData === 'undefined') { alert("File data_minna.js di GitHub lu bermasalah/tidak terbaca!"); return; }
+     if(semuaKartuSoal.length === 0) { alert("Tambahkan minimal 1 pertanyaan, bro!"); return; }
+     if(typeof babData === 'undefined') { alert("File data_minna.js tidak ditemukan di hostingan web lu!"); return; }
 
      const dataMinnaBab = babData[babGocekan];
-     if(!dataMinnaBab || dataMinnaBab.length === 0) { alert(`Data Minna untuk Bab ${babGocekan} kosong/tidak ketemu!`); return; }
-     if(!firebaseAktif || !database) { alert("Koneksi Firebase mati!"); return; }
+     if(!dataMinnaBab || dataMinnaBab.length === 0) { alert(`Bab Minna ${babGocekan} tidak ada isi datanya!`); return; }
+     if(!firebaseAktif || !database) { alert("Koneksi Firebase bermasalah!"); return; }
 
      let paketSoalFinal = [];
      let statusValidasi = true;
 
-     // Looping mengambil data dari setiap kartu pertanyaan yang aktif
      semuaKartuSoal.forEach((kartu) => {
         const idAsli = kartu.id.split('_');
         
@@ -188,27 +191,23 @@
         const kanaData = document.getElementById(`kana_${idAsli}`).value.trim();
         const jawabanBenar = document.getElementById(`jawabanBenar_${idAsli}`).value.trim();
 
-        if(!imgData) { alert(`Gambar pada nomor soal dengan ID ${idAsli} belum diupload!`); statusValidasi = false; return; }
-        if(!jawabanBenar) { alert(`Kunci jawaban benar pada nomor soal dengan ID ${idAsli} masih kosong!`); statusValidasi = false; return; }
+        if(!imgData) { alert(`Gambar pada Pertanyaan No.${idAsli} belum di-upload!`); statusValidasi = false; return; }
+        if(!jawabanBenar) { alert(`Kunci Jawaban Benar pada Pertanyaan No.${idAsli} wajib diisi!`); statusValidasi = false; return; }
 
-        // === PROSES GENERATE GOCEKAN OTOMATIS ===
+        // MENGAMBIL 3 GOCEKAN SALAH DARI DATA_MINNA
         let bankKataSalah = [];
         dataMinnaBab.forEach(item => {
-           // Ambil teks jawaban benar dari minna js selama teksnya tidak sama dengan jawaban benar manual lu
            if(item.correct.toLowerCase() !== jawabanBenar.toLowerCase()) {
               bankKataSalah.push(item.correct);
            }
         });
 
-        // Acak gocekan & potong mengambil 3 opsi saja
         bankKataSalah.sort(() => 0.5 - Math.random());
         let tigaGocekanAcak = bankKataSalah.slice(0, 3);
-
-        // Gabungkan jawaban benar lu dengan 3 gocekan minna tersebut
         let gabunganOpsiPilihan = [jawabanBenar].concat(tigaGocekanAcak);
 
         paketSoalFinal.push({
-           image: imgData,
+           image: imgData, // Ini gambar asli berupa string terenkripsi aman
            kanji: kanjiData,
            kana: kanaData,
            answers: gabunganOpsiPilihan, 
@@ -216,7 +215,7 @@
         });
      });
 
-     if(!statusValidasi) return; // Stop jika ada data tidak lengkap
+     if(!statusValidasi) return;
 
      const menit = parseInt(document.getElementById('expiryInput').value) || 180;
      const expired = Date.now() + (menit * 60 * 1000);
@@ -224,17 +223,16 @@
 
      let linkSiswa = window.location.origin + "/kuis.html?room=" + roomID;
 
-     // Push paket massal ke Firebase
      database.ref("kuis_master_baru/" + roomID).set({
         roomID: roomID, expiredAt: expired, questions: paketSoalFinal
      }, (err) => {
-        if(err) { alert("Gagal Kirim ke Database: " + err.message); } else {
+        if(err) { 
+           alert("Gagal Kirim Database: " + err.message); 
+        } else {
            document.getElementById('textLinkSiswa').innerText = linkSiswa;
            document.getElementById('outputLinkContainer').style.display = 'block';
-           
-           // Scroll otomatis ke bawah agar link langsung kelihatan di layar HP
            document.getElementById('outputLinkContainer').scrollIntoView({ behavior: 'smooth' });
-           alert(`🔥 BERHASIL! ${paketSoalFinal.length} Soal telah digabung dengan gocekan Bab ${babGocekan}. Link aktif.`);
+           alert(`🔥 BERHASIL! ${paketSoalFinal.length} Soal aktif dengan gocekan Bab ${babGocekan}.`);
         }
      });
   }
