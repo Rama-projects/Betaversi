@@ -50,7 +50,7 @@
   
   .card-soal { background: #252525; padding: 15px; border-radius: 12px; margin-top: 15px; border: 2px dashed #444; }
   
-  /* BOX PREVIEW GAMBAR ASLI */
+  /* WADAH PREVIEW GAMBAR LANGSUNG */
   .preview-img-box { width: 100%; min-height: 120px; max-height: 250px; background: #000; border-radius: 8px; margin-bottom: 10px; display: none; justify-content: center; align-items: center; overflow: hidden; border: 1px dashed var(--gold); }
   .preview-img-box img { max-width: 100%; max-height: 250px; object-fit: contain; display: block; }
   
@@ -88,7 +88,6 @@
 <script>
   let totalSoalSaatIni = 0;
 
-  // Halaman kebuka langsung ngasih slot soal pertama otomatis
   window.onload = function() {
      tambahKolomSoalBaru();
   };
@@ -136,35 +135,24 @@
      if(elemen) elemen.remove();
   }
 
-  // FIX UTAMA: Fungsi pembaca gambar disamakan namanya agar tidak macet lagi
+  // MODIFIKASI TOTAL: Tanpa Canvas, Tanpa Delay, Langsung Tembak Gambar Asli!
   function prosesGambarKeBase64(fileInput, idNomor) {
      if (!fileInput.files || !fileInput.files) return;
      const pv = document.getElementById(`pvBox_${idNomor}`);
      
      pv.style.display = 'flex';
-     pv.innerHTML = `<span style="color:#aaa; font-size:11px;">Memuat gambar asli...</span>`;
+     pv.innerHTML = `<span style="color:#aaa; font-size:11px;">Menampilkan gambar...</span>`;
 
      const reader = new FileReader();
      reader.onload = function(e) {
-        const img = new Image();
-        img.onload = function() {
-           const canvas = document.createElement('canvas');
-           let w = img.width; let h = img.height;
-           
-           // Kompresi aman biar tidak lemot di Firebase
-           if (w > 500) { h = Math.round((h * 500) / w); w = 500; }
-           canvas.width = w; canvas.height = h;
-           
-           const ctx = canvas.getContext('2d');
-           ctx.drawImage(img, 0, 0, w, h);
-           
-           const finalBase64 = canvas.toDataURL('image/jpeg', 0.6);
-           
-           // Mengunci data gambar dan menampilkan GAMBAR ASLI di kotak preview
-           document.getElementById(`stringBase_${idNomor}`).value = finalBase64;
-           pv.innerHTML = `<img src="${finalBase64}">`;
-        };
-        img.src = e.target.result;
+        // e.target.result adalah data asli string base64 gambar tanpa rekayasa
+        const dataGambarAsli = e.target.result;
+        
+        // Simpan langsung ke input penampung
+        document.getElementById(`stringBase_${idNomor}`).value = dataGambarAsli;
+        
+        // Langsung tampilkan ke layar admin detik itu juga!
+        pv.innerHTML = `<img src="${dataGambarAsli}">`;
      };
      reader.readAsDataURL(fileInput.files);
   }
@@ -174,7 +162,7 @@
      const babGocekan = document.getElementById('babOpsiInput').value.trim();
 
      if(semuaKartuSoal.length === 0) { alert("Tambahkan minimal 1 pertanyaan, bro!"); return; }
-     if(typeof babData === 'undefined') { alert("File data_minna.js tidak ditemukan di hostingan web lu!"); return; }
+     if(typeof babData === 'undefined') { alert("File data_minna.js tidak ditemukan!"); return; }
 
      const dataMinnaBab = babData[babGocekan];
      if(!dataMinnaBab || dataMinnaBab.length === 0) { alert(`Bab Minna ${babGocekan} tidak ada isi datanya!`); return; }
@@ -194,7 +182,6 @@
         if(!imgData) { alert(`Gambar pada Pertanyaan No.${idAsli} belum di-upload!`); statusValidasi = false; return; }
         if(!jawabanBenar) { alert(`Kunci Jawaban Benar pada Pertanyaan No.${idAsli} wajib diisi!`); statusValidasi = false; return; }
 
-        // MENGAMBIL 3 GOCEKAN SALAH DARI DATA_MINNA
         let bankKataSalah = [];
         dataMinnaBab.forEach(item => {
            if(item.correct.toLowerCase() !== jawabanBenar.toLowerCase()) {
@@ -207,7 +194,7 @@
         let gabunganOpsiPilihan = [jawabanBenar].concat(tigaGocekanAcak);
 
         paketSoalFinal.push({
-           image: imgData, // Ini gambar asli berupa string terenkripsi aman
+           image: imgData, 
            kanji: kanjiData,
            kana: kanaData,
            answers: gabunganOpsiPilihan, 
