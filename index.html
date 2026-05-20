@@ -3,10 +3,12 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>JFT KILAT - FINAL PANEL</title>
+<title>JFT KILAT - ADMIN PANEL</title>
 
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+
+<script src="data_minna.js"></script>
 
 <script>
   let database = null;
@@ -36,11 +38,10 @@
   .container { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 20px; }
   .box { background: var(--card); border: 1px solid #333; padding: 20px; border-radius: 15px; }
   
-  input[type="text"], input[type="number"], input[type="file"] { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #444; background: #222; color: white; margin-bottom: 10px; outline: none; }
+  input[type="text"], input[type="number"], input[type="file"], select { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #444; background: #222; color: white; margin-bottom: 10px; outline: none; }
   
-  .btn { background: #ff5722; color: white; border: none; padding: 14px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 0 #bf360c; width: 100%; display: block; margin-top: 10px; }
+  .btn { background: #ff5722; color: white; border: none; padding: 14px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 0 #bf360c; display: block; margin-top: 10px; }
   .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #bf360c; }
-  .secBtn { background: var(--primary); box-shadow: 0 4px 0 #1565c0; }
   .greenBtn { background: var(--green); box-shadow: 0 4px 0 #2e7d32; }
   
   .preview-img-box { width: 100%; max-height: 250px; background: #000; border-radius: 8px; margin-bottom: 10px; display: none; justify-content: center; align-items: center; overflow: hidden; border: 1px solid #444; }
@@ -48,24 +49,34 @@
   
   .output-box { display: none; background: #151515; border: 2px solid var(--gold); border-radius: 12px; padding: 15px; margin-top: 10px; }
   .url-text { background: #222; padding: 10px; border-radius: 8px; font-size: 13px; color: var(--gold); word-break: break-all; margin-bottom: 10px; font-family: monospace; }
-  .card-soal { background: #252525; padding: 15px; border-radius: 10px; margin-top: 10px; border: 1px dashed var(--primary); }
 </style>
 </head>
 <body>
 
 <div class="container">
-
   <div id="viewAdmin" class="box">
      <h2 style="color: var(--gold); margin-top: 0; text-align: center;">⚡ JFT KILAT ADMIN</h2>
+     
      <label style="font-size: 12px; color: #aaa;">Masa Aktif Kuis (Menit):</label>
      <input type="number" id="expiryInput" value="180">
-     
-     <div id="wrapperSoal"></div>
-     
-     <div style="display: flex; gap: 10px; margin-top: 10px;">
-        <button class="btn secBtn" type="button" onclick="tambahKolomSoal()">➕ TAMBAH SOAL</button>
-        <button class="btn greenBtn" type="button" onclick="simpanDanBikinLink()">🚀 BUAT LINK KUIS</button>
+
+     <div style="display: flex; gap: 10px;">
+        <div style="flex: 1;">
+           <label style="font-size: 12px; color: #aaa;">Pilih Bab Minna:</label>
+           <input type="number" id="babInput" value="1" min="1">
+        </div>
+        <div style="flex: 1;">
+           <label style="font-size: 12px; color: #aaa;">Jumlah Soal:</label>
+           <input type="number" id="jumlahSoalInput" value="5" min="1">
+        </div>
      </div>
+     
+     <label style="font-size: 12px; color: #aaa;">Upload Gambar Utama Kuis (Wajib):</label>
+     <input type="file" accept="image/*" onchange="konversiGambarKeBase64(this)">
+     <div class="preview-img-box" id="pvBoxAdmin"></div>
+     <input type="text" id="stringBaseAdmin" style="display:none;" value="">
+     
+     <button class="btn greenBtn" type="button" onclick="simpanDanBikinLink()">🚀 AMBIL DATA BAB & BUAT LINK</button>
 
      <div class="output-box" id="outputLinkContainer">
         <div style="font-size: 12px; font-weight: bold; margin-bottom: 5px;">🔗 LINK KUIS UNTUK SISWA:</div>
@@ -73,74 +84,10 @@
         <button class="btn" style="background:var(--gold); color:#000; box-shadow:0 4px 0 #e65100;" type="button" onclick="salinLinkKuis()">📋 SALIN LINK KUIS</button>
      </div>
   </div>
-
-  <div id="viewKuis" class="box" style="display: none;">
-     <div style="display: flex; justify-content: space-between; color: #aaa; font-size: 12px; margin-bottom: 10px;">
-        <span id="infoNomer">Soal 1 dari 1</span>
-        <span id="infoRoomID">ROOM: -</span>
-     </div>
-
-     <div class="preview-img-box" id="wadahGambarSiswa" style="display: flex; min-height: 200px; border: 2px solid #555;">
-        <p style="color:#666;">Memuat Gambar...</p>
-     </div>
-
-     <p style="font-size: 14px; color: var(--gold); font-weight: bold; text-align: center; margin-bottom: 15px;">
-        Lihat gambar di atas, lalu ketik jawabannya di bawah:
-     </p>
-
-     <input type="text" id="jawabanSiswaInput" placeholder="Ketik jawaban di sini..." autocomplete="off" style="text-align: center; font-size: 18px;">
-     <button class="btn secBtn" type="button" onclick="cekJawabanSiswa()">Kirim Jawaban</button>
-     
-     <div id="statusJawaban" style="text-align: center; font-size: 20px; font-weight: bold; margin-top: 15px;"></div>
-  </div>
-
 </div>
 
 <script>
-  let counterSoal = 0;
-  let daftarSoalFirebase = [];
-  let indexSoalBerjalan = 0;
-
-  window.onload = function() {
-     const urlParams = new URLSearchParams(window.location.search);
-     const roomParam = urlParams.get('room');
-     
-     if (roomParam) {
-        document.getElementById('viewAdmin').style.display = 'none';
-        document.getElementById('viewKuis').style.display = 'block';
-        document.getElementById('infoRoomID').innerText = "ROOM: " + roomParam;
-        bukaDataKuisSiswa(roomParam);
-     } else {
-        tambahKolomSoal();
-     }
-  };
-
-  function tambahKolomSoal() {
-     counterSoal++;
-     const wadah = document.getElementById('wrapperSoal');
-     const card = document.createElement('div');
-     card.className = 'card-soal';
-     card.id = `panelSoal_${counterSoal}`;
-     
-     card.innerHTML = `
-        <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:12px; font-weight:bold; color:var(--primary);">
-           <span>SOAL NO #${counterSoal}</span>
-           <span style="color:var(--red); cursor:pointer;" onclick="document.getElementById('panelSoal_${counterSoal}').remove()">Hapus</span>
-        </div>
-        <div class="preview-img-box" id="pvBox_${counterSoal}"></div>
-        
-        <input type="text" id="stringBase_${counterSoal}" style="display:none;" value="">
-        
-        <label style="font-size:11px; color:#aaa;">Upload Gambar Pertanyaan (Wajib):</label>
-        <input type="file" accept="image/*" onchange="konversiGambarKeBase64(this, ${counterSoal})">
-        
-        <label style="font-size:11px; color:#aaa;">Jawaban Benar (Wajib):</label>
-        <input type="text" id="jawabanBenar_${counterSoal}" placeholder="Contoh: たな" style="border-color:var(--green);">
-     `;
-     wadah.appendChild(card);
-  }
-
-  function konversiGambarKeBase64(fileInput, idTarget) {
+  function konversiGambarKeBase64(fileInput) {
      if (!fileInput.files || !fileInput.files) return;
      const reader = new FileReader();
      reader.onload = function(e) {
@@ -153,9 +100,9 @@
            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
            
            const finalBase64 = canvas.toDataURL('image/jpeg', 0.5);
-           document.getElementById(`stringBase_${idTarget}`).value = finalBase64;
+           document.getElementById('stringBaseAdmin').value = finalBase64;
            
-           const pv = document.getElementById(`pvBox_${idTarget}`);
+           const pv = document.getElementById('pvBoxAdmin');
            pv.innerHTML = `<img src="${finalBase64}">`;
            pv.style.display = 'flex';
         };
@@ -165,40 +112,50 @@
   }
 
   function simpanDanBikinLink() {
-     const cards = document.querySelectorAll('.card-soal');
-     if(cards.length === 0) { alert("Tambah soal dulu!"); return; }
+     const imgData = document.getElementById('stringBaseAdmin').value;
+     const babDipilih = document.getElementById('babInput').value.trim();
+     const jumlahDiminta = parseInt(document.getElementById('jumlahSoalInput').value) || 5;
+
+     if(!imgData) { alert("Upload gambar pertanyaannya dulu, bro!"); return; }
      
-     let paketSoal = [];
-     let aman = true;
+     // Validasi keberadaan variabel babData dari data_minna.js
+     if(typeof babData === 'undefined') { alert("Variabel babData tidak ditemukan! Cek file data_minna.js lu."); return; }
+     
+     // Mengambil array soal berdasarkan key bab yang diinput
+     const listSoalBab = babData[babDipilih];
+     if(!listSoalBab || listSoalBab.length === 0) { alert(`Data Minna untuk Bab ${babDipilih} kosong atau tidak ada!`); return; }
 
-     cards.forEach((card) => {
-        const currentId = card.id.split('_');
-        const imgData = document.getElementById(`stringBase_${currentId}`).value;
-        const jawaban = document.getElementById(`jawabanBenar_${currentId}`).value.trim();
+     if(!firebaseAktif || !database) { alert("Firebase belum siap!"); return; }
 
-        if(!imgData) { alert(`Gambar di Soal No #${currentId} belum masuk!`); aman = false; return; }
-        if(!jawaban) { alert(`Jawaban di Soal No #${currentId} masih kosong!`); aman = false; return; }
+     // Mengacak isi soal khusus dari bab yang dipilih
+     let soalAcak = [...listSoalBab].sort(() => 0.5 - Math.random());
+     let paketSoalSelected = soalAcak.slice(0, jumlahDiminta);
 
-        paketSoal.push({ image: imgData, correct: jawaban });
+     // Mapping data agar menyertakan gambar yang diupload admin
+     let paketSoalFinal = paketSoalSelected.map(soal => {
+        return {
+           image: imgData, 
+           kanji: soal.kanji || "",
+           kana: soal.kana || "",
+           answers: soal.answers, 
+           correct: soal.correct
+        }
      });
-
-     if(!aman) return;
-     if(!firebaseAktif || !database) { alert("Firebase putus koneksi atau belum siap!"); return; }
 
      const menit = parseInt(document.getElementById('expiryInput').value) || 180;
      const expired = Date.now() + (menit * 60 * 1000);
      const roomID = "JFT-" + Math.floor(1000 + Math.random() * 9000);
 
-     let linkSiswa = window.location.origin + window.location.pathname + "?room=" + roomID;
+     // Mengarahkan link langsung ke kuis.html
+     let linkSiswa = window.location.origin + "/kuis.html?room=" + roomID;
 
-     // FIX PATH ABSOLUT: Tembak langsung menggunakan path murni string agar tidak crash di Vercel
      database.ref("kuis_master_baru/" + roomID).set({
-        roomID: roomID, expiredAt: expired, questions: paketSoal
+        roomID: roomID, expiredAt: expired, questions: paketSoalFinal
      }, (err) => {
-        if(err) { alert("Gagal Simpan: " + err.message); } else {
+        if(err) { alert("Gagal Simpan ke Firebase: " + err.message); } else {
            document.getElementById('textLinkSiswa').innerText = linkSiswa;
            document.getElementById('outputLinkContainer').style.display = 'block';
-           alert("🚀 LINK KUIS SELESAI DICREATE!");
+           alert(`🚀 LINK BERHASIL DICREATE DARI MINNA BAB ${babDipilih}!`);
         }
      });
   }
@@ -206,60 +163,6 @@
   function salinLinkKuis() {
      navigator.clipboard.writeText(document.getElementById('textLinkSiswa').innerText);
      alert("Link disalin!");
-  }
-
-  // ================= ENGINE HALAMAN KUIS SISWA =================
-  function bukaDataKuisSiswa(room) {
-     if(!database) {
-        setTimeout(() => { bukaDataKuisSiswa(room); }, 1000);
-        return;
-     }
-     database.ref("kuis_master_baru/" + room).once('value').then((snap) => {
-        if(!snap.exists()) {
-           document.getElementById('viewKuis').innerHTML = `<h2 style="color:var(--red);">KUIS EXPIRED / TIDAK ADA</h2>`;
-           return;
-        }
-        daftarSoalFirebase = snap.val().questions || [];
-        tampilkanSoalSiswa();
-     }).catch(err => {
-        document.getElementById('viewKuis').innerHTML = `<h2 style="color:var(--red);">ERROR SERVER: ${err.message}</h2>`;
-     });
-  }
-
-  function tampilkanSoalSiswa() {
-     if(indexSoalBerjalan >= daftarSoalFirebase.length) {
-        document.getElementById('viewKuis').innerHTML = `<h2 style="color:var(--green);">🎉 KUIS SELESAI!</h2><p>Semoga lulus ujian JFT-Basic!</p>`;
-        return;
-     }
-
-     const soal = daftarSoalFirebase[indexSoalBerjalan];
-     document.getElementById('infoNomer').innerText = `Soal ${indexSoalBerjalan + 1} dari ${daftarSoalFirebase.length}`;
-     document.getElementById('jawabanSiswaInput').value = "";
-     document.getElementById('statusJawaban').innerText = "";
-
-     const wadahGambar = document.getElementById('wadahGambarSiswa');
-     wadahGambar.innerHTML = `<img src="${soal.image}" style="max-width:100%; max-height:250px; object-fit:contain;">`;
-     wadahGambar.style.display = "flex";
-  }
-
-  function cekJawabanSiswa() {
-     const input = document.getElementById('jawabanSiswaInput').value.trim().toLowerCase();
-     const kunci = daftarSoalFirebase[indexSoalBerjalan].correct.trim().toLowerCase();
-     const status = document.getElementById('statusJawaban');
-
-     if(!input) return;
-
-     if (input === kunci) {
-        status.innerText = "⭕ BENAR!";
-        status.style.color = "var(--green)";
-        setTimeout(() => {
-           indexSoalBerjalan++;
-           tampilkanSoalSiswa();
-        }, 1000);
-     } else {
-        status.innerText = `❌ SALAH! (Kunci: ${daftarSoalFirebase[indexSoalBerjalan].correct})`;
-        status.style.color = "var(--red)";
-     }
   }
 </script>
 </body>
