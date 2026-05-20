@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>KUIS JFT KILAT - LIVE SOAL</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>JFT KILAT - KUIS SISWA</title>
 
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
@@ -11,49 +11,24 @@
 <style>
   :root { --bg: #121212; --card: #1e1e1e; --text: #eee; --primary: #2196f3; --green: #4caf50; --red: #f44336; --gold: #ffb74d; }
   * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-  body { margin: 0; padding: 20px; background: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; }
-  #kuisContainer { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 20px; }
-  .box { background: var(--card); border: 1px solid #333; padding: 20px; border-radius: 15px; text-align: center; }
-  
-  .wadah-gambar-soal { width: 100%; min-height: 200px; max-height: 350px; background: #000; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: center; align-items: center; overflow: hidden; border: 2px solid #444; }
-  .wadah-gambar-soal img { max-width: 100%; max-height: 350px; object-fit: contain; display: block; }
-  
-  .wrapper-opsi { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
-  .btn-opsi { background: #2a2a2a; color: white; border: 2px solid #444; padding: 14px; width: 100%; border-radius: 10px; font-size: 15px; cursor: pointer; text-align: left; transition: 0.2s; }
-  .btn-opsi:hover { border-color: var(--primary); background: #333; }
-  
-  .btn-ulang { background: var(--gold); color: #000; border: none; padding: 14px; width: 100%; border-radius: 12px; font-weight: bold; font-size: 15px; cursor: pointer; box-shadow: 0 4px 0 #e65100; margin-top: 10px; }
-  .status-text { font-size: 18px; font-weight: bold; margin-top: 10px; min-height: 27px; }
-  .text-nihongo { font-size: 26px; color: #fff; margin: 5px 0; font-weight: bold; letter-spacing: 1px; }
+  body { margin: 0; padding: 15px; background: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; }
+  .container { width: 100%; max-width: 500px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+  .box { background: var(--card); border: 1px solid #333; padding: 20px; border-radius: 15px; width: 100%; text-align: center; }
+  .soal-img { width: 100%; max-height: 250px; object-fit: contain; background: #000; border-radius: 10px; margin-bottom: 15px; border: 1px solid #444; }
+  .teks-jepang { font-size: 22px; font-weight: bold; color: var(--gold); margin-bottom: 5px; }
+  .teks-kana { font-size: 16px; color: #aaa; margin-bottom: 20px; }
+  .grid-jawaban { display: flex; flex-direction: column; gap: 12px; width: 100%; margin-top: 15px; }
+  .btn-opsi { background: #2a2a2a; color: white; border: 2px solid #444; padding: 14px; width: 100%; border-radius: 12px; font-size: 15px; cursor: pointer; text-align: left; transition: 0.2s; -webkit-tap-highlight-color: transparent; }
+  .benar { background: var(--green) !important; border-color: #2e7d32 !important; color: white; font-weight: bold; }
+  .salah { background: var(--red) !important; border-color: #c62828 !important; color: white; }
+  .info-header { display: flex; justify-content: space-between; font-size: 12px; color: #aaa; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #333; }
 </style>
 </head>
 <body>
 
-<div id="kuisContainer">
-  <div class="box" id="loadingBox">
-     <h2 style="color:var(--gold);">Memuat Soal JFT...</h2>
-     <p>Tunggu sebentar, sedang mengambil data kuis dari server.</p>
-  </div>
-
-  <div class="box" id="mainKuisBox" style="display: none;">
-     <div style="display: flex; justify-content: space-between; color: #aaa; font-size: 13px; margin-bottom: 10px;">
-        <span id="infoNoSoal">Soal 1 dari 1</span>
-        <span id="infoRoom">ROOM: -</span>
-     </div>
-
-     <div class="wadah-gambar-soal" id="tempatGambar">
-        <p style="color:#666;">Gambar tidak ditemukan</p>
-     </div>
-
-     <div id="infoDetailSoal" style="background:#151515; padding:10px; border-radius:10px; margin-bottom:15px; border:1px solid #333;"></div>
-
-     <p style="font-size: 14px; color: var(--gold); font-weight: bold; margin-bottom: 15px;">
-        Pilih arti kata yang benar berdasarkan kosakata di atas!
-     </p>
-
-     <div class="wrapper-opsi" id="wadahOpsiJawaban"></div>
-     
-     <div id="feedbackHasil" class="status-text"></div>
+<div class="container">
+  <div class="box" id="kontenKuis">
+     <h3 style="color:var(--primary);">⏳ Memuat Ujian...</h3>
   </div>
 </div>
 
@@ -62,140 +37,114 @@
     apiKey: "AIzaSyBZSps-natL_AFexEnQl9-chHFiLO0GXes",
     authDomain: "kuis-jepang-29cf5.firebaseapp.com",
     projectId: "kuis-jepang-29cf5",
-    storageBucket: "kuis-jepang-29cf5.firebasestorage.app",
+    storageBucket: "kuis-jepang-29cf5.appspot.com",
     messagingSenderId: "720051856565",
     appId: "1:720051856565:web:6f068222f5d37dd8210afc",
     measurementId: "G-WJMY1D0Q6F",
     databaseURL: "https://kuis-jepang-29cf5-default-rtdb.asia-southeast1.firebasedatabase.app"
   };
-
-  firebase.initializeApp(firebaseConfig);
+  
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   const database = firebase.database();
-
-  let listSoal = [];
-  let indexSekarang = 0;
-  let bisaPilih = true;
 
   const urlParams = new URLSearchParams(window.location.search);
   const roomID = urlParams.get('room');
 
-  window.onload = function() {
-     if(!roomID) {
-        document.getElementById('loadingBox').innerHTML = `<h2 style="color:var(--red);">KUIS ERROR</h2><p>ID Room hilang dari link.</p>`;
-        return;
-     }
-     document.getElementById('infoRoom').innerText = "ROOM: " + roomID;
-     ambilDataKuisDariFirebase();
-  };
+  let daftarSoal = [];
+  let indeksSoalSekarang = 0;
+  let skorBenar = 0;
 
-  function ambilDataKuisDariFirebase() {
-     database.ref(`kuis_master_baru/${roomID}`).once('value').then((snap) => {
-        if(!snap.exists()) {
-           document.getElementById('loadingBox').innerHTML = `<h2 style="color:var(--red);">KUIS KADALUARSA</h2><p>Kuis tidak ditemukan.</p>`;
+  if (!roomID) {
+     document.getElementById('kontenKuis').innerHTML = `<h3 style="color:var(--red);">❌ LINK ERROR</h3>`;
+  } else {
+     AmbilDataKuisDariFirebase();
+  }
+
+  function AmbilDataKuisDariFirebase() {
+     database.ref("kuis_master_baru/" + roomID).once("value").then((snapshot) => {
+        const data = snapshot.val();
+        if (!data) {
+           document.getElementById('kontenKuis').innerHTML = `<h3 style="color:var(--red);">❌ KUIS TIDAK ADA</h3>`;
            return;
         }
-        
-        const data = snap.val();
-        listSoal = data.questions || [];
-        
-        document.getElementById('loadingBox').style.display = 'none';
-        document.getElementById('mainKuisBox').style.display = 'block';
-        tampilkanSoalAktif();
-     }).catch(err => {
-        document.getElementById('loadingBox').innerHTML = `<h2 style="color:var(--red);">ERROR</h2><p>${err.message}</p>`;
+        if (Date.now() > data.expiredAt) {
+           document.getElementById('kontenKuis').innerHTML = `<h3 style="color:var(--red);">⏱️ WAKTU KUIS HABIS</h3>`;
+           return;
+        }
+        daftarSoal = data.questions;
+        TampilkanSoalNomor(indeksSoalSekarang);
+     }).catch((err) => {
+        document.getElementById('kontenKuis').innerHTML = `Error: ${err.message}`;
      });
   }
 
-  // Pengacak tombol pilihan ganda bawaan array answers
-  function acakOpsi(array) {
-     let cur = [...array];
-     for (let i = cur.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [cur[i], cur[j]] = [cur[j], cur[i]];
-     }
-     return cur;
-  }
-
-  function tampilkanSoalAktif() {
-     if(indexSekarang >= listSoal.length) {
-        document.getElementById('mainKuisBox').innerHTML = `
-           <h2 style="color:var(--green);">🎉 KUIS SELESAI!</h2>
-           <p style="font-size:16px;">Mantap, semua gocekan Minna berhasil dilalui!</p>
-           <button class="btn-ulang" onclick="location.reload()">Ulangi Kuis</button>
-        `;
+  function TampilkanSoalNomor(index) {
+     if (index >= daftarSoal.length) {
+        TampilkanHalamanSkorAkhir();
         return;
      }
 
-     bisaPilih = true;
-     const soal = listSoal[indexSekarang];
-     document.getElementById('infoNoSoal').innerText = `Soal ${indexSekarang + 1} dari ${listSoal.length}`;
-     document.getElementById('feedbackHasil').innerText = "";
+     const dataSoal = daftarSoal[index];
+     const wadah = document.getElementById('kontenKuis');
 
-     // Set Gambar
-     const tempatGambar = document.getElementById('tempatGambar');
-     if(soal.image) {
-        tempatGambar.innerHTML = `<img src="${soal.image}">`;
-     }
+     let opsiJawaban = [...dataSoal.answers];
+     opsiJawaban.sort(() => 0.5 - Math.random());
 
-     // Cetak Teks Jepang (Kanji & Kana) dari Firebase
-     const infoDetail = document.getElementById('infoDetailSoal');
-     infoDetail.innerHTML = `
-        <div class="text-nihongo">${soal.kanji || ''}</div>
-        <div style="color:var(--gold); font-size:16px; margin-top:5px; font-weight:bold;">${soal.kana || ''}</div>
-     `;
-
-     // Cetak Opsi Jawaban Gocekan Minna
-     const wadahOpsi = document.getElementById('wadahOpsiJawaban');
-     wadahOpsi.innerHTML = "";
-
-     // Acak isi array answers agar posisi gocekannya berubah-ubah
-     const opsiDiacak = acakOpsi(soal.answers);
-
-     opsiDiacak.forEach(opsi => {
-        const button = document.createElement('button');
-        button.className = 'btn-opsi';
-        button.innerText = opsi;
-        button.onclick = function() { periksaPilihanSiswa(this, opsi, soal.correct); };
-        wadahOpsi.appendChild(button);
+     let htmlOpsi = "";
+     opsiJawaban.forEach((opsi) => {
+        htmlOpsi += `<button class="btn-opsi" onclick="cekJawabanSiswa(this, '${opsi.replace(/'/g, "\\'")}', '${dataSoal.correct.replace(/'/g, "\\'")}')">${opsi}</button>`;
      });
+
+     wadah.innerHTML = `
+        <div class="info-header">
+           <span>ROOM: <b>${roomID}</b></span>
+           <span>SOAL: <b>${index + 1} / ${daftarSoal.length}</b></span>
+        </div>
+        <img class="soal-img" src="${dataSoal.image}">
+        <div class="teks-jepang">${dataSoal.kanji || ''}</div>
+        <div class="teks-kana">${dataSoal.kana || ''}</div>
+        <div class="grid-jawaban">${htmlOpsi}</div>
+     `;
   }
 
-  function periksaPilihanSiswa(elemenTombol, jawabanTerpilih, jawabanBenar) {
-     if(!bisaPilih) return;
-     bisaPilih = false;
+  function cekJawabanSiswa(tombolDiklik, jawabanDipilih, jawabanBenar) {
+     const semuaTombol = document.querySelectorAll('.btn-opsi');
+     semuaTombol.forEach(btn => btn.disabled = true);
 
-     const feedback = document.getElementById('feedbackHasil');
-
-     if(jawabanTerpilih === jawabanBenar) {
-        elemenTombol.style.background = "var(--green)";
-        elemenTombol.style.borderColor = "var(--green)";
-        feedback.innerText = "⭕ BENAR!";
-        feedback.style.color = "var(--green)";
-        
-        setTimeout(() => {
-           indexSekarang++;
-           tampilkanSoalAktif();
-        }, 1000);
+     if (jawabanDipilih.toLowerCase() === jawabanBenar.toLowerCase()) {
+        tombolDiklik.classList.add('benar');
+        skorBenar++;
      } else {
-        elemenTombol.style.background = "var(--red)";
-        elemenTombol.style.borderColor = "var(--red)";
-        feedback.innerText = `❌ SALAH!`;
-        feedback.style.color = "var(--red)";
-
-        // Cari tahu opsi mana yang harusnya benar dan beri warna hijau
-        const semuaTombol = document.querySelectorAll('.btn-opsi');
-        semuaTombol.forEach(btn => {
-           if(btn.innerText === jawabanBenar) {
-              btn.style.background = "var(--green)";
-              btn.style.borderColor = "var(--green)";
+        tombolDiklik.classList.add('salah');
+        semuaTombol.forEach((btn) => {
+           if (btn.innerText.toLowerCase() === jawabanBenar.toLowerCase()) {
+              btn.classList.add('benar');
            }
         });
-
-        setTimeout(() => {
-           indexSekarang++;
-           tampilkanSoalAktif();
-        }, 2000);
      }
+
+     setTimeout(() => {
+        indeksSoalSekarang++;
+        TampilkanSoalNomor(indeksSoalSekarang);
+     }, 1500);
+  }
+
+  function TampilkanHalamanSkorAkhir() {
+     const wadah = document.getElementById('kontenKuis');
+     const totalSoal = daftarSoal.length;
+     const nilaiAkhir = Math.round((skorBenar / totalSoal) * 100);
+
+     wadah.innerHTML = `
+        <h2 style="color:var(--gold); margin-top:0;">🎉 SELESAI!</h2>
+        <div style="background:#252525; padding:20px; border-radius:12px; margin:20px 0; border:1px dashed #444;">
+           <div style="font-size:14px; color:#aaa;">BENAR</div>
+           <div style="font-size:32px; font-weight:bold; color:var(--green);">${skorBenar} / ${totalSoal}</div>
+           <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
+           <div style="font-size:14px; color:#aaa;">NILAI</div>
+           <div style="font-size:54px; font-weight:bold; color:var(--primary);">${nilaiAkhir}</div>
+        </div>
+        <button class="btn-opsi" style="text-align:center; background:var(--primary); border:none;" onclick="location.reload()">🔄 ULANGI</button>
+     `;
   }
 </script>
 </body>
