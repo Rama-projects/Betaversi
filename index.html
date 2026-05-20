@@ -3,21 +3,24 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>JFT KILAT - ADMIN MULTI SOAL</title>
+<title>JFT KILAT - ADMIN INSTAN</title>
 
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-storage-compat.js"></script>
 
 <script src="data_minna.js"></script>
 
 <script>
   let database = null;
+  let storage = null;
   let firebaseAktif = false;
+  
   const firebaseConfig = {
     apiKey: "AIzaSyBZSps-natL_AFexEnQl9-chHFiLO0GXes",
     authDomain: "kuis-jepang-29cf5.firebaseapp.com",
     projectId: "kuis-jepang-29cf5",
-    storageBucket: "kuis-jepang-29cf5.firebasestorage.app",
+    storageBucket: "kuis-jepang-29cf5.appspot.com", // Diperbarui ke default bucket storage
     messagingSenderId: "720051856565",
     appId: "1:720051856565:web:6f068222f5d37dd8210afc",
     measurementId: "G-WJMY1D0Q6F",
@@ -27,6 +30,7 @@
   try {
      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
      database = firebase.database();
+     storage = firebase.storage();
      firebaseAktif = true;
   } catch (error) { console.error("Firebase Error:", error); }
 </script>
@@ -35,25 +39,17 @@
   :root { --bg: #121212; --card: #1e1e1e; --text: #eee; --primary: #2196f3; --green: #4caf50; --red: #f44336; --gold: #ffb74d; }
   * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
   body { margin: 0; padding: 15px; background: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; }
-  
   .container { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 15px; padding-bottom: 50px; }
   .box { background: var(--card); border: 1px solid #333; padding: 20px; border-radius: 15px; }
-  
   input[type="text"], input[type="number"], input[type="file"] { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #444; background: #222; color: white; margin-bottom: 10px; outline: none; font-size: 14px; }
   input:focus { border-color: var(--primary); }
-  
   .btn { background: #ff5722; color: white; border: none; padding: 14px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 0 #bf360c; display: block; margin-top: 5px; font-size: 14px; -webkit-tap-highlight-color: transparent; }
   .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #bf360c; }
-  
   .blueBtn { background: var(--primary); box-shadow: 0 4px 0 #1565c0; }
   .greenBtn { background: var(--green); box-shadow: 0 4px 0 #2e7d32; }
-  
   .card-soal { background: #252525; padding: 15px; border-radius: 12px; margin-top: 15px; border: 2px dashed #444; }
-  
-  /* WADAH PREVIEW GAMBAR LANGSUNG */
   .preview-img-box { width: 100%; min-height: 120px; max-height: 250px; background: #000; border-radius: 8px; margin-bottom: 10px; display: none; justify-content: center; align-items: center; overflow: hidden; border: 1px dashed var(--gold); }
   .preview-img-box img { max-width: 100%; max-height: 250px; object-fit: contain; display: block; }
-  
   .output-box { display: none; background: #151515; border: 2px solid var(--gold); border-radius: 12px; padding: 15px; margin-top: 15px; text-align: center; }
   .url-text { background: #222; padding: 10px; border-radius: 8px; font-size: 13px; color: var(--gold); word-break: break-all; margin-bottom: 10px; font-family: monospace; }
 </style>
@@ -67,7 +63,7 @@
      <label style="font-size: 12px; color: #aaa;">Masa Aktif Kuis (Menit):</label>
      <input type="number" id="expiryInput" value="180">
 
-     <label style="font-size: 12px; color: #aaa;">Sumber Bab Minna (Untuk Ambil Gocekan Otomatis):</label>
+     <label style="font-size: 12px; color: #aaa;">Sumber Bab Minna:</label>
      <input type="number" id="babOpsiInput" value="1" min="1">
      
      <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
@@ -87,6 +83,7 @@
 
 <script>
   let totalSoalSaatIni = 0;
+  let fileGambarSoal = {}; // Menyimpan objek file asli mentah
 
   window.onload = function() {
      tambahKolomSoalBaru();
@@ -95,7 +92,6 @@
   function tambahKolomSoalBaru() {
      totalSoalSaatIni++;
      const wadah = document.getElementById('wrapperSoal');
-     
      const card = document.createElement('div');
      card.className = 'card-soal';
      card.id = `boxSoal_${totalSoalSaatIni}`;
@@ -107,10 +103,9 @@
         </div>
         
         <label style="font-size:11px; color:#aaa;">Upload Gambar Soal ini:</label>
-        <input type="file" accept="image/*" onchange="prosesGambarKeBase64(this, ${totalSoalSaatIni})">
+        <input type="file" accept="image/*" onchange="tampilkanGambarInstan(this, ${totalSoalSaatIni})">
         
         <div class="preview-img-box" id="pvBox_${totalSoalSaatIni}"></div>
-        <input type="text" id="stringBase_${totalSoalSaatIni}" style="display:none;" value="">
         
         <div style="display:flex; gap:10px;">
           <div style="flex:1;">
@@ -123,105 +118,110 @@
           </div>
         </div>
 
-        <label style="font-size:11px; color:#aaa;">Kunci Jawaban Benar (Diisi Manual):</label>
+        <label style="font-size:11px; color:#aaa;">Kunci Jawaban Benar (Manual):</label>
         <input type="text" id="jawabanBenar_${totalSoalSaatIni}" placeholder="Contoh: mengikuti [perjalanan]" style="border-color:var(--green); margin-bottom:5px;">
      `;
-     
      wadah.appendChild(card);
   }
 
   function hapusSoalTertentu(idNomor) {
      const elemen = document.getElementById(`boxSoal_${idNomor}`);
-     if(elemen) elemen.remove();
+     if(elemen) {
+        elemen.remove();
+        delete fileGambarSoal[idNomor];
+     }
   }
 
-  // MODIFIKASI TOTAL: Tanpa Canvas, Tanpa Delay, Langsung Tembak Gambar Asli!
-  function prosesGambarKeBase64(fileInput, idNomor) {
+  // 0 DETIK LANGSUNG TEMPANG GAMBAR DI LAYAR ADMIN!
+  function tampilkanGambarInstan(fileInput, idNomor) {
      if (!fileInput.files || !fileInput.files) return;
-     const pv = document.getElementById(`pvBox_${idNomor}`);
+     const file = fileInput.files;
      
+     // Simpan file asli ke memori sementara objek javascript
+     fileGambarSoal[idNomor] = file;
+     
+     const pv = document.getElementById(`pvBox_${idNomor}`);
+     pv.innerHTML = `<img src="${URL.createObjectURL(file)}">`;
      pv.style.display = 'flex';
-     pv.innerHTML = `<span style="color:#aaa; font-size:11px;">Menampilkan gambar...</span>`;
-
-     const reader = new FileReader();
-     reader.onload = function(e) {
-        // e.target.result adalah data asli string base64 gambar tanpa rekayasa
-        const dataGambarAsli = e.target.result;
-        
-        // Simpan langsung ke input penampung
-        document.getElementById(`stringBase_${idNomor}`).value = dataGambarAsli;
-        
-        // Langsung tampilkan ke layar admin detik itu juga!
-        pv.innerHTML = `<img src="${dataGambarAsli}">`;
-     };
-     reader.readAsDataURL(fileInput.files);
   }
 
-  function simpanSemuaDanBikinLink() {
+  async function simpanSemuaDanBikinLink() {
      const semuaKartuSoal = document.querySelectorAll('.card-soal');
      const babGocekan = document.getElementById('babOpsiInput').value.trim();
 
-     if(semuaKartuSoal.length === 0) { alert("Tambahkan minimal 1 pertanyaan, bro!"); return; }
-     if(typeof babData === 'undefined') { alert("File data_minna.js tidak ditemukan!"); return; }
+     if(semuaKartuSoal.length === 0) { alert("Tambahkan minimal 1 pertanyaan!"); return; }
+     if(typeof babData === 'undefined') { alert("File data_minna.js tidak terbaca!"); return; }
 
      const dataMinnaBab = babData[babGocekan];
-     if(!dataMinnaBab || dataMinnaBab.length === 0) { alert(`Bab Minna ${babGocekan} tidak ada isi datanya!`); return; }
-     if(!firebaseAktif || !database) { alert("Koneksi Firebase bermasalah!"); return; }
+     if(!dataMinnaBab || dataMinnaBab.length === 0) { alert(`Bab Minna ${babGocekan} tidak ada!`); return; }
+     if(!firebaseAktif) { alert("Koneksi Firebase bermasalah!"); return; }
+
+     const tombolSubmit = document.querySelector('.greenBtn');
+     tombolSubmit.innerText = "⏳ SEDANG MENGUPLOAD MATERI...";
+     tombolSubmit.disabled = true;
 
      let paketSoalFinal = [];
-     let statusValidasi = true;
-
-     semuaKartuSoal.forEach((kartu) => {
-        const idAsli = kartu.id.split('_');
-        
-        const imgData = document.getElementById(`stringBase_${idAsli}`).value;
-        const kanjiData = document.getElementById(`kanji_${idAsli}`).value.trim();
-        const kanaData = document.getElementById(`kana_${idAsli}`).value.trim();
-        const jawabanBenar = document.getElementById(`jawabanBenar_${idAsli}`).value.trim();
-
-        if(!imgData) { alert(`Gambar pada Pertanyaan No.${idAsli} belum di-upload!`); statusValidasi = false; return; }
-        if(!jawabanBenar) { alert(`Kunci Jawaban Benar pada Pertanyaan No.${idAsli} wajib diisi!`); statusValidasi = false; return; }
-
-        let bankKataSalah = [];
-        dataMinnaBab.forEach(item => {
-           if(item.correct.toLowerCase() !== jawabanBenar.toLowerCase()) {
-              bankKataSalah.push(item.correct);
-           }
-        });
-
-        bankKataSalah.sort(() => 0.5 - Math.random());
-        let tigaGocekanAcak = bankKataSalah.slice(0, 3);
-        let gabunganOpsiPilihan = [jawabanBenar].concat(tigaGocekanAcak);
-
-        paketSoalFinal.push({
-           image: imgData, 
-           kanji: kanjiData,
-           kana: kanaData,
-           answers: gabunganOpsiPilihan, 
-           correct: jawabanBenar
-        });
-     });
-
-     if(!statusValidasi) return;
-
-     const menit = parseInt(document.getElementById('expiryInput').value) || 180;
-     const expired = Date.now() + (menit * 60 * 1000);
      const roomID = "JFT-" + Math.floor(1000 + Math.random() * 9000);
 
-     let linkSiswa = window.location.origin + "/kuis.html?room=" + roomID;
+     try {
+        for (let i = 0; i < semuaKartuSoal.length; i++) {
+           const kartu = semuaKartuSoal[i];
+           const idAsli = kartu.id.split('_');
+           
+           const fileAsli = fileGambarSoal[idAsli];
+           const kanjiData = document.getElementById(`kanji_${idAsli}`).value.trim();
+           const kanaData = document.getElementById(`kana_${idAsli}`).value.trim();
+           const jawabanBenar = document.getElementById(`jawabanBenar_${idAsli}`).value.trim();
 
-     database.ref("kuis_master_baru/" + roomID).set({
-        roomID: roomID, expiredAt: expired, questions: paketSoalFinal
-     }, (err) => {
-        if(err) { 
-           alert("Gagal Kirim Database: " + err.message); 
-        } else {
-           document.getElementById('textLinkSiswa').innerText = linkSiswa;
-           document.getElementById('outputLinkContainer').style.display = 'block';
-           document.getElementById('outputLinkContainer').scrollIntoView({ behavior: 'smooth' });
-           alert(`🔥 BERHASIL! ${paketSoalFinal.length} Soal aktif dengan gocekan Bab ${babGocekan}.`);
+           if(!fileAsli || !jawabanBenar) {
+              throw new Error(`Gambar atau Jawaban Benar pada Nomor dengan ID ${idAsli} kosong!`);
+           }
+
+           // UPLOAD LANGSUNG FILE ASLI KE FIREBASE STORAGE (SANGAT RINGAN & INSTAN)
+           const namaFileDiStorage = `kuis_${roomID}/${idAsli}_${Date.now()}.jpg`;
+           const storageRef = storage.ref().child(namaFileDiStorage);
+           await storageRef.put(fileAsli);
+           const urlGambarPermanen = await storageRef.getDownloadURL();
+
+           // Ambil Gocekan Minna
+           let bankKataSalah = [];
+           dataMinnaBab.forEach(item => {
+              if(item.correct.toLowerCase() !== jawabanBenar.toLowerCase()) {
+                 bankKataSalah.push(item.correct);
+              }
+           });
+           bankKataSalah.sort(() => 0.5 - Math.random());
+           let tigaGocekanAcak = bankKataSalah.slice(0, 3);
+           let gabunganOpsiPilihan = [jawabanBenar].concat(tigaGocekanAcak);
+
+           paketSoalFinal.push({
+              image: urlGambarPermanen, // Link gambar Firebase Cloud yang super enteng
+              kanji: kanjiData,
+              kana: kanaData,
+              answers: gabunganOpsiPilihan, 
+              correct: jawabanBenar
+           });
         }
-     });
+
+        const menit = parseInt(document.getElementById('expiryInput').value) || 180;
+        const expired = Date.now() + (menit * 60 * 1000);
+        let linkSiswa = window.location.origin + "/kuis.html?room=" + roomID;
+
+        await database.ref("kuis_master_baru/" + roomID).set({
+           roomID: roomID, expiredAt: expired, questions: paketSoalFinal
+        });
+
+        document.getElementById('textLinkSiswa').innerText = linkSiswa;
+        document.getElementById('outputLinkContainer').style.display = 'block';
+        document.getElementById('outputLinkContainer').scrollIntoView({ behavior: 'smooth' });
+        alert(`🔥 BERHASIL! ${paketSoalFinal.length} Soal Berhasil Terbit.`);
+
+     } catch (error) {
+        alert("Eror Terjadi: " + error.message);
+     } finally {
+        tombolSubmit.innerText = "🚀 COMPILASI & BUAT LINK KUIS";
+        tombolSubmit.disabled = false;
+     }
   }
 
   function salinLinkKuis() {
