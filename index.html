@@ -20,7 +20,7 @@
     apiKey: "AIzaSyBZSps-natL_AFexEnQl9-chHFiLO0GXes",
     authDomain: "kuis-jepang-29cf5.firebaseapp.com",
     projectId: "kuis-jepang-29cf5",
-    storageBucket: "kuis-jepang-29cf5.appspot.com", // Diperbarui ke default bucket storage
+    storageBucket: "kuis-jepang-29cf5.appspot.com",
     messagingSenderId: "720051856565",
     appId: "1:720051856565:web:6f068222f5d37dd8210afc",
     measurementId: "G-WJMY1D0Q6F",
@@ -83,7 +83,7 @@
 
 <script>
   let totalSoalSaatIni = 0;
-  let fileGambarSoal = {}; // Menyimpan objek file asli mentah
+  let fileGambarSoal = {}; 
 
   window.onload = function() {
      tambahKolomSoalBaru();
@@ -132,12 +132,10 @@
      }
   }
 
-  // 0 DETIK LANGSUNG TEMPANG GAMBAR DI LAYAR ADMIN!
   function tampilkanGambarInstan(fileInput, idNomor) {
      if (!fileInput.files || !fileInput.files) return;
      const file = fileInput.files;
      
-     // Simpan file asli ke memori sementara objek javascript
      fileGambarSoal[idNomor] = file;
      
      const pv = document.getElementById(`pvBox_${idNomor}`);
@@ -164,9 +162,9 @@
      const roomID = "JFT-" + Math.floor(1000 + Math.random() * 9000);
 
      try {
-        for (let i = 0; i < semuaKartuSoal.length; i++) {
-           const kartu = semuaKartuSoal[i];
-           const idAsli = kartu.id.split('_');
+        // FIXED: Membaca ID yang tertera pada elemen HTML secara aman, anti 'null' error
+        for (const kartu of semuaKartuSoal) {
+           const idAsli = kartu.id.split('_'); 
            
            const fileAsli = fileGambarSoal[idAsli];
            const kanjiData = document.getElementById(`kanji_${idAsli}`).value.trim();
@@ -174,16 +172,14 @@
            const jawabanBenar = document.getElementById(`jawabanBenar_${idAsli}`).value.trim();
 
            if(!fileAsli || !jawabanBenar) {
-              throw new Error(`Gambar atau Jawaban Benar pada Nomor dengan ID ${idAsli} kosong!`);
+              throw new Error(`Gambar atau Jawaban Benar pada Nomor ${idAsli} belum diisi!`);
            }
 
-           // UPLOAD LANGSUNG FILE ASLI KE FIREBASE STORAGE (SANGAT RINGAN & INSTAN)
            const namaFileDiStorage = `kuis_${roomID}/${idAsli}_${Date.now()}.jpg`;
            const storageRef = storage.ref().child(namaFileDiStorage);
            await storageRef.put(fileAsli);
            const urlGambarPermanen = await storageRef.getDownloadURL();
 
-           // Ambil Gocekan Minna
            let bankKataSalah = [];
            dataMinnaBab.forEach(item => {
               if(item.correct.toLowerCase() !== jawabanBenar.toLowerCase()) {
@@ -195,7 +191,7 @@
            let gabunganOpsiPilihan = [jawabanBenar].concat(tigaGocekanAcak);
 
            paketSoalFinal.push({
-              image: urlGambarPermanen, // Link gambar Firebase Cloud yang super enteng
+              image: urlGambarPermanen,
               kanji: kanjiData,
               kana: kanaData,
               answers: gabunganOpsiPilihan, 
