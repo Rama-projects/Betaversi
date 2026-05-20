@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>JFT KILAT - ADMIN PANEL</title>
+<title>JFT KILAT - ADMIN MULTI SOAL</title>
 
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
@@ -34,61 +34,118 @@
 <style>
   :root { --bg: #121212; --card: #1e1e1e; --text: #eee; --primary: #2196f3; --green: #4caf50; --red: #f44336; --gold: #ffb74d; }
   * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-  body { margin: 0; padding: 20px; background: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; }
-  .container { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 20px; }
+  body { margin: 0; padding: 15px; background: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; }
+  
+  .container { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 15px; padding-bottom: 50px; }
   .box { background: var(--card); border: 1px solid #333; padding: 20px; border-radius: 15px; }
   
-  input[type="text"], input[type="number"], input[type="file"], select { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #444; background: #222; color: white; margin-bottom: 10px; outline: none; }
+  input[type="text"], input[type="number"], input[type="file"] { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #444; background: #222; color: white; margin-bottom: 10px; outline: none; font-size: 14px; }
+  input:focus { border-color: var(--primary); }
   
-  .btn { background: #ff5722; color: white; border: none; padding: 14px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 0 #bf360c; display: block; margin-top: 10px; }
+  .btn { background: #ff5722; color: white; border: none; padding: 14px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 0 #bf360c; display: block; margin-top: 5px; font-size: 14px; }
   .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #bf360c; }
+  
+  .blueBtn { background: var(--primary); box-shadow: 0 4px 0 #1565c0; }
   .greenBtn { background: var(--green); box-shadow: 0 4px 0 #2e7d32; }
   
-  .preview-img-box { width: 100%; max-height: 250px; background: #000; border-radius: 8px; margin-bottom: 10px; display: none; justify-content: center; align-items: center; overflow: hidden; border: 1px solid #444; }
-  .preview-img-box img { max-width: 100%; max-height: 250px; object-fit: contain; }
+  /* Desain Kartu Per Nomor Soal */
+  .card-soal { background: #252525; padding: 15px; border-radius: 12px; margin-top: 15px; border: 2px dashed #444; }
   
-  .output-box { display: none; background: #151515; border: 2px solid var(--gold); border-radius: 12px; padding: 15px; margin-top: 10px; }
+  .preview-img-box { width: 100%; min-height: 100px; max-height: 200px; background: #000; border-radius: 8px; margin-bottom: 10px; display: none; justify-content: center; align-items: center; overflow: hidden; border: 1px dashed var(--gold); }
+  .preview-img-box img { max-width: 100%; max-height: 200px; object-fit: contain; }
+  
+  .output-box { display: none; background: #151515; border: 2px solid var(--gold); border-radius: 12px; padding: 15px; margin-top: 15px; text-align: center; }
   .url-text { background: #222; padding: 10px; border-radius: 8px; font-size: 13px; color: var(--gold); word-break: break-all; margin-bottom: 10px; font-family: monospace; }
 </style>
 </head>
 <body>
 
 <div class="container">
-  <div id="viewAdmin" class="box">
+  <div class="box">
      <h2 style="color: var(--gold); margin-top: 0; text-align: center;">⚡ JFT KILAT ADMIN</h2>
      
      <label style="font-size: 12px; color: #aaa;">Masa Aktif Kuis (Menit):</label>
      <input type="number" id="expiryInput" value="180">
 
-     <div style="display: flex; gap: 10px;">
-        <div style="flex: 1;">
-           <label style="font-size: 12px; color: #aaa;">Pilih Bab Minna:</label>
-           <input type="number" id="babInput" value="1" min="1">
-        </div>
-        <div style="flex: 1;">
-           <label style="font-size: 12px; color: #aaa;">Jumlah Soal:</label>
-           <input type="number" id="jumlahSoalInput" value="5" min="1">
-        </div>
-     </div>
+     <label style="font-size: 12px; color: #aaa;">Sumber Bab Minna (Untuk Ambil Gocekan Otomatis):</label>
+     <input type="number" id="babOpsiInput" value="1" min="1">
      
-     <label style="font-size: 12px; color: #aaa;">Upload Gambar Utama Kuis (Wajib):</label>
-     <input type="file" accept="image/*" onchange="konversiGambarKeBase64(this)">
-     <div class="preview-img-box" id="pvBoxAdmin"></div>
-     <input type="text" id="stringBaseAdmin" style="display:none;" value="">
+     <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
      
-     <button class="btn greenBtn" type="button" onclick="simpanDanBikinLink()">🚀 AMBIL DATA BAB & BUAT LINK</button>
+     <div id="wrapperSoal"></div>
+     
+     <button class="btn blueBtn" type="button" style="margin-top: 20px;" onclick="tambahKolomSoalBaru()">➕ TAMBAH PERTANYAAN BARU</button>
+     <button class="btn greenBtn" type="button" style="margin-top: 12px;" onclick="simpanSemuaDanBikinLink()">🚀 COMPILASI & BUAT LINK KUIS</button>
 
      <div class="output-box" id="outputLinkContainer">
-        <div style="font-size: 12px; font-weight: bold; margin-bottom: 5px;">🔗 LINK KUIS UNTUK SISWA:</div>
-        <div class="url-text" id="textLinkSiswa">Mengecek...</div>
+        <div style="font-size: 12px; font-weight: bold; margin-bottom: 5px; text-align: left;">🔗 LINK KUIS UNTUK SISWA:</div>
+        <div class="url-text" id="textLinkSiswa">Memproses...</div>
         <button class="btn" style="background:var(--gold); color:#000; box-shadow:0 4px 0 #e65100;" type="button" onclick="salinLinkKuis()">📋 SALIN LINK KUIS</button>
      </div>
   </div>
 </div>
 
 <script>
-  function konversiGambarKeBase64(fileInput) {
+  let totalSoalSaatIni = 0;
+
+  // Halaman kebuka langsung otomatis ngasih slot soal pertama
+  window.onload = function() {
+     tambahKolomSoalBaru();
+  };
+
+  // Fungsi untuk membuat form soal baru (bisa dipencet berkali-kali tanpa batas)
+  function tambahKolomSoalBaru() {
+     totalSoalSaatIni++;
+     const wadah = document.getElementById('wrapperSoal');
+     
+     const card = document.createElement('div');
+     card.className = 'card-soal';
+     card.id = `boxSoal_${totalSoalSaatIni}`;
+     
+     card.innerHTML = `
+        <div style="display:flex; justify-content:between; align-items:center; margin-bottom:10px; font-size:13px; font-weight:bold; color:var(--gold);">
+           <span style="flex:1;">📝 PERTANYAAN NO. ${totalSoalSaatIni}</span>
+           <span style="color:var(--red); cursor:pointer; font-size:12px; background:#331111; padding:3px 8px; border-radius:5px;" onclick="hapusSoalTertentu(${totalSoalSaatIni})">Hapus</span>
+        </div>
+        
+        <label style="font-size:11px; color:#aaa;">Upload Gambar Soal ini:</label>
+        <input type="file" accept="image/*" onchange="prosesGambarKeBase64(this, ${totalSoalSaatIni})">
+        
+        <div class="preview-img-box" id="pvBox_${totalSoalSaatIni}"></div>
+        <input type="text" id="stringBase_${totalSoalSaatIni}" style="display:none;" value="">
+        
+        <div style="display:flex; gap:10px;">
+          <div style="flex:1;">
+             <label style="font-size:11px; color:#aaa;">Teks Kanji:</label>
+             <input type="text" id="kanji_${totalSoalSaatIni}" placeholder="Contoh: 参加します">
+          </div>
+          <div style="flex:1;">
+             <label style="font-size:11px; color:#aaa;">Teks Kana:</label>
+             <input type="text" id="kana_${totalSoalSaatIni}" placeholder="Contoh: さんかします">
+          </div>
+        </div>
+
+        <label style="font-size:11px; color:#aaa;">Kunci Jawaban Benar (Diisi Manual):</label>
+        <input type="text" id="jawabanBenar_${totalSoalSaatIni}" placeholder="Contoh: mengikuti [perjalanan]" style="border-color:var(--green); margin-bottom:5px;">
+     `;
+     
+     wadah.appendChild(card);
+  }
+
+  function hapusSoalTertentu(idNomor) {
+     const elemen = document.getElementById(`boxSoal_${idNomor}`);
+     if(elemen) {
+        elemen.remove();
+        // Catatan: totalSoalSaatIni tidak dikurangi agar ID input tidak bentrok.
+     }
+  }
+
+  function prosesGambarKeBase64(fileInput, idNomor) {
      if (!fileInput.files || !fileInput.files) return;
+     const pv = document.getElementById(`pvBox_${idNomor}`);
+     pv.style.display = 'flex';
+     pv.innerHTML = `<span style="color:#aaa; font-size:11px;">Membaca gambar...</span>`;
+
      const reader = new FileReader();
      reader.onload = function(e) {
         const img = new Image();
@@ -100,62 +157,84 @@
            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
            
            const finalBase64 = canvas.toDataURL('image/jpeg', 0.5);
-           document.getElementById('stringBaseAdmin').value = finalBase64;
-           
-           const pv = document.getElementById('pvBoxAdmin');
+           document.getElementById(`stringBase_${idNomor}`).value = finalBase64;
            pv.innerHTML = `<img src="${finalBase64}">`;
-           pv.style.display = 'flex';
         };
         img.src = e.target.result;
      };
      reader.readAsDataURL(fileInput.files);
   }
 
-  function simpanDanBikinLink() {
-     const imgData = document.getElementById('stringBaseAdmin').value;
-     const babDipilih = document.getElementById('babInput').value.trim();
-     const jumlahDiminta = parseInt(document.getElementById('jumlahSoalInput').value) || 5;
+  function simpanSemuaDanBikinLink() {
+     const semuaKartuSoal = document.querySelectorAll('.card-soal');
+     const babGocekan = document.getElementById('babOpsiInput').value.trim();
 
-     if(!imgData) { alert("Upload gambar pertanyaannya dulu, bro!"); return; }
-     
-     // Validasi keberadaan variabel babData dari data_minna.js
-     if(typeof babData === 'undefined') { alert("Variabel babData tidak ditemukan! Cek file data_minna.js lu."); return; }
-     
-     // Mengambil array soal berdasarkan key bab yang diinput
-     const listSoalBab = babData[babDipilih];
-     if(!listSoalBab || listSoalBab.length === 0) { alert(`Data Minna untuk Bab ${babDipilih} kosong atau tidak ada!`); return; }
+     if(semuaKartuSoal.length === 0) { alert("Minimal harus memasukkan 1 pertanyaan, bro!"); return; }
+     if(typeof babData === 'undefined') { alert("File data_minna.js di GitHub lu bermasalah/tidak terbaca!"); return; }
 
-     if(!firebaseAktif || !database) { alert("Firebase belum siap!"); return; }
+     const dataMinnaBab = babData[babGocekan];
+     if(!dataMinnaBab || dataMinnaBab.length === 0) { alert(`Data Minna untuk Bab ${babGocekan} kosong/tidak ketemu!`); return; }
+     if(!firebaseAktif || !database) { alert("Koneksi Firebase mati!"); return; }
 
-     // Mengacak isi soal khusus dari bab yang dipilih
-     let soalAcak = [...listSoalBab].sort(() => 0.5 - Math.random());
-     let paketSoalSelected = soalAcak.slice(0, jumlahDiminta);
+     let paketSoalFinal = [];
+     let statusValidasi = true;
 
-     // Mapping data agar menyertakan gambar yang diupload admin
-     let paketSoalFinal = paketSoalSelected.map(soal => {
-        return {
-           image: imgData, 
-           kanji: soal.kanji || "",
-           kana: soal.kana || "",
-           answers: soal.answers, 
-           correct: soal.correct
-        }
+     // Looping mengambil data dari setiap kartu pertanyaan yang aktif
+     semuaKartuSoal.forEach((kartu) => {
+        const idAsli = kartu.id.split('_');
+        
+        const imgData = document.getElementById(`stringBase_${idAsli}`).value;
+        const kanjiData = document.getElementById(`kanji_${idAsli}`).value.trim();
+        const kanaData = document.getElementById(`kana_${idAsli}`).value.trim();
+        const jawabanBenar = document.getElementById(`jawabanBenar_${idAsli}`).value.trim();
+
+        if(!imgData) { alert(`Gambar pada nomor soal dengan ID ${idAsli} belum diupload!`); statusValidasi = false; return; }
+        if(!jawabanBenar) { alert(`Kunci jawaban benar pada nomor soal dengan ID ${idAsli} masih kosong!`); statusValidasi = false; return; }
+
+        // === PROSES GENERATE GOCEKAN OTOMATIS ===
+        let bankKataSalah = [];
+        dataMinnaBab.forEach(item => {
+           // Ambil teks jawaban benar dari minna js selama teksnya tidak sama dengan jawaban benar manual lu
+           if(item.correct.toLowerCase() !== jawabanBenar.toLowerCase()) {
+              bankKataSalah.push(item.correct);
+           }
+        });
+
+        // Acak gocekan & potong mengambil 3 opsi saja
+        bankKataSalah.sort(() => 0.5 - Math.random());
+        let tigaGocekanAcak = bankKataSalah.slice(0, 3);
+
+        // Gabungkan jawaban benar lu dengan 3 gocekan minna tersebut
+        let gabunganOpsiPilihan = [jawabanBenar].concat(tigaGocekanAcak);
+
+        paketSoalFinal.push({
+           image: imgData,
+           kanji: kanjiData,
+           kana: kanaData,
+           answers: gabunganOpsiPilihan, 
+           correct: jawabanBenar
+        });
      });
+
+     if(!statusValidasi) return; // Stop jika ada data tidak lengkap
 
      const menit = parseInt(document.getElementById('expiryInput').value) || 180;
      const expired = Date.now() + (menit * 60 * 1000);
      const roomID = "JFT-" + Math.floor(1000 + Math.random() * 9000);
 
-     // Mengarahkan link langsung ke kuis.html
      let linkSiswa = window.location.origin + "/kuis.html?room=" + roomID;
 
+     // Push paket massal ke Firebase
      database.ref("kuis_master_baru/" + roomID).set({
         roomID: roomID, expiredAt: expired, questions: paketSoalFinal
      }, (err) => {
-        if(err) { alert("Gagal Simpan ke Firebase: " + err.message); } else {
+        if(err) { alert("Gagal Kirim ke Database: " + err.message); } else {
            document.getElementById('textLinkSiswa').innerText = linkSiswa;
            document.getElementById('outputLinkContainer').style.display = 'block';
-           alert(`🚀 LINK BERHASIL DICREATE DARI MINNA BAB ${babDipilih}!`);
+           
+           // Scroll otomatis ke bawah agar link langsung kelihatan di layar HP
+           document.getElementById('outputLinkContainer').scrollIntoView({ behavior: 'smooth' });
+           alert(`🔥 BERHASIL! ${paketSoalFinal.length} Soal telah digabung dengan gocekan Bab ${babGocekan}. Link aktif.`);
         }
      });
   }
