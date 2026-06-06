@@ -120,7 +120,7 @@
   .profile-id { font-size: 13px; color: var(--text-muted); margin: 4px 0 0 0; }
   .stats-container { display: flex; width: 100%; gap: 12px; margin-top: 20px; }
   .stat-box { flex: 1; background: #0f172a; border-radius: 16px; padding: 14px; text-align: center; border: 1px solid #1e293b; }
-  .stat-val { font-size: 20px; font-weight: 700; color: var(--primary); }
+  .stats-container .stat-val { font-size: 20px; font-weight: 700; color: var(--primary); }
   .stat-lbl { font-size: 11px; color: var(--text-muted); margin-top: 2px; font-weight: 500; }
 
   /* Kamus Melayang Selalu Di Paling Atas */
@@ -226,7 +226,6 @@
     
     <div class="login-box">
       <input type="text" id="regFullName" class="login-input hidden" placeholder="Nama Lengkap Pemain">
-      <input type="tel" id="regPhoneNumber" class="login-input hidden" placeholder="Nomor WhatsApp / HP">
       
       <input type="email" id="loginEmail" class="login-input" placeholder="Alamat Email">
       <input type="password" id="loginPass" class="login-input" placeholder="Kata Sandi">
@@ -492,7 +491,7 @@
     }
   }
   function openKamusOverlay() { document.getElementById('kamusOverlay').style.display = 'flex'; document.getElementById('kamusInput').focus(); }
-  function closeKamusOverlay() { document.getElementById('kamusOverlay').style.none = 'none'; document.getElementById('kamusOverlay').style.display = 'none'; }
+  function closeKamusOverlay() { document.getElementById('kamusOverlay').style.display = 'none'; }
 
   function searchGlobal() {
     const query = document.getElementById('kamusInput').value.toLowerCase().trim();
@@ -502,7 +501,7 @@
     let allData = [];
     if(typeof babData !== 'undefined') Object.values(babData).forEach(arr => allData = allData.concat(arr));
     if(typeof irodoriKanjiData !== 'undefined') allData = allData.concat(irodoriKanjiData);
-    if(typeof sswPMData !== 'undefined') Object.values(sswPMData).forEach(arr => allData = allData.concat(arr));
+    if(typeof sswPMData !== 'undefined' && sswPMData) Object.values(sswPMData).forEach(arr => allData = allData.concat(arr));
 
     const matches = allData.filter(item => 
       (item.kana && item.kana.toLowerCase().includes(query)) || 
@@ -523,20 +522,29 @@
     setTimeout(() => { t.style.opacity = '0'; setTimeout(() => { t.style.display = 'none'; }, 400); }, 2200);
   }
 
-  // --- INTEGRASI FIREBASE AUTH (EMAIL & GOOGLE AUTOMATIC) ---
+  // --- INTEGRASI FIREBASE AUTH (EMAIL VERIFICATION & GOOGLE AUTH FIX) ---
   auth.onAuthStateChanged(user => {
      if(user) {
-        currentUserID = user.displayName ? user.displayName.replace(/\s+/g, '_') : user.email.split('@');
+        // Cek Verifikasi Email (Hanya berlaku untuk login email/kata sandi, Google otomatis true)
+        if (!user.emailVerified && user.providerData.providerId === 'password') {
+           showToast("Email belum diverifikasi! Silakan cek Inbox/Spam email kamu.");
+           auth.signOut();
+           hideAll();
+           document.getElementById('loginPage').style.display = 'flex';
+           return;
+        }
+
+        // AMBIL UID KRIPTO AMAN UNTUK MENGHINDARI EROR PATH TITIK/KOMA
+        currentUserID = user.uid;
         
-        // Pengecekan real-time data nama display name di database utama kuis rama
         database.ref(`users/${currentUserID}/fullName`).once('value', snap => {
-           let finalName = snap.val() || user.displayName || currentUserID;
+           let finalName = snap.val() || user.displayName || "User Kuis";
            document.getElementById('userLabel').innerText = finalName;
            document.getElementById('profName').innerText = finalName;
         });
 
         document.getElementById('profId').innerText = "Email: " + user.email;
-        document.getElementById('profAvatar').innerText = currentUserID.charAt(0).toUpperCase();
+        document.getElementById('profAvatar').innerText = finalName ? finalName.charAt(0).toUpperCase() : "U";
         
         listenToUserCoinsAndStats();
         switchTab('home');
@@ -548,10 +556,8 @@
      }
   });
 
-  // FUNGSI SWITCH INTERFACE DAFTAR BARU / LOGIN (MODERN & AMAN DARI COPYRIGHT)
   function toggleAuthMode(keHalamanDaftar) {
     isRegisterState = keHalamanDaftar;
-    const registerFields = ['regFullName', 'regPhoneNumber', 'regConfirmPass'];
     
     if (isRegisterState) {
         document.getElementById('authMainTitle').innerText = "DAFTAR AKUN BARU";
@@ -559,20 +565,19 @@
         document.getElementById('authSubmitBtn').innerText = "➕ DAFTAR AKUN RAMA";
         document.getElementById('googleAuthBtn').innerHTML = '<img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/web-24dp/logo_googleg_color_24dp.png" width="18"> Daftar Cepat via Google';
         document.getElementById('authSwitchContainer').innerHTML = 'Sudah punya akun kuis? <a href="#" onclick="toggleAuthMode(false)">Masuk Sini</a>';
-        
-        registerFields.forEach(id => document.getElementById(id).classList.remove('hidden'));
+        document.getElementById('regFullName').classList.remove('hidden');
+        document.getElementById('regConfirmPass').classList.remove('hidden');
     } else {
         document.getElementById('authMainTitle').innerText = "RAMA JAPAN QUIZ";
         document.getElementById('authSubTitle').innerText = "Silakan masuk untuk sinkronisasi nilai & koin";
         document.getElementById('authSubmitBtn').innerText = "MASUK SEKARANG ➔";
         document.getElementById('googleAuthBtn').innerHTML = '<img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/web-24dp/logo_googleg_color_24dp.png" width="18"> Masuk Otomatis dengan Google';
         document.getElementById('authSwitchContainer').innerHTML = 'Belum punya akun? <a href="#" onclick="toggleAuthMode(true)">Daftar Baru</a>';
-        
-        registerFields.forEach(id => document.getElementById(id).classList.add('hidden'));
+        document.getElementById('regFullName').classList.add('hidden');
+        document.getElementById('regConfirmPass').classList.add('hidden');
     }
   }
 
-  // FUNGSI EKSEKUSI AUTHENTICATION LOGIC (EMAIL SIGN-IN & SIGN-UP SEKALIGUS)
   function handleAuthAction() {
     const email = document.getElementById('loginEmail').value.trim();
     const pass = document.getElementById('loginPass').value.trim();
@@ -580,45 +585,78 @@
     if(!email || !pass) { showToast("Email & sandi wajib diisi!"); return; }
 
     if (isRegisterState) {
-        // JALANKAN PROSES REGISTER AKUN BARU
         const nama = document.getElementById('regFullName').value.trim();
-        const phone = document.getElementById('regPhoneNumber').value.trim();
         const confirm = document.getElementById('regConfirmPass').value.trim();
 
-        if(!nama || !phone) { showToast("Nama Lengkap & No HP wajib diisi!"); return; }
+        if(!nama) { showToast("Nama Lengkap wajib diisi!"); return; }
         if(pass !== confirm) { showToast("Konfirmasi sandi tidak sesuai!"); return; }
 
         auth.createUserWithEmailAndPassword(email, pass)
           .then((userCredential) => {
-             const uidClean = email.split('@');
-             // Set default data user game baru + modal awal gratis 10 koin rama!
-             database.ref('users/' + uidClean).set({
+             const userId = userCredential.user.uid;
+             
+             // Kirim Email Verifikasi Aktif ke User Baru
+             userCredential.user.sendEmailVerification().then(() => {
+                alert("Link aktivasi telah dikirim! Buka inbox email kamu sekarang dan klik link tersebut untuk mengaktifkan akun.");
+             });
+
+             database.ref('users/' + userId).set({
                 fullName: nama,
-                phoneNumber: phone,
                 coins: 10
              }).then(() => {
-                showToast("Selamat! Akun kuis berhasil dibuat.");
+                auth.signOut();
+                toggleAuthMode(false);
              });
           })
-          .catch(err => alert("Gagal Pendaftaran: " + err.message));
+          .catch(err => {
+             switch (err.code) {
+               case 'auth/weak-password': alert("Pendaftaran Gagal: Kata sandi terlalu pendek (Min. 6 karakter)!"); break;
+               case 'auth/email-already-in-use': alert("Pendaftaran Gagal: Email sudah terdaftar."); break;
+               case 'auth/invalid-email': alert("Pendaftaran Gagal: Format penulisan email salah."); break;
+               default: alert("Gagal Daftar: " + err.message);
+             }
+          });
 
     } else {
-        // JALANKAN PROSES LOGIN BIASA
-        auth.signInWithEmailAndPassword(email, pass).catch(err => {
-            if(err.code === 'auth/user-not-found') {
-                showToast("Akun tidak ditemukan! Silakan klik 'Daftar Baru'");
-            } else { alert(err.message); }
-        });
+        auth.signInWithEmailAndPassword(email, pass)
+          .then((userCredential) => {
+             if (!userCredential.user.emailVerified) {
+                alert("Masuk Gagal: Akun belum aktif! Silakan verifikasi email kamu terlebih dahulu.");
+                auth.signOut();
+             }
+          })
+          .catch(err => {
+             switch (err.code) {
+               case 'auth/user-not-found': alert("Gagal Masuk: Akun tidak ditemukan."); break;
+               case 'auth/wrong-password': alert("Gagal Masuk: Kata sandi salah!"); break;
+               case 'auth/invalid-email': alert("Gagal Masuk: Format email tidak valid."); break;
+               default: alert("Gagal Masuk: " + err.message);
+             }
+          });
     }
   }
 
   function handleGoogleLogin() {
      const provider = new firebase.auth.GoogleAuthProvider();
-     auth.signInWithRedirect(provider);
+     // PERBAIKAN POPUP LOGIN SUPAYA RESPONSIF DI HP
+     auth.signInWithPopup(provider)
+       .then((result) => {
+          const userId = result.user.uid;
+          database.ref('users/' + userId).once('value', snap => {
+             if(!snap.exists()) {
+                database.ref('users/' + userId).set({
+                   fullName: result.user.displayName,
+                   coins: 10
+                });
+             }
+          });
+          showToast("Berhasil masuk via Google!");
+       })
+       .catch((error) => {
+          console.error(error);
+          alert("Gagal Google Sign-In: " + error.message);
+       });
   }
-
-  // Pendeteksi Google Redirect Sign-In Otomatis
-  auth.getRedirectResult().then(res => { if(res.user) showToast("Berhasil masuk via Google!"); }).catch(e => console.log(e));
 
   function logout() { document.getElementById('logoutModal').style.display = 'flex'; }
   function closeLogoutModal() { document.getElementById('logoutModal').style.display = 'none'; }
@@ -626,13 +664,11 @@
 
   function listenToUserCoinsAndStats() {
      if(!currentUserID) return;
-     // Ambil Koin
      database.ref(`users/${currentUserID}/coins`).on('value', snap => {
         userCoinsCount = snap.val() || 0;
         document.getElementById('userCoins').innerText = userCoinsCount;
         document.getElementById('statCoins').innerText = userCoinsCount;
      });
-     // Ambil Jumlah Bab Selesai
      database.ref(`users/${currentUserID}/scores`).on('value', snap => {
         let count = 0; if(snap.exists()) { Object.values(snap.val()).forEach(sc => { if(sc === 100) count++; }); }
         document.getElementById('statBadge').innerText = count;
@@ -1034,7 +1070,7 @@
 
     if (currentLabel.includes("SSW Page")) {
         if (nextNum === 4) nextNum = 5; if (nextNum === 23) nextNum = 24; if (nextNum === 59) nextNum = 60;
-        if (typeof sswPMData !== 'undefined' && sswPMData[nextNum]) { nextTargetData = sswPMData[nextNum]; nextLabelText = "SSW Page " + nextNum; }
+        if (typeof sswPMData !== 'undefined' && sswPMData && sswPMData[nextNum]) { nextTargetData = sswPMData[nextNum]; nextLabelText = "SSW Page " + nextNum; }
     } else if (currentLabel.includes("Bab")) {
         if (typeof babData !== 'undefined' && babData[nextNum]) { nextTargetData = babData[nextNum]; nextLabelText = "Bab " + nextNum; }
     }
