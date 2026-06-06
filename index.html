@@ -264,6 +264,7 @@
     <div id="finalDetail" style="color:#aaa; white-space: pre-wrap;"></div>
     <div id="reviewBox" style="width: 100%; text-align: left; margin-top: 20px; max-height: 200px; overflow-y: auto; background: #1a1a1a; padding: 15px; border-radius: 12px; font-size: 14px;"></div>
     <button id="nextChunkBtn" class="mainBtn" style="margin-top:20px; display:none;">LANJUT KUIS</button>
+    <button id="nextBabBtn" class="mainBtn" style="background:var(--secondary); margin-top:10px; box-shadow: 0 5px 0 #1565c0; display:none;"></button>
     <button class="mainBtn" style="background:#555; margin-top:10px; box-shadow: 0 5px 0 #333;" onclick="goBack()">KEMBALI</button>
   </div>
 
@@ -821,6 +822,7 @@
     const isIrodori = currentLabel.includes("Irodori");
     // Sesi dianggap benar-benar beres jika masterPool kosong DAN (soal salah habis ATAU jatah tebus sudah dipakai)
     const isFinished = (masterPool.length === 0 && (globalWrongPool.length === 0 || redemptionUsedInThisSession));
+    document.getElementById('nextBabBtn').style.display = 'none';
     
     if(isIrodori && isFinished) stopTimer();
     hideAll();
@@ -887,6 +889,10 @@
     } else { 
         btnLanjut.style.display = 'none';
       database.ref(`users/${currentUserID}/redemptionPool`).remove();
+      
+      if (isFinished) {
+            setupNextBabButton();
+            }
     }
   }
 
@@ -904,7 +910,54 @@
   renderQuestion();
 }
 
+  function setupNextBabButton() {
+    let currentNum = parseInt(currentLabel.replace(/[^0-9]/g, ''));
+    if (isNaN(currentNum)) return; // Jika tidak ada angka (seperti Irodori Full Kanji), batalkan.
 
+    let nextNum = currentNum + 1;
+    let nextTargetData = null;
+    let nextLabelText = "";
+
+    // Deteksi tipe materi berdasarkan teks di currentLabel
+    if (currentLabel.includes("SSW Page")) {
+        // Kasus khusus skip page kosong sesuai logika grid kamu (4, 23, 59)
+        if (nextNum === 4) nextNum = 5;
+        if (nextNum === 23) nextNum = 24;
+        if (nextNum === 59) nextNum = 60;
+
+        if (typeof sswPMData !== 'undefined' && sswPMData[nextNum]) {
+            nextTargetData = sswPMData[nextNum];
+            nextLabelText = "SSW Page " + nextNum;
+        }
+    } else if (currentLabel.includes("Ref Bab")) {
+        if (typeof referensiData !== 'undefined' && referensiData[nextNum]) {
+            nextTargetData = referensiData[nextNum];
+            nextLabelText = "Ref Bab " + nextNum;
+        }
+    } else if (currentLabel.includes("Bab")) {
+        if (typeof babData !== 'undefined' && babData[nextNum]) {
+            nextTargetData = babData[nextNum];
+            nextLabelText = "Bab " + nextNum;
+        }
+    }
+
+    // Jika data bab berikutnya ditemukan, munculkan tombolnya
+    if (nextTargetData) {
+        const nextBtn = document.getElementById('nextBabBtn');
+        nextBtn.style.display = 'block';
+        nextBtn.innerText = "⏩ LANJUT " + nextLabelText.toUpperCase();
+        
+        // Atur agar ketika diklik, data langsung berganti dan kuis langsung dimulai
+        nextBtn.onclick = function() {
+            selectedData = nextTargetData;
+            currentLabel = nextLabelText;
+            
+            // Langsung mulai kuis dengan mode & kesulitan yang sedang aktif saat ini
+            startQuiz(currentLabel, selectedData);
+        };
+    }
+  }
+  
   function goBack() {
     window.speechSynthesis.cancel();
     stopTimer();
