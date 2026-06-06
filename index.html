@@ -578,14 +578,16 @@
   }
 
   // --- INTEGRASI FIREBASE AUTH ---
-  auth.onAuthStateChanged(user => {
+    auth.onAuthStateChanged(user => {
      if(user) {
         isGuestMode = false;
         document.getElementById('coinStatusSub').innerText = "Selesaikan kuis untuk mengumpulkan koin";
         document.getElementById('userBadgeType').innerText = "PRO";
         document.getElementById('guestRegisterSection').classList.add('hidden'); // hilangkan promo login
 
-        if (!user.emailVerified && user.providerData[0].providerId === 'password') {
+        // PERBAIKAN AMAN: Cek apakah user menggunakan login email/password biasa
+        const isEmailPassword = user.providerData.some(p => p.providerId === 'password');
+        if (isEmailPassword && !user.emailVerified) {
            showToast("Email belum diverifikasi!");
            auth.signOut();
            hideAll();
@@ -595,18 +597,34 @@
 
         currentUserID = user.uid;
         
+        // Ambil data nama dari Database
         database.ref(`users/${currentUserID}/fullName`).once('value', snap => {
            let finalName = snap.val() || user.displayName || "User Kuis";
            document.getElementById('userLabel').innerText = finalName;
            document.getElementById('profName').innerText = finalName;
            document.getElementById('profAvatar').innerText = finalName.charAt(0).toUpperCase();
+        }).catch(err => {
+           console.error("Gagal mengambil nama dari DB:", err);
+           // Fallback jika database sibuk/error agar tidak stuck screen
+           let fallbackName = user.displayName || "User Kuis";
+           document.getElementById('userLabel').innerText = fallbackName;
+           document.getElementById('profName').innerText = fallbackName;
+           document.getElementById('profAvatar').innerText = fallbackName.charAt(0).toUpperCase();
         });
 
-        document.getElementById('profId').innerText = "Email: " + user.email;
+        // Set email di profil
+        document.getElementById('profId').innerText = "Email: " + (user.email || "-");
         
-        listenToUserCoinsAndStats();
+        // Jalankan fungsi sinkronisasi koin & arahkan ke halaman utama
+        if (typeof listenToUserCoinsAndStats === "function") {
+           listenToUserCoinsAndStats();
+        }
+        
+        hideAll(); // Pastikan view lain tertutup terlebih dahulu
         switchTab('home');
+        
      } else {
+        // Jika tidak login dan bukan mode tamu, paksa tendang ke halaman login
         if (!isGuestMode) {
            hideAll();
            document.getElementById('loginPage').style.display = 'flex';
@@ -660,42 +678,57 @@
     }
   }
 
-    // --- PERBAIKAN LOGIN GOOGLE (MENGGUNAKAN REDIRECT AGAR TIDAK BLANK/ERROR) ---
+      // 1. FUNGSI UNTUK MEMICU REDIRECT GOOGLE (DIPANGGIL SAAT TOMBOL DIKLIK)
   function handleGoogleLogin() {
      const provider = new firebase.auth.GoogleAuthProvider();
-     // Menggunakan Redirect, bukan Popup, agar ramah browser HP/Webview dan tidak memicu layar hitam
+     // Setelan opsional untuk memaksa browser menampilkan pilihan akun Google
+     provider.setCustomParameters({ prompt: 'select_account' });
+     
      auth.signInWithRedirect(provider).catch(error => {
         alert("Gagal menginisialisasi Google Sign-In: " + error.message);
      });
   }
 
-  // PENTING: Detektor otomatis untuk menangani hasil login setelah layar di-redirect kembali ke kuis
-  auth.getRedirectResult()
-    .then((result) => {
-       if (result.user) {
-          const userId = result.user.uid;
-          // Cek apakah user ini baru pertama kali login atau sudah punya data di Database
-          database.ref('users/' + userId).once('value', snap => {
-             if(!snap.exists()) { 
-                // Jika user baru, buatkan struktur data defaultnya di Firebase Realtime Database
-                database.ref('users/' + userId).set({ 
-                   fullName: result.user.displayName || "Pemain JFT", 
-                   coins: 10 
-                }).then(() => {
-                   showToast("Pendaftaran Google Berhasil!");
+  // 2. GLOBAL DETEKTOR (WAJIB ditaruh di luar fungsi apa pun, agar langsung jalan saat web di-load)
+  window.addEventListener('DOMContentLoaded', () => {
+     auth.getRedirectResult()
+       .then((result) => {
+          // Jika ada data user hasil dari redirect login Google
+          if (result && result.user) {
+             const userId = result.user.uid;
+             showToast("Menghubungkan ke server...");
+             
+             // Cek data di database
+             database.ref('users/' + userId).once('value', snap => {
+                if(!snap.exists()) { 
+                   // Jika user baru belum ada di database, daftarkan data awalnya
+                   database.ref('users/' + userId).set({ 
+                      fullName: result.user.displayName || "Pemain JFT", 
+                      coins: 10 
+                   }).then(() => {
+                      showToast("Pendaftaran Google Berhasil!");
+                      hideAll();
+                      switchTab('home');
+                   }).catch(err => {
+                      console.error("Gagal membuat user baru di DB:", err);
+                      // Tetap loloskan ke menu utama walau DB gagal tulis di awal
+                      hideAll();
+                      switchTab('home');
+                   });
+                } else {
+                   // Jika user lama sudah terdaftar
+                   showToast("Selamat Datang Kembali!");
+                   hideAll();
                    switchTab('home');
-                });
-             } else {
-                showToast("Selamat Datang Kembali!");
-                switchTab('home');
-             }
-          });
-       }
-    })
-    .catch((error) => {
-       console.error("Error hasil redirect Google:", error);
-       showToast("Gagal memproses masuk Google: " + error.message);
-    });
+                }
+             });
+          }
+       })
+       .catch((error) => {
+          console.error("Error hasil redirect Google:", error);
+          alert("Gagal memproses masuk Google: " + error.message + "\nKode Error: " + error.code);
+       });
+  });
 
   function logout() { 
      document.getElementById('logoutModalTitle').innerText = isGuestMode ? "KELUAR DARI MODE TAMU?" : "YAKIN KELUAR?";
