@@ -74,9 +74,10 @@
   .iroBtn { background: #1d4ed8; box-shadow: 0 5px 0 #1e3a8a; }
   .sswBtn { background: #7c3aed; box-shadow: 0 5px 0 #5b21b6; }
   .goldBtn { background: var(--gold); box-shadow: 0 5px 0 #e65100; color: #000; }
+  .guestBtn { background: #334155; box-shadow: 0 5px 0 #1e293b; margin-top: 5px; }
   .babBtn { background: var(--card); border-radius: 12px; padding: 12px; color: #eee; border: 1px solid #1e293b; cursor: pointer; min-width: 85px; font-size: 13px; position: relative; flex: 1 1 calc(33.33% - 10px); text-align: center; }
   
-  /* Desain Dashboard Utama (Full Gelap Kombinasi Biru & Putih) */
+  /* Desain Dashboard Utama */
   .jft-header { width: 100%; background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); padding: 30px 24px; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; color: white; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border-bottom: 1px solid rgba(255,255,255,0.05); }
   .jft-salutation { font-size: 14px; color: var(--text-muted); margin: 0; font-weight: 500; }
   .jft-username { font-size: 26px; font-weight: 700; margin: 4px 0 15px 0; letter-spacing: -0.5px; color: #fff; }
@@ -90,7 +91,7 @@
   .jft-body { width: 100%; padding: 24px; display: flex; flex-direction: column; }
   .jft-section-title { font-size: 20px; font-weight: 700; color: white; margin: 0 0 20px 0; letter-spacing: 0.5px; }
   
-  /* 4 Menu Utama Besar-Besar (2 Baris x 2 Kolom) */
+  /* Grid Menu */
   .jft-grid-large { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; width: 100%; }
   .jft-card-huge { border-radius: 24px; padding: 22px; color: white; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; height: 185px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); cursor: pointer; border: 1px solid rgba(255,255,255,0.05); transition: transform 0.2s; }
   .jft-card-huge:active { transform: scale(0.96); }
@@ -105,7 +106,7 @@
   .jft-card-info p { font-size: 11px; color: rgba(255,255,255,0.7); margin: 4px 0 10px 0; }
   .jft-card-action { font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px; color: var(--primary); }
 
-  /* Bottom Navigation Bar Gelap */
+  /* Bottom Navigation Bar */
   .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 420px; height: 65px; background: #0f172a; border-top: 1px solid #1e293b; display: none; justify-content: space-around; align-items: center; z-index: 999; box-shadow: 0 -4px 20px rgba(0,0,0,0.4); }
   .nav-tab { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; height: 100%; cursor: pointer; color: #64748b; position: relative; text-decoration: none; }
   .nav-tab.active { color: var(--primary); font-weight: bold; }
@@ -123,7 +124,7 @@
   .stats-container .stat-val { font-size: 20px; font-weight: 700; color: var(--primary); }
   .stat-lbl { font-size: 11px; color: var(--text-muted); margin-top: 2px; font-weight: 500; }
 
-  /* Kamus Melayang Selalu Di Paling Atas */
+  /* Kamus Melayang */
   #floatingKamus {
     position: fixed; top: 120px; right: 10px; width: 54px; height: 54px;
     background: var(--jft-grad); border-radius: 50%;
@@ -178,13 +179,11 @@
   
   .score-circle { width: 130px; height: 130px; border-radius: 50%; border: 8px solid var(--primary); display: flex; justify-content: center; align-items: center; margin: 0 auto 20px; font-size: 34px; font-weight: bold; color: var(--primary); background: rgba(33, 150, 243, 0.1); }
   
-  /* MODIFIKASI FORM LOGIN & DAFTAR (TEMA GAMER GELAP & BEBAS PLAGIARISME) */
   .login-box { background: var(--card); border: 1px solid #1e293b; padding: 25px; border-radius: 24px; width: 100%; display: flex; flex-direction: column; gap: 14px; }
   .login-input { width: 100%; padding: 15px; border-radius: 15px; border: 2px solid #1e293b; background: #0b0f19; color: white; font-size: 16px; text-align: center; outline: none; transition: border-color 0.2s; }
   .login-input:focus { border-color: var(--primary); }
   .google-btn { background: white; color: #222; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 15px; padding: 15px; border: none; cursor: pointer; width: 100%; font-size: 15px; margin-top: 5px; }
   
-  /* Text switch navigasi kuis */
   .auth-switch-text { text-align: center; font-size: 13px; color: var(--text-muted); margin-top: 10px; }
   .auth-switch-text a { color: var(--primary); font-weight: bold; text-decoration: none; }
   .auth-switch-text a:hover { text-decoration: underline; }
@@ -241,6 +240,8 @@
          Masuk Otomatis dengan Google
       </button>
 
+      <button id="guestModeBtn" class="mainBtn guestBtn" onclick="enterAsGuest()">🚀 MASUK SEBAGAI TAMU</button>
+
       <div class="auth-switch-text" id="authSwitchContainer">
         Belum punya akun? <a href="#" onclick="toggleAuthMode(true)">Daftar Baru</a>
       </div>
@@ -257,10 +258,10 @@
           <div class="jft-pro-icon">🪙</div>
           <div>
             <h4 class="jft-pro-title"><span id="userCoins">0</span> KOIN RAMA</h4>
-            <p class="jft-pro-sub">Selesaikan kuis untuk mengumpulkan koin</p>
+            <p class="jft-pro-sub" id="coinStatusSub">Selesaikan kuis untuk mengumpulkan koin</p>
           </div>
         </div>
-        <span style="font-size: 14px; color: var(--primary); font-weight: bold;">PRO</span>
+        <span style="font-size: 14px; color: var(--primary); font-weight: bold;" id="userBadgeType">PRO</span>
       </div>
     </div>
 
@@ -300,7 +301,8 @@
           </div>
         </div>
 
-        <div class="jft-card-huge jft-card-dark" onclick="switchTab('profile')">
+        <!-- Tetap Ada untuk Tamu -->
+        <div class="jft-card-huge jft-card-dark" id="leaderboardHugeCard" onclick="switchTab('profile')">
           <div class="jft-card-icon-wrap">📊</div>
           <div class="jft-card-info">
             <h3>Leaderboard<br>& Profil</h3>
@@ -337,7 +339,7 @@
     <h3 style="align-self: flex-start; margin: 5px 0 0 0; color: var(--primary);">🏆 PAPAN SKOR GLOBAL (IRODORI)</h3>
     <div id="globalLeaderboardBox" class="lb-box" style="margin-top:5px;"></div>
     
-    <button class="mainBtn" style="background:#dc2626; box-shadow: 0 5px 0 #991b1b; margin-top:15px;" onclick="logout()">LOGOUT AKUN</button>
+    <button class="mainBtn" style="background:#dc2626; box-shadow: 0 5px 0 #991b1b; margin-top:15px;" onclick="logout()">KELUAR MODAL</button>
   </div>
 
   <div id="minnaMenu" class="menu-container">
@@ -431,7 +433,7 @@
 
   <div id="logoutModal">
     <div class="modal-content">
-      <h3 style="margin-top:0; color:var(--primary); letter-spacing:1px;">YAKIN KELUAR?</h3>
+      <h3 style="margin-top:0; color:var(--primary); letter-spacing:1px;" id="logoutModalTitle">YAKIN KELUAR?</h3>
       <div style="display:flex; gap:12px; margin-top: 20px;">
         <button class="mainBtn" style="background:#334155; box-shadow: 0 4px 0 #1e293b;" onclick="closeLogoutModal()">TIDAK</button>
         <button class="mainBtn" onclick="confirmLogout()">YA</button>
@@ -463,14 +465,35 @@
   let startTime, timerInterval, isTimerRunning = false;
   let fcIndex = 0, globalWrongPool = [], redemptionUsedInThisSession = false; 
 
-  // Variabel Akun Pengguna Terpusat
   let currentUserID = "";
   let userCoinsCount = 0;
-  
-  // Flag pendaftaran kuis baru (false = mode login, true = mode daftar)
+  let isGuestMode = false; 
   let isRegisterState = false; 
 
-  // --- LOGIKA SISTEM FLOATING KAMUS CEPAT (SELALU DI ATAS) ---
+  // --- LOGIKA GUEST MODE (FULL AKSES TANPA SIMPAN SKOR) ---
+  function enterAsGuest() {
+     isGuestMode = true;
+     currentUserID = "GUEST_USER";
+     userCoinsCount = 0;
+
+     // Set identitas tamu di Dashboard & Halaman Profil
+     document.getElementById('userLabel').innerText = "Tamu Rama Quiz 👤";
+     document.getElementById('userCoins').innerText = "0";
+     document.getElementById('coinStatusSub').innerText = "Mode Tamu: Tidak bisa mengumpulkan koin";
+     document.getElementById('userBadgeType').innerText = "GUEST";
+     
+     document.getElementById('profName').innerText = "Tamu Rama Quiz";
+     document.getElementById('profId').innerText = "Email: mode_tamu@rama.com";
+     document.getElementById('profAvatar').innerText = "T";
+     document.getElementById('statCoins').innerText = "0";
+     document.getElementById('statBadge').innerText = "0";
+     
+     hideAll();
+     switchTab('home');
+     showToast("Masuk sebagai Tamu.");
+  }
+
+  // --- LOGIKA SISTEM FLOATING KAMUS CEPAT ---
   let isDragging = false, startX, startY;
   function onPointerDown(e) {
     isDragging = false; startX = e.clientX; startY = e.clientY;
@@ -522,148 +545,109 @@
     setTimeout(() => { t.style.opacity = '0'; setTimeout(() => { t.style.display = 'none'; }, 400); }, 2200);
   }
 
-  // --- INTEGRASI FIREBASE AUTH (EMAIL VERIFICATION & GOOGLE AUTH FIX) ---
+  // --- INTEGRASI FIREBASE AUTH ---
   auth.onAuthStateChanged(user => {
      if(user) {
-        // Cek Verifikasi Email (Hanya berlaku untuk login email/kata sandi, Google otomatis true)
-        if (!user.emailVerified && user.providerData.providerId === 'password') {
-           showToast("Email belum diverifikasi! Silakan cek Inbox/Spam email kamu.");
+        isGuestMode = false;
+        document.getElementById('coinStatusSub').innerText = "Selesaikan kuis untuk mengumpulkan koin";
+        document.getElementById('userBadgeType').innerText = "PRO";
+
+        if (!user.emailVerified && user.providerData[0].providerId === 'password') {
+           showToast("Email belum diverifikasi!");
            auth.signOut();
            hideAll();
            document.getElementById('loginPage').style.display = 'flex';
            return;
         }
 
-        // AMBIL UID KRIPTO AMAN UNTUK MENGHINDARI EROR PATH TITIK/KOMA
         currentUserID = user.uid;
         
         database.ref(`users/${currentUserID}/fullName`).once('value', snap => {
            let finalName = snap.val() || user.displayName || "User Kuis";
            document.getElementById('userLabel').innerText = finalName;
            document.getElementById('profName').innerText = finalName;
+           document.getElementById('profAvatar').innerText = finalName.charAt(0).toUpperCase();
         });
 
         document.getElementById('profId').innerText = "Email: " + user.email;
-        document.getElementById('profAvatar').innerText = finalName ? finalName.charAt(0).toUpperCase() : "U";
         
         listenToUserCoinsAndStats();
         switchTab('home');
      } else {
-        hideAll();
-        document.getElementById('loginPage').style.display = 'flex';
-        document.getElementById('bottomNavBar').style.display = 'none';
-        document.getElementById('muteBtn').style.display = 'none';
+        if (!isGuestMode) {
+           hideAll();
+           document.getElementById('loginPage').style.display = 'flex';
+           document.getElementById('bottomNavBar').style.display = 'none';
+           document.getElementById('muteBtn').style.display = 'none';
+        }
      }
   });
 
   function toggleAuthMode(keHalamanDaftar) {
     isRegisterState = keHalamanDaftar;
-    
     if (isRegisterState) {
         document.getElementById('authMainTitle').innerText = "DAFTAR AKUN BARU";
         document.getElementById('authSubTitle').innerText = "Lengkapi form game untuk mengumpulkan koin";
         document.getElementById('authSubmitBtn').innerText = "➕ DAFTAR AKUN RAMA";
-        document.getElementById('googleAuthBtn').innerHTML = '<img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/web-24dp/logo_googleg_color_24dp.png" width="18"> Daftar Cepat via Google';
         document.getElementById('authSwitchContainer').innerHTML = 'Sudah punya akun kuis? <a href="#" onclick="toggleAuthMode(false)">Masuk Sini</a>';
         document.getElementById('regFullName').classList.remove('hidden');
         document.getElementById('regConfirmPass').classList.remove('hidden');
+        document.getElementById('guestModeBtn').classList.add('hidden');
     } else {
         document.getElementById('authMainTitle').innerText = "RAMA JAPAN QUIZ";
         document.getElementById('authSubTitle').innerText = "Silakan masuk untuk sinkronisasi nilai & koin";
         document.getElementById('authSubmitBtn').innerText = "MASUK SEKARANG ➔";
-        document.getElementById('googleAuthBtn').innerHTML = '<img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/web-24dp/logo_googleg_color_24dp.png" width="18"> Masuk Otomatis dengan Google';
         document.getElementById('authSwitchContainer').innerHTML = 'Belum punya akun? <a href="#" onclick="toggleAuthMode(true)">Daftar Baru</a>';
         document.getElementById('regFullName').classList.add('hidden');
         document.getElementById('regConfirmPass').classList.add('hidden');
+        document.getElementById('guestModeBtn').classList.remove('hidden');
     }
   }
 
   function handleAuthAction() {
     const email = document.getElementById('loginEmail').value.trim();
     const pass = document.getElementById('loginPass').value.trim();
-    
     if(!email || !pass) { showToast("Email & sandi wajib diisi!"); return; }
 
     if (isRegisterState) {
         const nama = document.getElementById('regFullName').value.trim();
         const confirm = document.getElementById('regConfirmPass').value.trim();
-
         if(!nama) { showToast("Nama Lengkap wajib diisi!"); return; }
         if(pass !== confirm) { showToast("Konfirmasi sandi tidak sesuai!"); return; }
 
         auth.createUserWithEmailAndPassword(email, pass)
           .then((userCredential) => {
              const userId = userCredential.user.uid;
-             
-             // Kirim Email Verifikasi Aktif ke User Baru
-             userCredential.user.sendEmailVerification().then(() => {
-                alert("Link aktivasi telah dikirim! Buka inbox email kamu sekarang dan klik link tersebut untuk mengaktifkan akun.");
-             });
-
-             database.ref('users/' + userId).set({
-                fullName: nama,
-                coins: 10
-             }).then(() => {
-                auth.signOut();
-                toggleAuthMode(false);
-             });
+             userCredential.user.sendEmailVerification().then(() => { alert("Link aktivasi telah dikirim!"); });
+             database.ref('users/' + userId).set({ fullName: nama, coins: 10 }).then(() => { auth.signOut(); toggleAuthMode(false); });
           })
-          .catch(err => {
-             switch (err.code) {
-               case 'auth/weak-password': alert("Pendaftaran Gagal: Kata sandi terlalu pendek (Min. 6 karakter)!"); break;
-               case 'auth/email-already-in-use': alert("Pendaftaran Gagal: Email sudah terdaftar."); break;
-               case 'auth/invalid-email': alert("Pendaftaran Gagal: Format penulisan email salah."); break;
-               default: alert("Gagal Daftar: " + err.message);
-             }
-          });
-
+          .catch(err => { alert("Gagal Daftar: " + err.message); });
     } else {
-        auth.signInWithEmailAndPassword(email, pass)
-          .then((userCredential) => {
-             if (!userCredential.user.emailVerified) {
-                alert("Masuk Gagal: Akun belum aktif! Silakan verifikasi email kamu terlebih dahulu.");
-                auth.signOut();
-             }
-          })
-          .catch(err => {
-             switch (err.code) {
-               case 'auth/user-not-found': alert("Gagal Masuk: Akun tidak ditemukan."); break;
-               case 'auth/wrong-password': alert("Gagal Masuk: Kata sandi salah!"); break;
-               case 'auth/invalid-email': alert("Gagal Masuk: Format email tidak valid."); break;
-               default: alert("Gagal Masuk: " + err.message);
-             }
-          });
+        auth.signInWithEmailAndPassword(email, pass).catch(err => { alert("Gagal Masuk: " + err.message); });
     }
   }
 
   function handleGoogleLogin() {
      const provider = new firebase.auth.GoogleAuthProvider();
-     // PERBAIKAN POPUP LOGIN SUPAYA RESPONSIF DI HP
      auth.signInWithPopup(provider)
        .then((result) => {
           const userId = result.user.uid;
           database.ref('users/' + userId).once('value', snap => {
-             if(!snap.exists()) {
-                database.ref('users/' + userId).set({
-                   fullName: result.user.displayName,
-                   coins: 10
-                });
-             }
+             if(!snap.exists()) { database.ref('users/' + userId).set({ fullName: result.user.displayName, coins: 10 }); }
           });
-          showToast("Berhasil masuk via Google!");
        })
-       .catch((error) => {
-          console.error(error);
-          alert("Gagal Google Sign-In: " + error.message);
-       });
+       .catch((error) => { alert("Gagal Google Sign-In: " + error.message); });
   }
 
-  function logout() { document.getElementById('logoutModal').style.display = 'flex'; }
+  function logout() { 
+     document.getElementById('logoutModalTitle').innerText = isGuestMode ? "KELUAR DARI MODE TAMU?" : "YAKIN KELUAR?";
+     document.getElementById('logoutModal').style.display = 'flex'; 
+  }
   function closeLogoutModal() { document.getElementById('logoutModal').style.display = 'none'; }
-  function confirmLogout() { auth.signOut().then(() => { location.reload(); }); }
+  function confirmLogout() { isGuestMode = false; auth.signOut().then(() => { location.reload(); }); }
 
   function listenToUserCoinsAndStats() {
-     if(!currentUserID) return;
+     if(!currentUserID || isGuestMode) return;
      database.ref(`users/${currentUserID}/coins`).on('value', snap => {
         userCoinsCount = snap.val() || 0;
         document.getElementById('userCoins').innerText = userCoinsCount;
@@ -676,7 +660,7 @@
   }
 
   function addCoins(amount) {
-     if(!currentUserID) return;
+     if(!currentUserID || isGuestMode) return;
      database.ref(`users/${currentUserID}/coins`).set(userCoinsCount + amount);
      showToast(`+${amount} Koin Rama Diperoleh!`);
   }
@@ -692,8 +676,8 @@
         document.getElementById('mainMenu').style.display = 'block';
         document.getElementById('tabHome').classList.add('active');
         document.getElementById('bottomNavBar').style.display = 'flex';
+        if(!isGuestMode) checkExistingSession();
         activeView = 'main';
-        checkExistingSession();
     } else if (tab === 'profile') {
         document.getElementById('profilePage').style.display = 'flex';
         document.getElementById('tabProfile').classList.add('active');
@@ -704,13 +688,13 @@
   }
 
   function saveToCloud(label, score) {
-    if(!currentUserID) return;
+    if(!currentUserID || isGuestMode) return;
     const cleanLabel = label.replace(/\s/g, "_");
     database.ref(`users/${currentUserID}/scores/${cleanLabel}`).set(score);
   }
 
   function saveCurrentState() {
-    if(!currentUserID || activeView !== 'quiz') return;
+    if(!currentUserID || isGuestMode || activeView !== 'quiz') return;
     database.ref(`sessions/${currentUserID}`).set({
       masterPool: masterPool, currentQuestions: currentQuestions, currentIndex: currentIndex,
       correctCount: correctCount, combo: combo, totalCorrectInSession: totalCorrectInSession,
@@ -721,7 +705,7 @@
   }
 
   function checkExistingSession() {
-    if(!currentUserID) return;
+    if(!currentUserID || isGuestMode) return;
     database.ref(`sessions/${currentUserID}`).once('value', snap => {
       if(snap.exists()) document.getElementById('resumeWrapper').style.display = 'flex';
       else document.getElementById('resumeWrapper').style.display = 'none';
@@ -729,6 +713,7 @@
   }
 
   function resumeQuiz() {
+    if(isGuestMode) { showToast("Fitur resume aktif lokal di mode tamu."); return; }
     database.ref(`sessions/${currentUserID}`).once('value', snap => {
       const data = snap.val();
       if(data) {
@@ -747,12 +732,13 @@
   }
 
   function clearSession() {
-    if(!currentUserID) return; database.ref(`sessions/${currentUserID}`).remove();
-    document.getElementById('resumeWrapper').style.display = 'none'; showToast("Sesi dihapus");
+    if(!currentUserID || isGuestMode) { document.getElementById('resumeWrapper').style.display = 'none'; return; } 
+    database.ref(`sessions/${currentUserID}`).remove();
+    document.getElementById('resumeWrapper').style.display = 'none';
   }
 
   function saveRaceTime(category, time, scorePercent) {
-    if(!currentUserID) return;
+    if(!currentUserID || isGuestMode) return; // Tamu dilarang masuk database Leaderboard
     const path = `leaderboard/${category}/${currentUserID}`;
     let weight = quizDifficulty === 'hard' ? 3 : (quizDifficulty === 'medium' ? 2 : 1);
 
@@ -785,14 +771,17 @@
       players.slice(0, 5).forEach((p, index) => {
         let div = document.createElement('div'); div.className = 'lb-item';
         let diffLabel = p.weight === 3 ? "[HARD]" : (p.weight === 2 ? "[MED]" : "[EASY]");
-        div.innerHTML = `<span>${index + 1}. <b style="color:var(--primary)">${diffLabel}</b> ${p.name} (${p.score || 0}%)</span><span>${formatTime(p.time)}</span>`;
+        
+        // Proteksi nama tampilan jika key data bertuliskan GUEST_USER (tidak akan masuk karena dicegaj di saveRaceTime)
+        let displayName = p.name === "GUEST_USER" ? "Tamu Anonim" : p.name;
+        div.innerHTML = `<span>${index + 1}. <b style="color:var(--primary)">${diffLabel}</b> ${displayName} (${p.score || 0}%)</span><span>${formatTime(p.time)}</span>`;
         lbBox.appendChild(div);
       });
     });
   }
 
   function syncStars() {
-    if(!currentUserID) return;
+    if(!currentUserID || isGuestMode) return;
     database.ref(`users/${currentUserID}/scores`).on('value', snap => {
       const cloudData = snap.val() || {};
       document.querySelectorAll('.babBtn').forEach(btn => {
@@ -817,7 +806,10 @@
   }
 
   function showMinnaMenu() { hideAll(); document.getElementById('minnaMenu').style.display = 'flex'; document.getElementById('backBtn').style.display = 'block'; activeView = 'minna'; }
-  function showIrodoriMenu() { hideAll(); document.getElementById('irodoriMenu').style.display = 'flex'; document.getElementById('backBtn').style.display = 'block'; activeView = 'irodori'; loadLeaderboard('irodori', 'leaderboardBox'); }
+  function showIrodoriMenu() { 
+     hideAll(); document.getElementById('irodoriMenu').style.display = 'flex'; document.getElementById('backBtn').style.display = 'block'; activeView = 'irodori'; 
+     loadLeaderboard('irodori', 'leaderboardBox');
+  }
   function showSSWGrid() { showGridMenu("SSW PM", "ssw_pm", 2, 65); }
 
   function showGridMenu(title, type, start, end) {
@@ -843,7 +835,7 @@
         b.onclick = () => { selectedData = currentTargetData; currentLabel = prefix + i; showModeMenu(); };
         grid.appendChild(b);
     }
-    syncStars(); 
+    if(!isGuestMode) syncStars(); 
   }
 
   function showBagian(n) { showGridMenu("Minna No Nihongo", 'bagian_'+n, n === 1 ? 1 : 26, n === 1 ? 25 : 50); }
@@ -1032,18 +1024,24 @@
     
     let totalAccuracy = totalQuestionsInSession > 0 ? Math.round((totalCorrectInSession / totalQuestionsInSession) * 100) : 0;
     if (totalAccuracy > 100) totalAccuracy = 100;
-    document.getElementById('finalDetail').innerText = `Redemption: ${globalWrongPool.length} | Sisa Soal: ${masterPool.length}\nAkurasi Bab: ${totalAccuracy}%`;
     
-    if(isIrodori && isFinished) {
+    let guestNote = isGuestMode ? " (Mode Tamu - Koin/Skor Dikunci)" : "";
+    document.getElementById('finalDetail').innerText = `Redemption: ${globalWrongPool.length} | Sisa Soal: ${masterPool.length}\nAkurasi Bab: ${totalAccuracy}%${guestNote}`;
+    
+    if(isIrodori && isFinished && !isGuestMode) {
         const finalDiff = Date.now() - startTime; document.getElementById('timerResult').innerText = "WAKTU NYATA: " + formatTime(finalDiff);
         saveRaceTime("irodori", finalDiff, totalAccuracy);
     }
 
     if(isFinished) {
-        if(totalAccuracy >= 100) { saveToCloud(currentLabel, 100); addCoins(15); } 
-        else if (totalAccuracy >= 80) { addCoins(5); }
-        clearSession(); 
-    } else { saveCurrentState(); }
+        if(!isGuestMode) {
+            if(totalAccuracy >= 100) { saveToCloud(currentLabel, 100); addCoins(15); } 
+            else if (totalAccuracy >= 80) { addCoins(5); }
+            clearSession(); 
+        } else {
+            showToast("Selesai! Buat akun jika ingin mencatatkan namamu.");
+        }
+    } else { if(!isGuestMode) saveCurrentState(); }
 
     const rb = document.getElementById('reviewBox'); rb.innerHTML = '';
     let redeemDiv = document.createElement('div'); redeemDiv.style.cssText = "margin:10px 0; padding:15px; background:#151f32; border-radius:12px; border:1px dashed var(--gold);";
@@ -1086,7 +1084,8 @@
     if (globalWrongPool.length === 0 || redemptionUsedInThisSession) return;
     const randomIndex = Math.floor(Math.random() * globalWrongPool.length); const target = globalWrongPool[randomIndex];
     globalWrongPool.splice(randomIndex, 1); currentQuestions = [target]; currentIndex = 0; redemptionUsedInThisSession = true;
-    saveCurrentState(); document.getElementById('muteBtn').style.display = 'block'; renderQuestion();
+    if(!isGuestMode) saveCurrentState(); 
+    document.getElementById('muteBtn').style.display = 'block'; renderQuestion();
   }
 
   function goBack() {
