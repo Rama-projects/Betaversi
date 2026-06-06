@@ -31,8 +31,7 @@
     if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
     if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
   };
-</script>
-
+</script>              
 <style>
   :root { 
     --primary: #2196f3;       /* Biru Muda */
@@ -115,14 +114,24 @@
   .nav-tab.active::after { content: ''; position: absolute; bottom: 4px; width: 24px; height: 4px; background: var(--primary); border-radius: 2px; }
 
   /* Profil & Stats */
-  .profile-card { background: var(--card); width: 100%; border-radius: 24px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; border: 1px solid #1e293b; }
-  .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: var(--jft-grad); display: flex; align-items: center; justify-content: center; color: white; font-size: 36px; font-weight: bold; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3); margin-bottom: 12px; }
-  .profile-name { font-size: 22px; font-weight: 700; color: white; margin: 0; }
-  .profile-id { font-size: 13px; color: var(--text-muted); margin: 4px 0 0 0; }
-  .stats-container { display: flex; width: 100%; gap: 12px; margin-top: 20px; }
-  .stat-box { flex: 1; background: #0f172a; border-radius: 16px; padding: 14px; text-align: center; border: 1px solid #1e293b; }
-  .stats-container .stat-val { font-size: 20px; font-weight: 700; color: var(--primary); }
+  .profile-card { background: var(--card); width: 100%; border-radius: 24px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); display: flex; flex-direction: column; align-items: center; margin-bottom: 15px; border: 1px solid #1e293b; position: relative; }
+  .profile-avatar { width: 70px; height: 70px; border-radius: 50%; background: var(--jft-grad); display: flex; align-items: center; justify-content: center; color: white; font-size: 32px; font-weight: bold; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3); margin-bottom: 10px; }
+  .profile-name { font-size: 20px; font-weight: 700; color: white; margin: 0; }
+  .profile-id { font-size: 12px; color: var(--text-muted); margin: 4px 0 0 0; }
+  .stats-container { display: flex; width: 100%; gap: 12px; margin-top: 15px; }
+  .stat-box { flex: 1; background: #0f172a; border-radius: 16px; padding: 12px; text-align: center; border: 1px solid #1e293b; }
+  .stats-container .stat-val { font-size: 18px; font-weight: 700; color: var(--primary); }
   .stat-lbl { font-size: 11px; color: var(--text-muted); margin-top: 2px; font-weight: 500; }
+
+  /* Tombol Keluar Kecil Minimalis */
+  .small-logout-btn { background: transparent; border: 1px solid #dc2626; color: #ef4444; font-size: 11px; font-weight: bold; padding: 6px 12px; border-radius: 20px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: 0.2s; margin-top: 10px; align-self: center; }
+  .small-logout-btn:active { background: rgba(220, 38, 38, 0.1); }
+
+  /* Kotak Akses Login/Daftar untuk Tamu */
+  .guest-auth-box { width: 100%; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 20px; padding: 20px; border: 1px solid var(--primary); box-shadow: 0 4px 15px rgba(33, 150, 243, 0.15); margin-bottom: 15px; text-align: center; }
+  .guest-auth-box h4 { margin: 0 0 5px 0; color: var(--primary); font-size: 15px; font-weight: 700; }
+  .guest-auth-box p { margin: 0 0 15px 0; color: var(--text-muted); font-size: 12px; line-height: 1.4; }
+  .guest-auth-row { display: flex; flex-direction: column; gap: 10px; }
 
   /* Kamus Melayang */
   #floatingKamus {
@@ -301,7 +310,6 @@
           </div>
         </div>
 
-        <!-- Tetap Ada untuk Tamu -->
         <div class="jft-card-huge jft-card-dark" id="leaderboardHugeCard" onclick="switchTab('profile')">
           <div class="jft-card-icon-wrap">📊</div>
           <div class="jft-card-info">
@@ -318,7 +326,18 @@
     </div>
   </div>
 
+  <!-- HALAMAN PROFIL YANG SUDAH DIPERBAIKI -->
   <div id="profilePage" class="menu-container" style="padding-top: 20px;">
+    
+    <!-- Widget Pendaftaran Terintegrasi Khusus Akun Tamu -->
+    <div id="guestRegisterSection" class="guest-auth-box hidden">
+      <h4>🔒 SIMPAN PROGRES BELAJARMU</h4>
+      <p>Kamu masuk sebagai Tamu. Semua progres kuis dan tanda centang bab tidak disimpan. Yuk buat akun atau login langsung!</p>
+      <div class="guest-auth-row">
+         <button class="mainBtn" style="padding: 12px; font-size: 13px;" onclick="goToAuthScreenFromProfile()">DAFTAR / LOGIN SEKARANG</button>
+      </div>
+    </div>
+
     <div class="profile-card">
       <div class="profile-avatar" id="profAvatar">U</div>
       <h3 class="profile-name" id="profName">User</h3>
@@ -334,12 +353,14 @@
           <div class="stat-lbl">Total Koin</div>
         </div>
       </div>
+      
+      <!-- Tombol Keluar Mini dan Keren -->
+      <button class="small-logout-btn" onclick="logout()">Keluar Akun</button>
     </div>
 
-    <h3 style="align-self: flex-start; margin: 5px 0 0 0; color: var(--primary);">🏆 PAPAN SKOR GLOBAL (IRODORI)</h3>
-    <div id="globalLeaderboardBox" class="lb-box" style="margin-top:5px;"></div>
-    
-    <button class="mainBtn" style="background:#dc2626; box-shadow: 0 5px 0 #991b1b; margin-top:15px;" onclick="logout()">KELUAR MODAL</button>
+    <!-- Leaderboard Difokuskan ke Top Koin Terbanyak Global -->
+    <h3 style="align-self: flex-start; margin: 5px 0 0 0; color: var(--gold); font-size: 15px;">👑 TOP 5 JURAGAN KOIN GLOBAL</h3>
+    <div id="coinLeaderboardBox" class="lb-box" style="margin-top:5px;"></div>
   </div>
 
   <div id="minnaMenu" class="menu-container">
@@ -470,13 +491,13 @@
   let isGuestMode = false; 
   let isRegisterState = false; 
 
-  // --- LOGIKA GUEST MODE (FULL AKSES TANPA SIMPAN SKOR) ---
+  // --- LOGIKA GUEST MODE (TANPA JEJAK / TANPA SIMPAN NYAWA) ---
   function enterAsGuest() {
      isGuestMode = true;
      currentUserID = "GUEST_USER";
      userCoinsCount = 0;
 
-     // Set identitas tamu di Dashboard & Halaman Profil
+     // Setup UI mode tamu
      document.getElementById('userLabel').innerText = "Tamu Rama Quiz 👤";
      document.getElementById('userCoins').innerText = "0";
      document.getElementById('coinStatusSub').innerText = "Mode Tamu: Tidak bisa mengumpulkan koin";
@@ -488,9 +509,20 @@
      document.getElementById('statCoins').innerText = "0";
      document.getElementById('statBadge').innerText = "0";
      
+     // Munculkan penawaran Login/Daftar langsung di profil tamu
+     document.getElementById('guestRegisterSection').classList.remove('hidden');
+
      hideAll();
      switchTab('home');
      showToast("Masuk sebagai Tamu.");
+  }
+
+  // Tombol pintas dari halaman profil tamu ke Form Login Utama
+  function goToAuthScreenFromProfile() {
+     isGuestMode = false;
+     hideAll();
+     document.getElementById('loginPage').style.display = 'flex';
+     toggleAuthMode(false); // bawa ke menu masuk biasa
   }
 
   // --- LOGIKA SISTEM FLOATING KAMUS CEPAT ---
@@ -551,6 +583,7 @@
         isGuestMode = false;
         document.getElementById('coinStatusSub').innerText = "Selesaikan kuis untuk mengumpulkan koin";
         document.getElementById('userBadgeType').innerText = "PRO";
+        document.getElementById('guestRegisterSection').classList.add('hidden'); // hilangkan promo login
 
         if (!user.emailVerified && user.providerData[0].providerId === 'password') {
            showToast("Email belum diverifikasi!");
@@ -660,7 +693,7 @@
   }
 
   function addCoins(amount) {
-     if(!currentUserID || isGuestMode) return;
+     if(!currentUserID || isGuestMode) return; // Tamu tidak bisa mendapatkan koin
      database.ref(`users/${currentUserID}/coins`).set(userCoinsCount + amount);
      showToast(`+${amount} Koin Rama Diperoleh!`);
   }
@@ -683,10 +716,11 @@
         document.getElementById('tabProfile').classList.add('active');
         document.getElementById('bottomNavBar').style.display = 'flex';
         activeView = 'profile';
-        loadLeaderboard('irodori', 'globalLeaderboardBox');
+        loadCoinLeaderboard(); // Memuat Leaderboard Juragan Koin
     }
   }
 
+  // MENCEGAH PENGIRIMAN DATA APAPUN KE CLOUD JIKA USER MERUPAKAN TAMU
   function saveToCloud(label, score) {
     if(!currentUserID || isGuestMode) return;
     const cleanLabel = label.replace(/\s/g, "_");
@@ -713,7 +747,7 @@
   }
 
   function resumeQuiz() {
-    if(isGuestMode) { showToast("Fitur resume aktif lokal di mode tamu."); return; }
+    if(isGuestMode) return; 
     database.ref(`sessions/${currentUserID}`).once('value', snap => {
       const data = snap.val();
       if(data) {
@@ -738,7 +772,7 @@
   }
 
   function saveRaceTime(category, time, scorePercent) {
-    if(!currentUserID || isGuestMode) return; // Tamu dilarang masuk database Leaderboard
+    if(!currentUserID || isGuestMode) return; 
     const path = `leaderboard/${category}/${currentUserID}`;
     let weight = quizDifficulty === 'hard' ? 3 : (quizDifficulty === 'medium' ? 2 : 1);
 
@@ -755,11 +789,36 @@
     });
   }
 
+  // --- MODEL LEADERBOARD BARU: JURAGAN KOIN TERBANYAK ---
+  function loadCoinLeaderboard() {
+    const lbBox = document.getElementById('coinLeaderboardBox');
+    database.ref('users').orderByChild('coins').limitToLast(5).on('value', snap => {
+      if(!snap.exists()) { lbBox.innerHTML = 'Belum ada data koin.'; return; }
+      let listPemain = [];
+      snap.forEach(child => {
+         let d = child.val();
+         if(child.key !== "GUEST_USER") { // pastikan user tamu terfilter keluar
+            listPemain.push({ name: d.fullName || "User", coins: d.coins || 0 });
+         }
+      });
+      
+      // Diurutkan dari koin paling melimpah ke bawah
+      listPemain.sort((a, b) => b.coins - a.coins);
+
+      lbBox.innerHTML = '';
+      listPemain.forEach((p, index) => {
+         let div = document.createElement('div'); div.className = 'lb-item';
+         div.innerHTML = `<span><b>#${index + 1}</b> 👤 ${p.name}</span><span style="color:var(--gold); font-weight:bold;">🪙 ${p.coins} Koin</span>`;
+         lbBox.appendChild(div);
+      });
+    });
+  }
+
   function loadLeaderboard(category, elementId) {
     const lbBox = document.getElementById(elementId);
     database.ref(`leaderboard/${category}`).on('value', snap => {
       if(!snap.exists()) { lbBox.innerHTML = 'Belum ada data skor global.'; return; }
-      let players = []; snap.forEach(child => { players.push({ name: child.key, ...child.val() }); });
+      let players = []; snap.forEach(child => { if(child.key !== "GUEST_USER") { players.push({ name: child.key, ...child.val() }); } });
       
       players.sort((a, b) => {
           if (b.weight !== a.weight) return b.weight - a.weight;
@@ -771,17 +830,17 @@
       players.slice(0, 5).forEach((p, index) => {
         let div = document.createElement('div'); div.className = 'lb-item';
         let diffLabel = p.weight === 3 ? "[HARD]" : (p.weight === 2 ? "[MED]" : "[EASY]");
-        
-        // Proteksi nama tampilan jika key data bertuliskan GUEST_USER (tidak akan masuk karena dicegaj di saveRaceTime)
-        let displayName = p.name === "GUEST_USER" ? "Tamu Anonim" : p.name;
-        div.innerHTML = `<span>${index + 1}. <b style="color:var(--primary)">${diffLabel}</b> ${displayName} (${p.score || 0}%)</span><span>${formatTime(p.time)}</span>`;
+        database.ref(`users/${p.name}/fullName`).once('value', nSnap => {
+           let uName = nSnap.val() || "Pemain JFT";
+           div.innerHTML = `<span>${index + 1}. <b style="color:var(--primary)">${diffLabel}</b> ${uName} (${p.score || 0}%)</span><span>${formatTime(p.time)}</span>`;
+        });
         lbBox.appendChild(div);
       });
     });
   }
 
   function syncStars() {
-    if(!currentUserID || isGuestMode) return;
+    if(!currentUserID || isGuestMode) return; // Proteksi tamu dari sync centang checklist database
     database.ref(`users/${currentUserID}/scores`).on('value', snap => {
       const cloudData = snap.val() || {};
       document.querySelectorAll('.babBtn').forEach(btn => {
@@ -1025,7 +1084,7 @@
     let totalAccuracy = totalQuestionsInSession > 0 ? Math.round((totalCorrectInSession / totalQuestionsInSession) * 100) : 0;
     if (totalAccuracy > 100) totalAccuracy = 100;
     
-    let guestNote = isGuestMode ? " (Mode Tamu - Koin/Skor Dikunci)" : "";
+    let guestNote = isGuestMode ? " (Mode Tamu - Koin & Skor Tidak Disimpan)" : "";
     document.getElementById('finalDetail').innerText = `Redemption: ${globalWrongPool.length} | Sisa Soal: ${masterPool.length}\nAkurasi Bab: ${totalAccuracy}%${guestNote}`;
     
     if(isIrodori && isFinished && !isGuestMode) {
@@ -1039,7 +1098,8 @@
             else if (totalAccuracy >= 80) { addCoins(5); }
             clearSession(); 
         } else {
-            showToast("Selesai! Buat akun jika ingin mencatatkan namamu.");
+            // Mode Tamu Murni: Data langsung hangus saat keluar dari halaman skor ini
+            showToast("Kuis Selesai. Progres mode tamu tidak dicatat.");
         }
     } else { if(!isGuestMode) saveCurrentState(); }
 
@@ -1102,6 +1162,6 @@
   }
 
   document.getElementById('userAnswer').addEventListener('keypress', (e) => { if (e.key === 'Enter') checkInputAnswer(); });
-</script>
+</script>  
 </body>
 </html>
