@@ -660,17 +660,42 @@
     }
   }
 
+    // --- PERBAIKAN LOGIN GOOGLE (MENGGUNAKAN REDIRECT AGAR TIDAK BLANK/ERROR) ---
   function handleGoogleLogin() {
      const provider = new firebase.auth.GoogleAuthProvider();
-     auth.signInWithPopup(provider)
-       .then((result) => {
-          const userId = result.user.uid;
-          database.ref('users/' + userId).once('value', snap => {
-             if(!snap.exists()) { database.ref('users/' + userId).set({ fullName: result.user.displayName, coins: 10 }); }
-          });
-       })
-       .catch((error) => { alert("Gagal Google Sign-In: " + error.message); });
+     // Menggunakan Redirect, bukan Popup, agar ramah browser HP/Webview dan tidak memicu layar hitam
+     auth.signInWithRedirect(provider).catch(error => {
+        alert("Gagal menginisialisasi Google Sign-In: " + error.message);
+     });
   }
+
+  // PENTING: Detektor otomatis untuk menangani hasil login setelah layar di-redirect kembali ke kuis
+  auth.getRedirectResult()
+    .then((result) => {
+       if (result.user) {
+          const userId = result.user.uid;
+          // Cek apakah user ini baru pertama kali login atau sudah punya data di Database
+          database.ref('users/' + userId).once('value', snap => {
+             if(!snap.exists()) { 
+                // Jika user baru, buatkan struktur data defaultnya di Firebase Realtime Database
+                database.ref('users/' + userId).set({ 
+                   fullName: result.user.displayName || "Pemain JFT", 
+                   coins: 10 
+                }).then(() => {
+                   showToast("Pendaftaran Google Berhasil!");
+                   switchTab('home');
+                });
+             } else {
+                showToast("Selamat Datang Kembali!");
+                switchTab('home');
+             }
+          });
+       }
+    })
+    .catch((error) => {
+       console.error("Error hasil redirect Google:", error);
+       showToast("Gagal memproses masuk Google: " + error.message);
+    });
 
   function logout() { 
      document.getElementById('logoutModalTitle').innerText = isGuestMode ? "KELUAR DARI MODE TAMU?" : "YAKIN KELUAR?";
