@@ -115,7 +115,8 @@
 
   /* Profil & Stats */
   .profile-card { background: var(--card); width: 100%; border-radius: 24px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); display: flex; flex-direction: column; align-items: center; margin-bottom: 15px; border: 1px solid #1e293b; position: relative; }
-  .profile-avatar { width: 70px; height: 70px; border-radius: 50%; background: var(--jft-grad); display: flex; align-items: center; justify-content: center; color: white; font-size: 32px; font-weight: bold; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3); margin-bottom: 10px; }
+  .profile-avatar { width: 70px; height: 70px; border-radius: 50%; background: var(--jft-grad); display: flex; align-items: center; justify-content: center; color: white; font-size: 32px; font-weight: bold; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3); margin-bottom: 10px; overflow: hidden; }
+  .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
   .profile-name { font-size: 20px; font-weight: 700; color: white; margin: 0; }
   .profile-id { font-size: 12px; color: var(--text-muted); margin: 4px 0 0 0; }
   .stats-container { display: flex; width: 100%; gap: 12px; margin-top: 15px; }
@@ -145,7 +146,7 @@
 
   #kamusOverlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(11, 15, 25, 0.95); z-index: 20005;
+    background: rgba(11, 15, 25, 0.95); z-index: 2005;
     display: none; flex-direction: column; align-items: center; padding: 20px; box-sizing: border-box;
   }
   #kamusInput {
@@ -326,10 +327,8 @@
     </div>
   </div>
 
-  <!-- HALAMAN PROFIL YANG SUDAH DIPERBAIKI -->
   <div id="profilePage" class="menu-container" style="padding-top: 20px;">
     
-    <!-- Widget Pendaftaran Terintegrasi Khusus Akun Tamu -->
     <div id="guestRegisterSection" class="guest-auth-box hidden">
       <h4>🔒 SIMPAN PROGRES BELAJARMU</h4>
       <p>Kamu masuk sebagai Tamu. Semua progres kuis dan tanda centang bab tidak disimpan. Yuk buat akun atau login langsung!</p>
@@ -354,11 +353,9 @@
         </div>
       </div>
       
-      <!-- Tombol Keluar Mini dan Keren -->
       <button class="small-logout-btn" onclick="logout()">Keluar Akun</button>
     </div>
 
-    <!-- Leaderboard Difokuskan ke Top Koin Terbanyak Global -->
     <h3 style="align-self: flex-start; margin: 5px 0 0 0; color: var(--gold); font-size: 15px;">👑 TOP 5 JURAGAN KOIN GLOBAL</h3>
     <div id="coinLeaderboardBox" class="lb-box" style="margin-top:5px;"></div>
   </div>
@@ -505,7 +502,7 @@
      
      document.getElementById('profName').innerText = "Tamu Rama Quiz";
      document.getElementById('profId').innerText = "Email: mode_tamu@rama.com";
-     document.getElementById('profAvatar').innerText = "T";
+     document.getElementById('profAvatar').innerHTML = "T";
      document.getElementById('statCoins').innerText = "0";
      document.getElementById('statBadge').innerText = "0";
      
@@ -585,7 +582,7 @@
         document.getElementById('userBadgeType').innerText = "PRO";
         document.getElementById('guestRegisterSection').classList.add('hidden'); // hilangkan promo login
 
-        if (!user.emailVerified && user.providerData[0].providerId === 'password') {
+        if (!user.emailVerified && user.providerData.providerId === 'password') {
            showToast("Email belum diverifikasi!");
            auth.signOut();
            hideAll();
@@ -599,7 +596,13 @@
            let finalName = snap.val() || user.displayName || "User Kuis";
            document.getElementById('userLabel').innerText = finalName;
            document.getElementById('profName').innerText = finalName;
-           document.getElementById('profAvatar').innerText = finalName.charAt(0).toUpperCase();
+           
+           // Pasang foto profile otomatis jika login via Google
+           if(user.photoURL) {
+              document.getElementById('profAvatar').innerHTML = `<img src="${user.photoURL}" alt="Profile">`;
+           } else {
+              document.getElementById('profAvatar').innerHTML = finalName.charAt(0).toUpperCase();
+           }
         });
 
         document.getElementById('profId').innerText = "Email: " + user.email;
@@ -660,13 +663,25 @@
     }
   }
 
+  // PERBAIKAN GOOGLE AUTH SUPAYA SELALU MUNCUL POP-UP PILIHAN AKUN EMAIL
   function handleGoogleLogin() {
      const provider = new firebase.auth.GoogleAuthProvider();
+     
+     // Menambahkan prompt select_account
+     provider.setCustomParameters({
+        prompt: 'select_account'
+     });
+
      auth.signInWithPopup(provider)
        .then((result) => {
           const userId = result.user.uid;
           database.ref('users/' + userId).once('value', snap => {
-             if(!snap.exists()) { database.ref('users/' + userId).set({ fullName: result.user.displayName, coins: 10 }); }
+             if(!snap.exists()) { 
+                database.ref('users/' + userId).set({ 
+                   fullName: result.user.displayName, 
+                   coins: 10 
+                }); 
+             }
           });
        })
        .catch((error) => { alert("Gagal Google Sign-In: " + error.message); });
@@ -897,7 +912,7 @@
     if(!isGuestMode) syncStars(); 
   }
 
-  function showBagian(n) { showGridMenu("Minna No Nihongo", 'bagian_'+n, n === 1 ? 1 : 26, n === 1 ? 25 : 50); }
+  function showBagian(n) { showGridMenu("Minna No Nihongo", 'bagian_'+n, n === 1 ? 1 : 25, n === 1 ? 25 : 50); }
   function startIrodoriKanji() { selectedData = typeof irodoriKanjiData !== 'undefined' ? irodoriKanjiData : []; currentLabel = "Irodori"; showModeMenu(); }
   
   function showModeMenu() { 
@@ -915,250 +930,6 @@
     document.getElementById('backBtn').style.display = 'block';
     document.getElementById('muteBtn').style.display = 'block'; 
     fcIndex = 0; renderFlashcard();
-  }
-
-  function renderFlashcard() {
-    const q = selectedData[fcIndex]; const inner = document.getElementById('cardInner');
-    inner.classList.remove('is-flipped');
-    document.getElementById('fcInfo').innerText = `${currentLabel}\nKartu ${fcIndex + 1} / ${selectedData.length}`;
-    
-    if (currentLabel.includes("Irodori")) {
-        if (/^[A-Za-z\s.,!?]+$/.test(q.kanji)) {
-            document.getElementById('fcFront').innerText = q.correct; document.getElementById('fcBackRead').innerText = `${q.kana}`; document.getElementById('fcBackMean').innerText = q.kanji;
-        } else {
-            document.getElementById('fcFront').innerText = q.kanji || q.kana; document.getElementById('fcBackRead').innerText = `${q.kana}`; document.getElementById('fcBackMean').innerText = q.correct;
-        }
-    } else {
-        document.getElementById('fcFront').innerHTML = (q.kanji && q.kanji.trim() !== "") ? `<ruby>${q.kanji}<rt>${q.kana}</rt></ruby>` : q.kana;
-        document.getElementById('fcBackRead').innerText = ""; document.getElementById('fcBackMean').innerText = q.correct;
-    }
-  }
-
-  function flipCard() { document.getElementById('cardInner').classList.toggle('is-flipped'); }
-  function nextCard() { if(fcIndex < selectedData.length - 1) { fcIndex++; renderFlashcard(); } else { showToast("Flashcard Selesai!"); } }
-  function prevCard() { if(fcIndex > 0) { fcIndex--; renderFlashcard(); } }
-  function playAudioFC() { if(isMuted) return; const q = selectedData[fcIndex]; window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(q.kana); u.lang = 'ja-JP'; window.speechSynthesis.speak(u); }
-
-  function startQuiz(label, data) {
-    if(!data || data.length === 0) { alert("Data kosong!"); return; }
-    currentLabel = label; masterPool = [...data].sort(() => Math.random() - 0.5);
-    totalCorrectInSession = 0; totalQuestionsInSession = data.length;
-    globalWrongPool = []; redemptionUsedInThisSession = false;
-    
-    if(label.includes("Irodori")) { startTime = Date.now(); isTimerRunning = true; timerInterval = setInterval(updateTimerUI, 100); } 
-    else { stopTimer(); document.getElementById('timerDisplay').innerText = ""; }
-    nextChunk();
-  }
-
-  function stopTimer() { clearInterval(timerInterval); isTimerRunning = false; }
-  function updateTimerUI() { if(!isTimerRunning) return; const diff = Date.now() - startTime; document.getElementById('timerDisplay').innerText = "⌛ " + formatTime(diff); }
-  
-  function nextChunk() { 
-    redemptionUsedInThisSession = false; currentQuestions = masterPool.splice(0, 10); 
-    currentIndex = 0; correctCount = 0; combo = 0; wrongList = []; 
-    hideAll(); document.getElementById('backBtn').style.display = 'block'; 
-    document.getElementById('muteBtn').style.display = 'block'; 
-    activeView = 'quiz'; renderQuestion(); 
-  }
-
-  function formatTime(ms) { let s = Math.floor(ms / 1000); let m = Math.floor(s / 60); s = s % 60; return `${m}:${s < 10 ? '0'+s : s}`; }
-
-  function updateProgressBar() {
-    const container = document.getElementById('progressContainer'); container.style.display = 'flex'; container.innerHTML = '';
-    for (let i = 0; i < currentQuestions.length; i++) {
-        let segment = document.createElement('div'); segment.className = 'progress-segment';
-        if (i < currentIndex) segment.classList.add('active');
-        container.appendChild(segment);
-    }
-  }
-
-  function renderQuestion() {
-    if(currentIndex >= currentQuestions.length) { showResult(); return; }
-    hideQuizLayouts(); updateProgressBar(); saveCurrentState();
-    
-    const q = currentQuestions[currentIndex]; const display = document.getElementById('displayWord');
-    const inputField = document.getElementById('userAnswer');
-    inputField.classList.remove('correct-flash', 'wrong-flash'); inputField.style.borderColor = "#1e293b";
-    
-    document.getElementById('wordBox').style.display = 'flex';
-    document.getElementById('quizInfo').innerText = `${currentLabel} | ${quizDifficulty.toUpperCase()}`;
-    document.getElementById('instruksi').innerText = (quizDifficulty === 'hard') ? "Ketik jawabannya" : "Pilih jawaban benar";
-    document.getElementById('userAnswer').value = ""; document.getElementById('wrongMsg').style.display = "none";
-
-    const isIrodoriEasy = currentLabel.includes("Irodori") && quizDifficulty === 'easy';
-
-    if (quizMode === 'jp-id') {
-        document.getElementById('mainSpeaker').style.display = 'flex';
-        if (isIrodoriEasy) {
-            display.innerText = (q.kanji && q.kanji.trim() !== "") ? q.kanji : q.kana; currentAnswer = q.kana;
-            let choices = [q.kana];
-            choices = choices.concat((selectedData || []).filter(i => i.kana !== q.kana).map(o => o.kana).sort(() => 0.5 - Math.random()).slice(0, 3));
-            setupLayout(choices);
-        } else {
-            if (currentLabel.includes("Irodori") && quizDifficulty === 'medium') { display.innerText = q.kanji || q.kana; } 
-            else {
-                if (quizDifficulty === 'easy') display.innerText = q.kana;
-                else display.innerHTML = (q.kanji && q.kanji.trim() !== "") ? `<ruby>${q.kanji}<rt>${q.kana}</rt></ruby>` : q.kana;
-            }
-            currentAnswer = q.correct; let choices = (q.answers && q.answers.length >= 4) ? [...q.answers] : [q.correct];
-            if (choices.length < 4) { choices = choices.concat((selectedData || []).filter(i => i.correct !== q.correct).map(i => i.correct).sort(() => 0.5 - Math.random()).slice(0, 4 - choices.length)); }
-            setupLayout(choices);
-        }
-        setTimeout(playAudio, 300);
-    } else {
-        document.getElementById('mainSpeaker').style.display = 'none';
-        if (isIrodoriEasy) {
-            display.innerHTML = `<div style="font-size:14px; color:var(--primary); margin-bottom:5px;">Pilih Kanji Tepat:</div>${q.correct}<br><div style="font-size:22px; color:#64748b; margin-top:10px;">(${q.kana})</div>`;
-            currentAnswer = q.kanji || q.kana; let choices = [currentAnswer];
-            choices = choices.concat((selectedData || []).filter(i => i.kanji !== q.kanji).map(o => (o.kanji || o.kana)).sort(() => 0.5 - Math.random()).slice(0, 3));
-            setupLayout(choices);
-        } else {
-            display.innerHTML = `<div style="font-size:14px; color:var(--primary); margin-bottom:5px;">Terjemahkan:</div>${q.correct}`;
-            currentAnswer = (quizDifficulty === 'easy') ? q.kana : (q.kanji && q.kanji.trim() !== "" ? q.kanji : q.kana);
-            let choices = [currentAnswer];
-            choices = choices.concat((selectedData || []).filter(i => i.kana !== q.kana).map(o => (quizDifficulty === 'easy') ? o.kana : (o.kanji || o.kana)).sort(() => 0.5 - Math.random()).slice(0, 3));
-            setupLayout(choices);
-        }
-    }
-    document.getElementById('flowerCount').innerText = combo;
-  }
-
-  function hideQuizLayouts() {
-    document.getElementById('wordBox').style.display = 'none'; document.getElementById('options').style.display = 'none'; document.getElementById('inputContainer').style.display = 'none';
-  }
-
-  function setupLayout(choices) {
-    const optBox = document.getElementById('options');
-    if(quizDifficulty === 'hard') { document.getElementById('inputContainer').style.display = 'flex'; document.getElementById('userAnswer').focus(); } 
-    else {
-        optBox.style.display = 'flex'; optBox.innerHTML = '';
-        let finalChoices = [...new Set(choices)].slice(0, 4);
-        finalChoices.sort(()=>Math.random()-0.5).forEach(txt => {
-            let b = document.createElement('button'); b.className = 'optBtn'; b.innerText = txt;
-            b.onclick = () => processAnswer(txt === currentAnswer, b); optBox.appendChild(b);
-        });
-    }
-  }
-
-  function playAudio() {
-    if (isMuted) return; const q = currentQuestions[currentIndex]; if (!q) return;
-    window.speechSynthesis.cancel(); const utterance = new SpeechSynthesisUtterance(q.kana || q.kanji);
-    utterance.lang = 'ja-JP'; utterance.rate = 0.85; window.speechSynthesis.speak(utterance);
-  }
-
-  function clean(t) { return t ? t.replace(/\(.*\)|\[.*\]|[~〜\-\s]/g, "").toLowerCase().trim() : ""; }
-
-  function checkInputAnswer() {
-    const q = currentQuestions[currentIndex]; const inputField = document.getElementById('userAnswer');
-    const msg = document.getElementById('wrongMsg'); const cleanUser = clean(inputField.value.trim());
-    let isCorrect = (quizMode === 'jp-id') ? q.correct.split(/,| atau /).some(opt => clean(opt) === cleanUser) : (cleanUser === clean(q.kanji) || cleanUser === clean(q.kana));
-    if(isCorrect) { inputField.classList.add('correct-flash'); processAnswer(true); } 
-    else { inputField.classList.add('wrong-flash'); inputField.classList.add('shake'); msg.style.display = 'block'; msg.innerText = (quizMode === 'jp-id') ? `Jwb: ${q.correct}` : `Jwb: ${q.kanji || ''} (${q.kana})`; setTimeout(() => { inputField.classList.remove('shake'); processAnswer(false); }, 1500); }
-  }
-
-  function processAnswer(isCorrect, btn = null) {
-    const q = currentQuestions[currentIndex];
-    if(isCorrect) { 
-        if(btn) btn.classList.add('correct'); correctCount++; combo++; totalCorrectInSession++; if(quizMode === 'id-jp') playAudio(); 
-    } else { 
-        if(btn) btn.classList.add('wrong'); if (!globalWrongPool.some(i => i.kana === q.kana && i.correct === q.correct)) globalWrongPool.push(q);
-        wrongList.push(q); combo = 0; if(btn) Array.from(document.getElementById('options').children).forEach(b => { if(b.innerText === currentAnswer) b.classList.add('correct'); }); 
-    }
-    setTimeout(() => { currentIndex++; renderQuestion(); }, (isCorrect ? 600 : 1600));
-  }
-
-  function showResult() {
-    const isIrodori = currentLabel.includes("Irodori");
-    const isFinished = (masterPool.length === 0 && (globalWrongPool.length === 0 || redemptionUsedInThisSession));
-    
-    document.getElementById('nextBabBtn').style.display = 'none';
-    document.getElementById('muteBtn').style.display = 'none'; 
-
-    if(isIrodori && isFinished) stopTimer();
-    hideAll(); activeView = 'result';
-    document.getElementById('resultPage').style.display = 'flex'; document.getElementById('backBtn').style.display = 'block';
-    
-    let p = Math.round((correctCount / currentQuestions.length) * 100); if (p > 100) p = 100;
-    document.getElementById('finalScore').innerText = p + "%";
-    
-    let totalAccuracy = totalQuestionsInSession > 0 ? Math.round((totalCorrectInSession / totalQuestionsInSession) * 100) : 0;
-    if (totalAccuracy > 100) totalAccuracy = 100;
-    
-    let guestNote = isGuestMode ? " (Mode Tamu - Koin & Skor Tidak Disimpan)" : "";
-    document.getElementById('finalDetail').innerText = `Redemption: ${globalWrongPool.length} | Sisa Soal: ${masterPool.length}\nAkurasi Bab: ${totalAccuracy}%${guestNote}`;
-    
-    if(isIrodori && isFinished && !isGuestMode) {
-        const finalDiff = Date.now() - startTime; document.getElementById('timerResult').innerText = "WAKTU NYATA: " + formatTime(finalDiff);
-        saveRaceTime("irodori", finalDiff, totalAccuracy);
-    }
-
-    if(isFinished) {
-        if(!isGuestMode) {
-            if(totalAccuracy >= 100) { saveToCloud(currentLabel, 100); addCoins(15); } 
-            else if (totalAccuracy >= 80) { addCoins(5); }
-            clearSession(); 
-        } else {
-            // Mode Tamu Murni: Data langsung hangus saat keluar dari halaman skor ini
-            showToast("Kuis Selesai. Progres mode tamu tidak dicatat.");
-        }
-    } else { if(!isGuestMode) saveCurrentState(); }
-
-    const rb = document.getElementById('reviewBox'); rb.innerHTML = '';
-    let redeemDiv = document.createElement('div'); redeemDiv.style.cssText = "margin:10px 0; padding:15px; background:#151f32; border-radius:12px; border:1px dashed var(--gold);";
-    
-    if (globalWrongPool.length > 0) {
-        if (!redemptionUsedInThisSession) {
-            redeemDiv.innerHTML = `<p style="color:var(--gold); margin-top:0;">Tersedia Poin Redemption: ${globalWrongPool.length} </p>`;
-            let btnR = document.createElement('button'); btnR.className = "mainBtn goldBtn"; btnR.style.fontSize = "13px"; btnR.innerText = "🎲 TEBUS SOAL"; btnR.onclick = startSingleRedemption; redeemDiv.appendChild(btnR);
-        } else { redeemDiv.innerHTML = `<p style="color:#ef4444; font-size:12px; margin:0; font-weight:bold;">Selesaikan kuis untuk membersihkan sisa soal salah.</p>`; }
-    } else { redeemDiv.innerHTML = `<p style="color:#16a34a; margin:0;">Semua Soal Terjawab Benar!</p>`; }
-    rb.appendChild(redeemDiv);
-
-    const btnLanjut = document.getElementById('nextChunkBtn');
-    if (masterPool.length > 0) { 
-        btnLanjut.style.display = 'block'; btnLanjut.innerText = "LANJUT KUIS"; btnLanjut.onclick = nextChunk; 
-    } else { 
-        btnLanjut.style.display = 'none'; if (isFinished) { setupNextBabButton(); }
-    }
-  }
-
-  function setupNextBabButton() {
-    let currentNum = parseInt(currentLabel.replace(/[^0-9]/g, '')); if (isNaN(currentNum)) return;
-    let nextNum = currentNum + 1; let nextTargetData = null; let nextLabelText = "";
-
-    if (currentLabel.includes("SSW Page")) {
-        if (nextNum === 4) nextNum = 5; if (nextNum === 23) nextNum = 24; if (nextNum === 59) nextNum = 60;
-        if (typeof sswPMData !== 'undefined' && sswPMData && sswPMData[nextNum]) { nextTargetData = sswPMData[nextNum]; nextLabelText = "SSW Page " + nextNum; }
-    } else if (currentLabel.includes("Bab")) {
-        if (typeof babData !== 'undefined' && babData[nextNum]) { nextTargetData = babData[nextNum]; nextLabelText = "Bab " + nextNum; }
-    }
-
-    if (nextTargetData) {
-        const nextBtn = document.getElementById('nextBabBtn'); nextBtn.style.display = 'block';
-        nextBtn.innerText = "⏩ LANJUT " + nextLabelText.toUpperCase();
-        nextBtn.onclick = function() { selectedData = nextTargetData; currentLabel = nextLabelText; startQuiz(currentLabel, selectedData); };
-    }
-  }
-
-  function startSingleRedemption() {
-    if (globalWrongPool.length === 0 || redemptionUsedInThisSession) return;
-    const randomIndex = Math.floor(Math.random() * globalWrongPool.length); const target = globalWrongPool[randomIndex];
-    globalWrongPool.splice(randomIndex, 1); currentQuestions = [target]; currentIndex = 0; redemptionUsedInThisSession = true;
-    if(!isGuestMode) saveCurrentState(); 
-    document.getElementById('muteBtn').style.display = 'block'; renderQuestion();
-  }
-
-  function goBack() {
-    window.speechSynthesis.cancel(); stopTimer();
-    if (activeView === 'flashcard' || activeView === 'quiz' || activeView === 'result' || activeView === 'difficulty') showModeMenu();
-    else if (activeView === 'mode') {
-        if(currentLabel.includes("Irodori")) showIrodoriMenu();
-        else if(currentLabel.includes("SSW")) showSSWGrid();
-        else showBagian(parseInt(currentLabel.replace("Bab ","")) <= 25 ? 1 : 2);
-    } 
-    else if (activeView.startsWith('bagian')) showMinnaMenu();
-    else if (activeView === 'ssw_pm' || activeView === 'irodori' || activeView === 'minna') switchTab('home');
-    else switchTab('home');
   }
 
   document.getElementById('userAnswer').addEventListener('keypress', (e) => { if (e.key === 'Enter') checkInputAnswer(); });
