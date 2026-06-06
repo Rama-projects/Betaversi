@@ -31,54 +31,123 @@
 </script>
 
 <style>
-  :root { --primary: #ff5722; --secondary: #2196f3; --bg: #121212; --card: #1e1e1e; --text: #eee; --ssw: #9c27b0; --gold: #ffb74d; }
-  * { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+  :root { 
+    --primary: #ff5722; 
+    --secondary: #2196f3; 
+    --bg: #121212; 
+    --card: #1e1e1e; 
+    --text: #eee; 
+    --ssw: #9c27b0; 
+    --gold: #ffb74d; 
+    /* Tema UI Baru Terang Terinspirasi JFT Guru */
+    --jft-bg: #f4f6fa;
+    --jft-text: #1a253c;
+    --jft-grad: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  
+  * { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
   input { -webkit-user-select: text; user-select: text; }
   html, body { margin: 0; padding: 0; background-color: var(--bg); color: var(--text); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-x: hidden; }
   body { display: flex; justify-content: center; min-height: 100vh; }
-  #app { width: 100vw; max-width: 420px; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; position: relative; }
+  #app { width: 100vw; max-width: 420px; padding: 0; box-sizing: border-box; display: flex; flex-direction: column; position: relative; padding-bottom: 70px; background-color: var(--bg); }
   
+  /* Saat Menu Utama atau Profil Aktif, Pakai Tema Terang */
+  #app.light-theme { background-color: var(--jft-bg); color: var(--jft-text); }
+
   #progressContainer { 
     position: fixed; top: 0; left: 0; width: 100%; height: 8px; background: #222; z-index: 2000; display: none; flex-direction: row; gap: 3px; padding: 2px; box-sizing: border-box;
   }
   .progress-segment { flex-grow: 1; height: 100%; background: #444; border-radius: 1px; transition: 0.3s; }
   .progress-segment.active { background: var(--primary); box-shadow: 0 0 5px var(--primary); }
 
-  #backBtn { position: absolute; top: 15px; left: 15px; font-size: 28px; background: none; border: none; color: var(--primary); cursor: pointer; display: none; z-index: 1000; padding: 5px; }
-  #muteBtn { position: absolute; top: 15px; right: 15px; font-size: 24px; background: none; border: none; color: #ffb74d; cursor: pointer; z-index: 1000; padding: 5px; }
+  #backBtn { position: absolute; top: 15px; left: 15px; font-size: 24px; background: rgba(0,0,0,0.2); border: none; color: white; cursor: pointer; display: none; z-index: 1000; padding: 8px; border-radius: 50%; width: 40px; height: 40px; align-items: center; justify-content: center; }
+  #muteBtn { position: absolute; top: 15px; right: 15px; font-size: 20px; background: rgba(0,0,0,0.2); border: none; color: #ffb74d; cursor: pointer; z-index: 1000; padding: 8px; border-radius: 50%; width: 40px; height: 40px; align-items: center; justify-content: center; }
+  
   #quizHeader { text-align: center; margin-bottom: 20px; margin-top: 20px; }
   #quizInfo { font-size: 11px; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; font-weight: bold; border: 1.5px solid var(--primary); padding: 4px 12px; border-radius: 20px; display: inline-block; }
   #instruksi { font-size: 13px; color: #888; margin-top: 10px; }
-  .menu-container { display: none; flex-direction: column; gap: 15px; align-items: center; width: 100%; padding-top: 60px; animation: fadeIn 0.3s ease; }
+  
+  .menu-container { display: none; flex-direction: column; gap: 15px; align-items: center; width: 100%; padding: 20px; padding-top: 20px; animation: fadeIn 0.3s ease; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-  #headerGrid { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 20px; }
-  .mainBtn { background: var(--primary); border-radius: 18px; padding: 18px; font-weight: bold; color: white; width: 95%; border: none; cursor: pointer; font-size: 15px; text-transform: uppercase; box-shadow: 0 5px 0 #bf360c; transition: 0.1s; outline: none; }
+  
+  #headerGrid { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 20px; width: 100%; }
+  .mainBtn { background: var(--primary); border-radius: 18px; padding: 18px; font-weight: bold; color: white; width: 100%; border: none; cursor: pointer; font-size: 15px; text-transform: uppercase; box-shadow: 0 5px 0 #bf360c; transition: 0.1s; outline: none; }
   .mainBtn:active { transform: translateY(3px); box-shadow: 0 2px 0 #bf360c; }
   .iroBtn { background: var(--secondary); box-shadow: 0 5px 0 #1565c0; }
   .sswBtn { background: var(--ssw); box-shadow: 0 5px 0 #7b1fa2; }
   .goldBtn { background: var(--gold); box-shadow: 0 5px 0 #e65100; color: #000; }
-  .babBtn { background: var(--card); border-radius: 12px; padding: 10px; color: #eee; border: 1px solid #333; cursor: pointer; min-width: 85px; font-size: 13px; position: relative; }
+  .babBtn { background: var(--card); border-radius: 12px; padding: 12px; color: #eee; border: 1px solid #333; cursor: pointer; min-width: 85px; font-size: 13px; position: relative; flex: 1 1 calc(33.33% - 10px); text-align: center; }
   
-  #resumeWrapper { display: flex; width: 95%; background: #4caf50; border-radius: 18px; box-shadow: 0 5px 0 #2e7d32; overflow: hidden; margin-bottom: 10px; }
+  /* Desain UI Utama Baru Berdasarkan Referensi */
+  .jft-header { width: 100%; background: var(--jft-grad); padding: 30px 24px 40px 24px; border-bottom-left-radius: 35px; border-bottom-right-radius: 35px; color: white; position: relative; box-shadow: 0 10px 25px rgba(124, 58, 237, 0.25); }
+  .jft-salutation { font-size: 15px; opacity: 0.85; margin: 0; font-weight: 500; display: flex; align-items: center; gap: 5px; }
+  .jft-username { font-size: 28px; font-weight: 700; margin: 4px 0 25px 0; letter-spacing: -0.5px; }
+  .jft-notif { position: absolute; top: 25px; right: 24px; background: rgba(255,255,255,0.15); border: none; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; cursor: pointer; }
+  
+  .jft-pro-card { background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; backdrop-filter: blur(10px); }
+  .jft-pro-left { display: flex; align-items: center; gap: 14px; }
+  .jft-pro-icon { background: rgba(255,255,255,0.2); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .jft-pro-title { font-weight: 600; font-size: 15px; margin: 0; }
+  .jft-pro-sub { font-size: 12px; opacity: 0.75; margin: 2px 0 0 0; }
+  
+  .jft-body { width: 100%; padding: 24px; display: flex; flex-direction: column; }
+  .jft-section-title { font-size: 22px; font-weight: 700; color: var(--jft-text); margin: 0 0 20px 0; }
+  
+  .jft-grid-row { display: flex; gap: 16px; width: 100%; margin-bottom: 20px; }
+  .jft-card-big { flex: 1; border-radius: 24px; padding: 20px; color: white; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; height: 190px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); cursor: pointer; }
+  .jft-card-blue { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); }
+  .jft-card-purple { background: linear-gradient(135deg, #6d28d9 0%, #a78bfa 100%); }
+  
+  .jft-badge { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .jft-card-icon-wrap { background: rgba(255,255,255,0.15); width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+  .jft-card-info h3 { font-size: 19px; font-weight: 700; margin: 0; line-height: 1.2; }
+  .jft-card-info p { font-size: 11px; opacity: 0.8; margin: 6px 0 12px 0; }
+  .jft-card-action { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+  
+  .jft-grid-four { display: flex; justify-content: space-between; width: 100%; gap: 10px; margin-top: 5px; }
+  .jft-item-small { display: flex; flex-direction: column; align-items: center; flex: 1; cursor: pointer; text-align: center; }
+  .jft-icon-circle { width: 56px; height: 56px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 8px; transition: 0.2s; }
+  .jft-item-small:active .jft-icon-circle { transform: scale(0.92); }
+  .jft-label-small { font-size: 11px; font-weight: 600; color: #4b5563; line-height: 1.2; }
+
+  /* Bottom Navigation Style Berdasarkan Gambar Referensi */
+  .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 420px; height: 65px; background: white; border-top: 1px solid #e5e7eb; display: none; justify-content: space-around; align-items: center; z-index: 999; box-shadow: 0 -4px 12px rgba(0,0,0,0.03); }
+  .nav-tab { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; height: 100%; cursor: pointer; color: #9ca3af; position: relative; text-decoration: none; }
+  .nav-tab.active { color: #2563eb; font-weight: bold; }
+  .nav-tab-icon { font-size: 20px; margin-bottom: 2px; }
+  .nav-tab-label { font-size: 11px; font-weight: 600; }
+  .nav-tab.active::after { content: ''; position: absolute; bottom: 4px; width: 24px; height: 4px; background: #2563eb; border-radius: 2px; }
+
+  /* Desain Halaman Profil */
+  .profile-card { background: white; width: 100%; border-radius: 24px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; }
+  .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: var(--jft-grad); display: flex; align-items: center; justify-content: center; color: white; font-size: 36px; font-weight: bold; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.3); margin-bottom: 12px; }
+  .profile-name { font-size: 22px; font-weight: 700; color: var(--jft-text); margin: 0; }
+  .profile-id { font-size: 13px; color: #6b7280; margin: 4px 0 0 0; }
+  .stats-container { display: flex; width: 100%; gap: 12px; margin-top: 20px; }
+  .stat-box { flex: 1; background: #f8fafc; border-radius: 16px; padding: 14px; text-align: center; border: 1px solid #f1f5f9; }
+  .stat-val { font-size: 20px; font-weight: 700; color: #2563eb; }
+  .stat-lbl { font-size: 11px; color: #6b7280; margin-top: 2px; font-weight: 500; }
+
+  #resumeWrapper { display: flex; width: 100%; background: #4caf50; border-radius: 18px; box-shadow: 0 5px 0 #2e7d32; overflow: hidden; margin-bottom: 15px; }
   #resumeBtn { flex-grow: 1; background: none; box-shadow: none; border-radius: 0; padding: 18px; color: white; font-weight: bold; border: none; cursor: pointer; text-transform: uppercase; font-size: 15px; }
   #clearSessionBtn { width: 50px; background: none; border: none; border-left: 1px solid rgba(255,255,255,0.3); color: white; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-  #wordBox { display: none; flex-direction: column; align-items: center; justify-content: flex-start; flex-grow: 1; text-align: center; padding-top: 40px; }
+  #wordBox { display: none; flex-direction: column; align-items: center; justify-content: flex-start; flex-grow: 1; text-align: center; padding: 20px; padding-top: 40px; }
   #quizContent { width: 100%; flex-shrink: 0; margin-bottom: 20px; }
   #displayWord { font-size: 42px; color: var(--text); font-weight: bold; margin-bottom: 10px; }
   ruby rt { font-size: 18px; color: #aaa; margin-bottom: 4px; }
   .speakerBtn { background: #333; border: none; font-size: 22px; cursor: pointer; color: #ffb74d; padding: 10px; border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
-  #options { display: none; flex-direction: column; gap: 12px; width: 100%; margin-top: 20px; }
+  #options { display: none; flex-direction: column; gap: 12px; width: 100%; padding: 0 20px; margin-top: 10px; margin-bottom: 20px; }
   .optBtn { background: #252525; border: 2px solid #333; padding: 18px; border-radius: 15px; color: white; font-size: 18px; cursor: pointer; transition: 0.2s; }
   .optBtn.correct { background: #4caf50 !important; border-color: #2e7d32 !important; transform: scale(1.02); }
   .optBtn.wrong { background: #f44336 !important; border-color: #c62828 !important; animation: shake 0.4s; }
   
-  #inputContainer { display: none; width: 100%; flex-direction: column; gap: 10px; margin-top: 0px; }
+  #inputContainer { display: none; width: 100%; flex-direction: column; gap: 10px; margin-top: 0px; padding: 0 20px; }
   #userAnswer { width: 100%; padding: 18px; border-radius: 15px; border: 2px solid #333; background: #252525; color: white; font-size: 20px; text-align: center; box-sizing: border-box; transition: all 0.3s ease; }
   .correct-flash { background-color: rgba(76, 175, 80, 0.3) !important; border-color: #4caf50 !important; }
   .wrong-flash { background-color: rgba(244, 67, 54, 0.3) !important; border-color: #f44336 !important; }
 
-  #flashcardSection { display: none; flex-direction: column; align-items: center; width: 100%; padding-top: 40px; }
+  #flashcardSection { display: none; flex-direction: column; align-items: center; width: 100%; padding: 20px; padding-top: 40px; }
   .card-container { perspective: 1000px; width: 240px; height: 380px; cursor: pointer; margin-bottom: 30px; }
   .card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; }
   .card-inner.is-flipped { transform: rotateY(180deg); }
@@ -93,40 +162,40 @@
 
   .score-circle { width: 130px; height: 130px; border-radius: 50%; border: 8px solid var(--primary); display: flex; justify-content: center; align-items: center; margin: 0 auto 20px; font-size: 34px; font-weight: bold; color: var(--primary); background: rgba(255,87,34,0.05); }
   #loginInput { width: 90%; padding: 15px; border-radius: 15px; border: 2px solid #444; background: #222; color: white; font-size: 18px; text-align: center; margin-bottom: 20px; }
-  #toast { display: none; position: fixed; bottom: 50px; left: 50%; transform: translateX(-50%); background: var(--primary); color: white; padding: 12px 25px; border-radius: 30px; font-size: 14px; font-weight: bold; z-index: 10000; text-align: center; }
+  #toast { display: none; position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--primary); color: white; padding: 12px 25px; border-radius: 30px; font-size: 14px; font-weight: bold; z-index: 10000; text-align: center; }
   #logoutModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; justify-content:center; align-items:center; }
   .modal-content { background:var(--card); padding:30px; border-radius:25px; width:85%; max-width:340px; text-align:center; border:2px solid #333; }
   @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-10px);} 75% {transform: translateX(10px);} }
   #timerDisplay { font-family: monospace; font-size: 16px; color: #ffb74d; margin-bottom: 5px; }
-  .lb-box { margin-top: 15px; background: #222; border-radius: 12px; padding: 10px; width: 100%; font-size: 12px; display: none; }
-  .lb-item { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 4px 0; }
+  .lb-box { margin-top: 15px; background: white; border-radius: 16px; padding: 15px; width: 100%; font-size: 13px; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #e5e7eb; color: var(--jft-text); }
+  .lb-item { display: flex; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding: 8px 0; }
 
   #floatingKamus {
-    position: fixed; top: 100px; right: 0; width: 50px; height: 50px;
+    position: fixed; top: 120px; right: 0; width: 50px; height: 50px;
     background: transparent;
-    z-index: 9999; display: flex; align-items: center; justify-content: center;
+    z-index: 9998; display: flex; align-items: center; justify-content: center;
     font-size: 30px; cursor: move;
     touch-action: none;
-    text-shadow: 0 0 8px rgba(0,0,0,0.8);
+    text-shadow: 0 0 8px rgba(0,0,0,0.3);
   }
 
   #kamusOverlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0.05) 100%);
-    z-index: 9998;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 40%, rgba(0,0,0,0.2) 100%);
+    z-index: 10002;
     display: none; flex-direction: column; align-items: center; padding: 20px; box-sizing: border-box;
   }
 
   #kamusInput {
     width: 100%; padding: 15px; border-radius: 15px; border: 2px solid var(--primary);
-    background: rgba(0,0,0,0.6); color: white; font-size: 18px; margin-bottom: 20px;
+    background: rgba(0,0,0,0.7); color: white; font-size: 18px; margin-bottom: 20px;
     outline: none;
   }
   #kamusResults {
     width: 100%; flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;
   }
   .search-item {
-    background: rgba(0,0,0,0.7);
+    background: rgba(0,0,0,0.8);
     padding: 15px; border-radius: 12px;
     border-left: 4px solid var(--gold);
     color: white;
@@ -152,6 +221,7 @@
   <button id="backBtn" onclick="goBack()">⬅</button>
   <button id="muteBtn" onclick="toggleMute()">🔊</button>
 
+  <!-- HALAMAN LOGIN -->
   <div id="loginPage" class="menu-container">
     <h1 style="color: var(--primary); margin-bottom: 10px;">MASUK KUIS</h1>
     <p style="color: #888; font-size: 14px; margin-bottom: 25px;">Masukan ID</p>
@@ -159,47 +229,133 @@
     <button class="mainBtn" onclick="handleLogin()">MULAI BELAJAR</button>
   </div>
 
-  <div id="mainMenu" class="menu-container">
-    <h1 style="color: var(--primary); margin-bottom: 5px;">日本語クイズ</h1>
-    <p id="userLabel" style="color: #4caf50; font-size: 13px; margin-bottom: 25px; font-weight: bold;"></p>
-    
-    <div id="resumeWrapper" style="display:none;">
-        <button id="resumeBtn" onclick="resumeQuiz()">LANJUTKAN KUIS</button>
-        <button id="clearSessionBtn" onclick="clearSession()">✕</button>
+  <!-- MENU UTAMA BARU (GAYA UI JFT GURU) -->
+  <div id="mainMenu" style="display: none; animation: fadeIn 0.3s ease; width: 100%;">
+    <div class="jft-header">
+      <p class="jft-salutation">Selamat Siang ☀️</p>
+      <h1 id="userLabel" class="jft-username">Rama Cokun</h1>
+      <button class="jft-notif" onclick="showToast('Belum ada notifikasi baru')">🔔</button>
+      
+      <div class="jft-pro-card" onclick="bukaBuku()">
+        <div class="jft-pro-left">
+          <div class="jft-pro-icon">✨</div>
+          <div>
+            <h4 class="jft-pro-title">Buka Materi Gramatika</h4>
+            <p class="jft-pro-sub">Pelajari tata bahasa & pola kalimat lengkap</p>
+          </div>
+        </div>
+        <span style="font-size: 16px; opacity: 0.7;">❯</span>
+      </div>
     </div>
 
-    <button class="mainBtn" onclick="showMinnaMenu()">MINNA NO NIHONGO</button>
-    <button class="mainBtn iroBtn" onclick="showIrodoriMenu()">IRODORI</button>
-    <button class="mainBtn sswBtn" onclick="showSSWMenu()">SSW</button>
-    <button class="mainBtn" style="background:#333; box-shadow: 0 5px 0 #111; margin-top: 20px;" onclick="logout()">KELUAR</button>
-    <div style="margin-top: 30px; text-align: center; border-top: 1px solid #333; width: 100%; padding-top: 20px;">
-        <p style="font-size: 12px; color: #555;">Copyright © 2026<br>Pengembang Cahya Ramadhan</p>
+    <div class="jft-body">
+      <!-- Sesi Lanjutkan Jika Ada -->
+      <div id="resumeWrapper" style="display:none;">
+          <button id="resumeBtn" onclick="resumeQuiz()">LANJUTKAN KUIS YANG TERTUNDA</button>
+          <button id="clearSessionBtn" onclick="clearSession()">✕</button>
+      </div>
+
+      <h2 class="jft-section-title">Aksi Cepat</h2>
+      
+      <!-- Grid Utama 2 Kolom Besar -->
+      <div class="jft-grid-row">
+        <div class="jft-card-big jft-card-blue" onclick="showMinnaMenu()">
+          <span class="jft-badge">POPULAR</span>
+          <div class="jft-card-icon-wrap">📋</div>
+          <div class="jft-card-info">
+            <h3>Minna No<br>Nihongo</h3>
+            <p>Kosakata utama Bab 1 sampai 50 lengkap</p>
+            <div class="jft-card-action">Mulai Sekarang ➔</div>
+          </div>
+        </div>
+        
+        <div class="jft-card-big jft-card-purple" onclick="showIrodoriMenu()">
+          <span class="jft-badge">NEW</span>
+          <div class="jft-card-icon-wrap">🗂️</div>
+          <div class="jft-card-info">
+            <h3>Irodori<br>Kanji</h3>
+            <p>Target latihan kanji terfokus & papan skor</p>
+            <div class="jft-card-action">Mulai Sekarang ➔</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Baris Menu Kecil 4 Kolom di Bawah -->
+      <div class="jft-grid-four">
+        <div class="jft-item-small" onclick="showSSWMenu()">
+          <div class="jft-icon-circle" style="color: var(--ssw);">🍱</div>
+          <div class="jft-label-small">Kuis SSW PM</div>
+        </div>
+        <div class="jft-item-small" onclick="showRefMenu()">
+          <div class="jft-icon-circle" style="color: #e65100;">📖</div>
+          <div class="jft-label-small">Kosakata Ref</div>
+        </div>
+        <div class="jft-item-small" onclick="switchTab('profile')">
+          <div class="jft-icon-circle" style="color: #10b981;">📊</div>
+          <div class="jft-label-small">Cek Nilai</div>
+        </div>
+        <div class="jft-item-small" onclick="logout()">
+          <div class="jft-icon-circle" style="color: #ef4444;">🚪</div>
+          <div class="jft-label-small">Keluar</div>
+        </div>
+      </div>
+
+      <div style="margin-top: 40px; text-align: center; width: 100%; opacity: 0.4;">
+          <p style="font-size: 11px; color: var(--jft-text);">Copyright © 2026 • Pengembang Cahya Ramadhan</p>
+      </div>
     </div>
   </div>
 
+  <!-- HALAMAN PROFIL (BARU) -->
+  <div id="profilePage" class="menu-container" style="padding-top: 30px;">
+    <h2 class="jft-section-title" style="align-self: flex-start; margin-bottom: 15px;">Profil Belajar</h2>
+    <div class="profile-card">
+      <div class="profile-avatar" id="profAvatar">R</div>
+      <h3 class="profile-name" id="profName">Rama Cokun</h3>
+      <p class="profile-id" id="profId">User ID: Rama</p>
+      
+      <div class="stats-container">
+        <div class="stat-box">
+          <div class="stat-val" id="statBadge">0</div>
+          <div class="stat-lbl">Bab Tuntas</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" style="color: #7c3aed;">Aktif</div>
+          <div class="stat-lbl">Status Akun</div>
+        </div>
+      </div>
+    </div>
+    
+    <button class="mainBtn" style="background:#ef4444; box-shadow: 0 5px 0 #b91c1c;" onclick="logout()">LOGOUT DARI AKUN</button>
+  </div>
+
+  <!-- MENU SUB-KATEGORI -->
   <div id="minnaMenu" class="menu-container">
+    <h2 style="color:var(--secondary); margin-bottom: 5px;">MINNA NO NIHONGO</h2>
     <button class="mainBtn" onclick="showBagian(1)">KOTOBA BAGIAN 1 (1-25)</button>
     <button class="mainBtn" onclick="showBagian(2)">KOTOBA BAGIAN 2 (26-50)</button>
-    <button class="mainBtn iroBtn" onclick="showRefMenu()">KOSAKATA REFERENSI</button>
   </div>
+  
   <div id="irodoriMenu" class="menu-container">
-    <h2 style="color:var(--secondary);">IRODORI</h2>
+    <h2 style="color:var(--secondary); margin-bottom: 5px;">IRODORI KANJI</h2>
     <button class="mainBtn iroBtn" onclick="startIrodoriKanji()">KANJI IRODORI (FULL)</button>
     <div id="leaderboardBox" class="lb-box"></div>
   </div>
+  
   <div id="sswMenu" class="menu-container">
-    <h2 style="color:var(--ssw);">SSW</h2>
-    <button class="mainBtn sswBtn" onclick="showSSWGrid()">PENGOLAHAN MAKANAN (PM)</button>
+    <h2 style="color:var(--ssw); margin-bottom: 5px;">SSW PENGOLAHAN MAKANAN</h2>
+    <button class="mainBtn sswBtn" onclick="showSSWGrid()">MULAI PENGOLAHAN MAKANAN (PM)</button>
     <div id="sswLeaderboard" class="lb-box"></div>
   </div>
+  
   <div id="dynamicMenu" class="menu-container">
-    <h2 id="dynamicTitle">Pilih Bab</h2>
+    <h2 id="dynamicTitle" style="color:var(--jft-text); margin-bottom:0;">Pilih Bab</h2>
     <div id="headerGrid"></div>
   </div>
   
   <div id="modeMenu" class="menu-container">
-    <h2 style="color: #ffb74d;">Pilih Mode</h2>
-    <p id="modeInfo" style="margin-top:-10px; color:#888;"></p>
+    <h2 style="color: #ffb74d; margin-bottom:0;">Pilih Mode</h2>
+    <p id="modeInfo" style="margin-top:0; color:#888; font-weight:bold;"></p>
     <button class="mainBtn goldBtn" onclick="startFlashcardMode()">🎴 MODE FLASHCARD</button>
     <button class="mainBtn" onclick="setQuizDirection('jp-id')">JEPANG ➡ INDO</button>
     <button class="mainBtn iroBtn" onclick="setQuizDirection('id-jp')">INDO ➡ JEPANG</button>
@@ -212,6 +368,7 @@
     <button class="mainBtn" style="background:#f44336; box-shadow: 0 5px 0 #c62828;" onclick="setDifficulty('hard')">SULIT (KETIK KANJI)</button>
   </div>
 
+  <!-- AREA KUIS -->
   <div id="wordBox">
     <div id="quizContent">
       <div id="quizHeader">
@@ -230,6 +387,10 @@
     </div>
   </div>
 
+  <!-- AREA OPTIONS (DITARUH DI LUAR WORDBOX AGAR COCOK DENGAN LOGIKA ASLI) -->
+  <div id="options"></div>
+
+  <!-- FLASHCARD -->
   <div id="flashcardSection">
     <div id="fcInfo" style="color:var(--gold); font-size:14px; margin-bottom:15px; font-weight:bold; text-align:center;"></div>
     <div class="card-container" onclick="flipCard()">
@@ -238,7 +399,7 @@
           <div id="fcFront" style="font-size: 38px; font-weight:bold;"></div>
           <div class="flip-icon">⇄</div>
         </div>
-        <div class="card-face card-face card-back">
+        <div class="card-face card-back">
           <div id="fcBack" style="display:flex; flex-direction:column; gap:10px; text-align:center;">
               <div id="fcBackRead" style="font-size: 20px; color:#aaa; font-weight:bold;"></div>
               <div id="fcBackMean" style="font-size: 28px; font-weight:bold; color:var(--gold);"></div>
@@ -255,19 +416,20 @@
     <button class="mainBtn" style="margin-top:30px; background:#4caf50; box-shadow: 0 5px 0 #2e7d32;" onclick="setQuizDirection('jp-id')">PELAJARI SELESAI? MULAI KUIS</button>
   </div>
 
-  <div id="options"></div>
-
+  <!-- HALAMAN HASIL -->
   <div id="resultPage" class="menu-container">
     <h2 style="margin-bottom:10px;">HASIL KUIS</h2>
     <div id="timerResult" style="color:#ffb74d; font-weight:bold; margin-bottom:10px;"></div>
     <div class="score-circle" id="finalScore">0%</div>
     <div id="finalDetail" style="color:#aaa; white-space: pre-wrap;"></div>
     <div id="reviewBox" style="width: 100%; text-align: left; margin-top: 20px; max-height: 200px; overflow-y: auto; background: #1a1a1a; padding: 15px; border-radius: 12px; font-size: 14px;"></div>
+    
     <button id="nextChunkBtn" class="mainBtn" style="margin-top:20px; display:none;">LANJUT KUIS</button>
     <button id="nextBabBtn" class="mainBtn" style="background:var(--secondary); margin-top:10px; box-shadow: 0 5px 0 #1565c0; display:none;"></button>
     <button class="mainBtn" style="background:#555; margin-top:10px; box-shadow: 0 5px 0 #333;" onclick="goBack()">KEMBALI</button>
   </div>
 
+  <!-- MODAL LOGOUT -->
   <div id="logoutModal">
     <div class="modal-content">
       <h3 style="margin-top:0; color:var(--primary); letter-spacing:1px;">YAKIN KELUAR?</h3>
@@ -275,6 +437,18 @@
         <button class="mainBtn" style="background:#444; box-shadow: 0 4px 0 #222;" onclick="closeLogoutModal()">TIDAK</button>
         <button class="mainBtn" onclick="confirmLogout()">YA</button>
       </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAVIGATION (BARU) -->
+  <div class="bottom-nav" id="bottomNavBar">
+    <div class="nav-tab active" id="tabHome" onclick="switchTab('home')">
+      <div class="nav-tab-icon">🏠</div>
+      <div class="nav-tab-label">Beranda</div>
+    </div>
+    <div class="nav-tab" id="tabProfile" onclick="switchTab('profile')">
+      <div class="nav-tab-icon">👤</div>
+      <div class="nav-tab-label">Profile</div>
     </div>
   </div>
 </div>
@@ -320,30 +494,17 @@
   function onPointerUp(e) {
     document.onpointermove = null;
     document.onpointerup = null;
-    
-    if (!isDragging) {
-        openKamusOverlay();
-    } else {
+    if (!isDragging) { openKamusOverlay(); } 
+    else {
         const fab = document.getElementById('floatingKamus');
         const screenWidth = window.innerWidth;
-        if (e.clientX < screenWidth / 2) {
-            fab.style.left = '0px';
-            fab.style.right = 'auto';
-        } else {
-            fab.style.left = 'auto';
-            fab.style.right = '0px';
-        }
+        if (e.clientX < screenWidth / 2) { fab.style.left = '0px'; fab.style.right = 'auto'; } 
+        else { fab.style.left = 'auto'; fab.style.right = '0px'; }
     }
   }
 
-  function openKamusOverlay() {
-    document.getElementById('kamusOverlay').style.display = 'flex';
-    document.getElementById('kamusInput').focus();
-  }
-
-  function closeKamusOverlay() {
-    document.getElementById('kamusOverlay').style.display = 'none';
-  }
+  function openKamusOverlay() { document.getElementById('kamusOverlay').style.display = 'flex'; document.getElementById('kamusInput').focus(); }
+  function closeKamusOverlay() { document.getElementById('kamusOverlay').style.display = 'none'; }
 
   function searchGlobal() {
     const query = document.getElementById('kamusInput').value.toLowerCase().trim();
@@ -385,11 +546,17 @@
   function checkLogin() {
     hideAll();
     if (currentUserID) {
-        document.getElementById('userLabel').innerText = "Halo, " + currentUserID + "!";
-        showMainMenu();
+        document.getElementById('userLabel').innerText = currentUserID;
+        document.getElementById('profName').innerText = currentUserID;
+        document.getElementById('profId').innerText = "User ID: " + currentUserID;
+        document.getElementById('profAvatar').innerText = currentUserID.charAt(0).toUpperCase();
+        switchTab('home');
+        getProfileStats();
     } else {
+        document.getElementById('app').classList.remove('light-theme');
         document.getElementById('loginPage').style.display = 'flex';
         document.getElementById('backBtn').style.display = 'none';
+        document.getElementById('bottomNavBar').style.display = 'none';
     }
   }
 
@@ -407,6 +574,44 @@
   function logout() { document.getElementById('logoutModal').style.display = 'flex'; }
   function closeLogoutModal() { document.getElementById('logoutModal').style.display = 'none'; }
   function confirmLogout() { localStorage.removeItem("kuis_rama_userid"); currentUserID = ""; location.reload(); }
+
+  // Manajemen Tab Sistem Baru (Beranda vs Profil)
+  function switchTab(tab) {
+    window.speechSynthesis.cancel();
+    stopTimer();
+    hideAll();
+    
+    document.getElementById('tabHome').classList.remove('active');
+    document.getElementById('tabProfile').classList.remove('active');
+    document.getElementById('backBtn').style.display = 'none';
+    
+    if (tab === 'home') {
+        document.getElementById('app').classList.add('light-theme');
+        document.getElementById('mainMenu').style.display = 'block';
+        document.getElementById('tabHome').classList.add('active');
+        document.getElementById('bottomNavBar').style.display = 'flex';
+        activeView = 'main';
+        checkExistingSession();
+    } else if (tab === 'profile') {
+        document.getElementById('app').classList.add('light-theme');
+        document.getElementById('profilePage').style.display = 'flex';
+        document.getElementById('tabProfile').classList.add('active');
+        document.getElementById('bottomNavBar').style.display = 'flex';
+        activeView = 'profile';
+        getProfileStats();
+    }
+  }
+
+  function getProfileStats() {
+    if(!currentUserID) return;
+    database.ref(`users/${currentUserID}/scores`).once('value', snap => {
+        let count = 0;
+        if(snap.exists()) {
+            Object.values(snap.val()).forEach(score => { if(score === 100) count++; });
+        }
+        document.getElementById('statBadge').innerText = count;
+    });
+  }
 
   function saveToCloud(label, score) {
     if(!currentUserID) return;
@@ -463,8 +668,10 @@
            isTimerRunning = true;
            timerInterval = setInterval(updateTimerUI, 100);
         }
-        activeView = 'quiz';
+        hideAll();
+        document.getElementById('app').classList.remove('light-theme');
         document.getElementById('backBtn').style.display = 'block';
+        activeView = 'quiz';
         renderQuestion();
       }
     });
@@ -514,13 +721,13 @@
           return a.time - b.time;
       });
 
-      lbBox.innerHTML = `<b style="color:var(--secondary)">RANKING IRODORI (WEIGHTED)</b>`;
+      lbBox.innerHTML = `<b style="color:#2563eb">RANKING IRODORI (WEIGHTED)</b>`;
       lbBox.style.display = 'block';
       players.slice(0, 10).forEach((p, index) => {
         let div = document.createElement('div');
         div.className = 'lb-item';
         let diffLabel = p.weight === 3 ? "[SULIT]" : (p.weight === 2 ? "[SDG]" : "[MDH]");
-        div.innerHTML = `<span>${index + 1}. <small style="color:var(--gold)">${diffLabel}</small> ${p.name} <small style="color:#888">(${p.score || 0}%)</small></span><span>${formatTime(p.time)}</span>`;
+        div.innerHTML = `<span>${index + 1}. <small style="color:var(--primary)">${diffLabel}</small> ${p.name} <small style="color:#6b7280">(${p.score || 0}%)</small></span><span>${formatTime(p.time)}</span>`;
         lbBox.appendChild(div);
       });
     });
@@ -531,6 +738,7 @@
     database.ref(`users/${currentUserID}/scores`).on('value', snap => {
       const cloudData = snap.val() || {};
       document.querySelectorAll('.babBtn').forEach(btn => {
+        if(!btn.dataset.fullLabel) return;
         const key = btn.dataset.fullLabel.replace(/\s/g, "_");
         const textOnly = btn.innerText.replace(" ✅", "");
         if(cloudData[key] === 100) btn.innerText = textOnly + " ✅";
@@ -540,9 +748,9 @@
   }
 
   function hideAll() {
-    ['loginPage','mainMenu','minnaMenu','irodoriMenu','sswMenu','dynamicMenu','modeMenu','diffMenu','wordBox','options','comboSection','resultPage','inputContainer','progressContainer','logoutModal','flashcardSection']
+    ['loginPage','mainMenu','profilePage','minnaMenu','irodoriMenu','sswMenu','dynamicMenu','modeMenu','diffMenu','wordBox','options','flashcardSection','resultPage','inputContainer','progressContainer','logoutModal']
     .forEach(id => { const el = document.getElementById(id); if(el) el.style.display = 'none'; });
-    if (activeView !== 'main') document.getElementById('resumeWrapper').style.display = 'none';
+    document.getElementById('bottomNavBar').style.display = 'none';
   }
 
   function toggleMute() {
@@ -551,20 +759,22 @@
     if(isMuted) window.speechSynthesis.cancel();
   }
 
-  function showMainMenu() { hideAll(); document.getElementById('mainMenu').style.display = 'flex'; document.getElementById('backBtn').style.display = 'none'; activeView = 'main'; stopTimer(); checkExistingSession(); }
-  function showMinnaMenu() { hideAll(); document.getElementById('minnaMenu').style.display = 'flex'; document.getElementById('backBtn').style.display = 'block'; activeView = 'minna'; }
-  function showIrodoriMenu() { hideAll(); document.getElementById('irodoriMenu').style.display = 'flex'; document.getElementById('backBtn').style.display = 'block'; activeView = 'irodori'; loadLeaderboard('irodori', 'leaderboardBox'); }
-  function showSSWMenu() { hideAll(); document.getElementById('sswMenu').style.display = 'flex'; document.getElementById('backBtn').style.display = 'block'; activeView = 'ssw'; }
+  function showMinnaMenu() { hideAll(); document.getElementById('app').classList.remove('light-theme'); document.getElementById('minnaMenu').style.display = 'flex'; document.getElementById('backBtn').style.display = 'block'; activeView = 'minna'; }
+  function showIrodoriMenu() { hideAll(); document.getElementById('app').classList.remove('light-theme'); document.getElementById('irodoriMenu').style.display = 'flex'; document.getElementById('backBtn').style.display = 'block'; activeView = 'irodori'; loadLeaderboard('irodori', 'leaderboardBox'); }
+  function showSSWMenu() { hideAll(); document.getElementById('app').classList.remove('light-theme'); document.getElementById('sswMenu').style.display = 'flex'; document.getElementById('backBtn').style.display = 'block'; activeView = 'ssw'; }
   function showSSWGrid() { showGridMenu("SSW PM", "ssw_pm", 2, 65); }
+  function showRefMenu() { showGridMenu("Kosakata Referensi", "ref", 1, 50); }
 
   function showGridMenu(title, type, start, end) {
     hideAll();
+    document.getElementById('app').classList.add('light-theme');
     const grid = document.getElementById('headerGrid');
     document.getElementById('dynamicTitle').innerText = title;
     grid.innerHTML = '';
     document.getElementById('dynamicMenu').style.display = 'flex';
     document.getElementById('backBtn').style.display = 'block';
     activeView = type;
+    
     for(let i=start; i<=end; i++) {
         let currentTargetData = null;
         let prefix = "Bab ";
@@ -579,6 +789,7 @@
             if (typeof babData !== 'undefined' && babData[i]) currentTargetData = babData[i];
         }
         if (!currentTargetData) continue;
+        
         let b = document.createElement('button');
         b.className = 'babBtn';
         const labelText = (type === 'ssw_pm') ? 'Page ' + i : 'Bab ' + i;
@@ -590,10 +801,18 @@
     syncStars(); 
   }
 
-  function showBagian(n) { showGridMenu("Minna No Nihongo", 'bagian_'+n, n === 1 ? 1 : 25, n === 1 ? 25 : 50); }
-  function showRefMenu() { showGridMenu("Kosakata Referensi", "ref", 1, 50); }
+  function showBagian(n) { showGridMenu("Minna No Nihongo", 'bagian_'+n, n === 1 ? 1 : 26, n === 1 ? 25 : 50); }
   function startIrodoriKanji() { selectedData = (typeof irodoriKanjiData !== 'undefined') ? irodoriKanjiData : []; currentLabel = "Irodori"; showModeMenu(); }
-  function showModeMenu() { hideAll(); document.getElementById('modeMenu').style.display = 'flex'; document.getElementById('modeInfo').innerText = currentLabel; activeView = 'mode'; document.getElementById('backBtn').style.display = 'block'; }
+  
+  function showModeMenu() { 
+    hideAll(); 
+    document.getElementById('app').classList.remove('light-theme'); 
+    document.getElementById('modeMenu').style.display = 'flex'; 
+    document.getElementById('modeInfo').innerText = currentLabel; 
+    activeView = 'mode'; 
+    document.getElementById('backBtn').style.display = 'block'; 
+  }
+  
   function setQuizDirection(mode) { quizMode = mode; hideAll(); document.getElementById('diffMenu').style.display = 'flex'; activeView = 'difficulty'; }
   function setDifficulty(level) { quizDifficulty = level; startQuiz(currentLabel, selectedData); }
 
@@ -665,8 +884,9 @@
     correctCount = 0; 
     combo = 0; 
     wrongList = []; 
-    activeView = 'quiz'; 
+    hideAll();
     document.getElementById('backBtn').style.display = 'block'; 
+    activeView = 'quiz';
     renderQuestion(); 
   }
 
@@ -686,16 +906,24 @@
 
   function renderQuestion() {
     if(currentIndex >= currentQuestions.length) { showResult(); return; }
-    hideAll();
+    
+    // Pastikan UI kuis menggunakan background gelap bawaan asli
+    document.getElementById('app').classList.remove('light-theme');
+    
+    document.getElementById('wordBox').style.display = 'none';
+    document.getElementById('options').style.display = 'none';
+    document.getElementById('inputContainer').style.display = 'none';
+    
     updateProgressBar();
     saveCurrentState();
+    
     const q = currentQuestions[currentIndex];
     const display = document.getElementById('displayWord');
     const inputField = document.getElementById('userAnswer');
     inputField.classList.remove('correct-flash', 'wrong-flash');
     inputField.style.borderColor = "#333";
+    
     document.getElementById('wordBox').style.display = 'flex';
-    document.getElementById('comboSection').style.display = 'block';
     document.getElementById('quizInfo').innerText = `${currentLabel} | ${quizDifficulty.toUpperCase()}`;
     document.getElementById('instruksi').innerText = (quizDifficulty === 'hard') ? "Ketik jawabannya" : "Pilih jawaban benar";
     document.getElementById('userAnswer').value = "";
@@ -715,11 +943,12 @@
             choices = choices.concat(others.sort(() => 0.5 - Math.random()).slice(0, 3));
             setupLayout(choices);
         } else {
-          if (currentLabel.includes("Irodori") && quizDifficulty === 'medium') {
-            display.innerText = (q.kanji && q.kanji.trim() !== "") ? q.kanji : q.kana;
-        } else
-            if (quizDifficulty === 'easy') display.innerText = q.kana;
-            else display.innerHTML = (q.kanji && q.kanji.trim() !== "") ? `<ruby>${q.kanji}<rt>${q.kana}</rt></ruby>` : q.kana;
+            if (currentLabel.includes("Irodori") && quizDifficulty === 'medium') {
+                display.innerText = (q.kanji && q.kanji.trim() !== "") ? q.kanji : q.kana;
+            } else {
+                if (quizDifficulty === 'easy') display.innerText = q.kana;
+                else display.innerHTML = (q.kanji && q.kanji.trim() !== "") ? `<ruby>${q.kanji}<rt>${q.kana}</rt></ruby>` : q.kana;
+            }
             currentAnswer = q.correct;
             let choices = (q.answers && q.answers.length >= 4) ? [...q.answers] : [q.correct];
             if (choices.length < 4) {
@@ -820,12 +1049,13 @@
 
   function showResult() {
     const isIrodori = currentLabel.includes("Irodori");
-    // Sesi dianggap benar-benar beres jika masterPool kosong DAN (soal salah habis ATAU jatah tebus sudah dipakai)
     const isFinished = (masterPool.length === 0 && (globalWrongPool.length === 0 || redemptionUsedInThisSession));
-    document.getElementById('nextBabBtn').style.display = 'none';
     
+    document.getElementById('nextBabBtn').style.display = 'none';
+
     if(isIrodori && isFinished) stopTimer();
     hideAll();
+    document.getElementById('app').classList.remove('light-theme');
     activeView = 'result';
     document.getElementById('resultPage').style.display = 'flex';
     document.getElementById('backBtn').style.display = 'block';
@@ -848,14 +1078,10 @@
     if(isFinished && totalAccuracy >= 100) {
         saveToCloud(currentLabel, 100);
         showToast("Bab Tuntas 100%!");
+        getProfileStats();
     }
 
-    // Hapus sesi di Firebase jika sudah tidak ada aktivitas yang bisa dilakukan
-    if(isFinished) {
-        clearSession(); 
-    } else {
-        saveCurrentState();
-    }
+    if(isFinished) { clearSession(); } else { saveCurrentState(); }
 
     const rb = document.getElementById('reviewBox');
     rb.innerHTML = '';
@@ -888,76 +1114,55 @@
         btnLanjut.onclick = nextChunk; 
     } else { 
         btnLanjut.style.display = 'none';
-      database.ref(`users/${currentUserID}/redemptionPool`).remove();
-      
-      if (isFinished) {
-            setupNextBabButton();
-            }
+        if(currentUserID) database.ref(`users/${currentUserID}/redemptionPool`).remove();
+        if (isFinished) { setupNextBabButton(); }
     }
   }
 
-  function startSingleRedemption() {
-  if (globalWrongPool.length === 0 || redemptionUsedInThisSession) return;
-  const randomIndex = Math.floor(Math.random() * globalWrongPool.length);
-  const target = globalWrongPool[randomIndex];
-  globalWrongPool.splice(randomIndex, 1);
-  currentQuestions = [target];
-  currentIndex = 0;
-  redemptionUsedInThisSession = true;
-  
-  saveCurrentState(); // Update status di Firebase bahwa redem sudah terpakai
-  showToast("Menebus 1 soal acak...");
-  renderQuestion();
-}
-
   function setupNextBabButton() {
     let currentNum = parseInt(currentLabel.replace(/[^0-9]/g, ''));
-    if (isNaN(currentNum)) return; // Jika tidak ada angka (seperti Irodori Full Kanji), batalkan.
+    if (isNaN(currentNum)) return;
 
     let nextNum = currentNum + 1;
     let nextTargetData = null;
     let nextLabelText = "";
 
-    // Deteksi tipe materi berdasarkan teks di currentLabel
     if (currentLabel.includes("SSW Page")) {
-        // Kasus khusus skip page kosong sesuai logika grid kamu (4, 23, 59)
         if (nextNum === 4) nextNum = 5;
         if (nextNum === 23) nextNum = 24;
         if (nextNum === 59) nextNum = 60;
-
-        if (typeof sswPMData !== 'undefined' && sswPMData[nextNum]) {
-            nextTargetData = sswPMData[nextNum];
-            nextLabelText = "SSW Page " + nextNum;
-        }
+        if (typeof sswPMData !== 'undefined' && sswPMData[nextNum]) { nextTargetData = sswPMData[nextNum]; nextLabelText = "SSW Page " + nextNum; }
     } else if (currentLabel.includes("Ref Bab")) {
-        if (typeof referensiData !== 'undefined' && referensiData[nextNum]) {
-            nextTargetData = referensiData[nextNum];
-            nextLabelText = "Ref Bab " + nextNum;
-        }
+        if (typeof referensiData !== 'undefined' && referensiData[nextNum]) { nextTargetData = referensiData[nextNum]; nextLabelText = "Ref Bab " + nextNum; }
     } else if (currentLabel.includes("Bab")) {
-        if (typeof babData !== 'undefined' && babData[nextNum]) {
-            nextTargetData = babData[nextNum];
-            nextLabelText = "Bab " + nextNum;
-        }
+        if (typeof babData !== 'undefined' && babData[nextNum]) { nextTargetData = babData[nextNum]; nextLabelText = "Bab " + nextNum; }
     }
 
-    // Jika data bab berikutnya ditemukan, munculkan tombolnya
     if (nextTargetData) {
         const nextBtn = document.getElementById('nextBabBtn');
         nextBtn.style.display = 'block';
         nextBtn.innerText = "⏩ LANJUT " + nextLabelText.toUpperCase();
-        
-        // Atur agar ketika diklik, data langsung berganti dan kuis langsung dimulai
         nextBtn.onclick = function() {
             selectedData = nextTargetData;
             currentLabel = nextLabelText;
-            
-            // Langsung mulai kuis dengan mode & kesulitan yang sedang aktif saat ini
             startQuiz(currentLabel, selectedData);
         };
     }
   }
-  
+
+  function startSingleRedemption() {
+    if (globalWrongPool.length === 0 || redemptionUsedInThisSession) return;
+    const randomIndex = Math.floor(Math.random() * globalWrongPool.length);
+    const target = globalWrongPool[randomIndex];
+    globalWrongPool.splice(randomIndex, 1);
+    currentQuestions = [target];
+    currentIndex = 0;
+    redemptionUsedInThisSession = true;
+    saveCurrentState();
+    showToast("Menebus 1 soal acak...");
+    renderQuestion();
+  }
+
   function goBack() {
     window.speechSynthesis.cancel();
     stopTimer();
@@ -970,35 +1175,27 @@
     } 
     else if (activeView.startsWith('bagian') || activeView === 'ref') showMinnaMenu();
     else if (activeView === 'ssw_pm') showSSWMenu();
-    else if (activeView === 'ssw' || activeView === 'irodori' || activeView === 'minna') showMainMenu();
-    else showMainMenu();
+    else if (activeView === 'ssw' || activeView === 'irodori' || activeView === 'minna') switchTab('home');
+    else switchTab('home');
   }
 
   document.getElementById('userAnswer').addEventListener('keypress', (e) => { if (e.key === 'Enter') checkInputAnswer(); });
   window.onload = checkLogin;
 </script>
 
+<!-- MODUL MATERI PDF READER -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 <style>
-  #bukuOverlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: #000; z-index: 10001; display: none; flex-direction: column;
-  }
-  #bukuCanvasContainer {
-    flex-grow: 1; display: flex; justify-content: center; align-items: center;
-    overflow: hidden; background: #333; position: relative;
-  }
+  #bukuOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10005; display: none; flex-direction: column; }
+  #bukuCanvasContainer { flex-grow: 1; display: flex; justify-content: center; align-items: center; overflow: hidden; background: #333; position: relative; }
   #pdfCanvas { max-width: 100%; max-height: 90vh; box-shadow: 0 0 20px rgba(0,0,0,0.5); border: 5px solid white; }
-  .buku-nav {
-    display: flex; justify-content: space-between; padding: 20px;
-    background: #1e1e1e; border-top: 1px solid #333;
-  }
+  .buku-nav { display: flex; justify-content: space-between; padding: 20px; background: #1e1e1e; border-top: 1px solid #333; }
   #pageFlipSound { display: none; }
 </style>
 
 <div id="bukuOverlay">
     <div style="padding: 15px; display: flex; justify-content: space-between; align-items: center; background: var(--card);">
-        <span id="bukuTitle" style="font-weight: bold; color: var(--primary);">MATERI</span>
+        <span id="bukuTitle" style="font-weight: bold; color: var(--primary);">MATERI 文法</span>
         <button onclick="tutupBuku()" style="background:none; border:none; color:white; font-size:24px;">✕</button>
     </div>
     <div id="bukuCanvasContainer">
@@ -1017,16 +1214,6 @@
   const URL_PDF_KAMU = 'materi.pdf';
   let pdfDoc = null, pageNum = 1, isRendering = false;
   const canvas = document.getElementById('pdfCanvas'), ctx = canvas.getContext('2d');
-
-  window.addEventListener('DOMContentLoaded', () => {
-    const mainMenu = document.getElementById('mainMenu');
-    const btnBuku = document.createElement('button');
-    btnBuku.className = 'mainBtn goldBtn';
-    btnBuku.style.marginTop = '10px';
-    btnBuku.innerHTML = '📖 MATERI 文法';
-    btnBuku.onclick = bukaBuku;
-    mainMenu.insertBefore(btnBuku, mainMenu.lastElementChild.previousElementSibling);
-  });
 
   function bukaBuku() {
     document.getElementById('bukuOverlay').style.display = 'flex';
@@ -1057,27 +1244,12 @@
 
   function playFlip() {
     const sfx = document.getElementById('pageFlipSound');
-    sfx.currentTime = 0;
-    sfx.play();
+    if(sfx) { sfx.currentTime = 0; sfx.play().catch(e=>{}); }
   }
 
-  function nextHalaman() {
-    if (pageNum >= pdfDoc.numPages || isRendering) return;
-    pageNum++;
-    playFlip();
-    renderHalaman(pageNum);
-  }
-
-  function prevHalaman() {
-    if (pageNum <= 1 || isRendering) return;
-    pageNum--;
-    playFlip();
-    renderHalaman(pageNum);
-  }
-
-  function tutupBuku() {
-    document.getElementById('bukuOverlay').style.display = 'none';
-  }
+  function nextHalaman() { if (pageNum >= pdfDoc.numPages || isRendering) return; pageNum++; playFlip(); renderHalaman(pageNum); }
+  function prevHalaman() { if (pageNum <= 1 || isRendering) return; pageNum--; playFlip(); renderHalaman(pageNum); }
+  function tutupBuku() { document.getElementById('bukuOverlay').style.display = 'none'; }
 </script>
 </body>
-</html>l
+</html>
