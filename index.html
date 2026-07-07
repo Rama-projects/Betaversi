@@ -399,10 +399,9 @@
     <button class="mainBtn" style="margin-top:10px;" onclick="showBagian(2)">KOTOBA BAGIAN 2 (26-50)</button>
   </div>
   
-  <div id="irodoriMenu" class="menu-container">
+    <div id="irodoriMenu" class="menu-container">
     <h2 style="color:var(--primary); margin-bottom: 5px;">IRODORI KANJI</h2>
     <button class="mainBtn iroBtn" onclick="startIrodoriKanji()">KANJI IRODORI (FULL)</button>
-    <div id="leaderboardBox" class="lb-box"></div>
   </div>
   
   <div id="dynamicMenu" class="menu-container">
@@ -467,9 +466,10 @@
       <button class="fc-btn" style="background:var(--gold); color:#000;" onclick="playAudioFC()">🔊</button>
       <button class="fc-btn" onclick="nextCard()">NEXT</button>
     </div>
-    <button class="mainBtn" style="margin-top:30px; background:#16a34a; box-shadow: 0 5px 0 #15803d;" onclick="setQuizDirection('jp-id')">MULAI KUIS SEKARANG</button>
-  </div>
-
+   <button class="mainBtn" style="margin-top:30px; background:#16a34a; box-shadow: 0 5px 0 #15803d;" onclick="setQuizDirection('jp-id')">MULAI KUIS SEKARANG</button>
+   <button id="nextBabFlashcardBtn" class="mainBtn" style="margin-top:15px; background:#2563eb; box-shadow: 0 5px 0 #1d4ed8; display:none;">⏩ LANJUT BAB (PILIH MODE)</button>
+   </div>
+  
   <div id="resultPage" class="menu-container">
     <h2 style="margin-bottom:10px;">HASIL KUIS</h2>
     <div id="timerResult" style="color:var(--gold); font-weight:bold; margin-bottom:10px;"></div>
@@ -859,25 +859,6 @@
     document.getElementById('resumeWrapper').style.display = 'none';
   }
 
-  function saveRaceTime(category, time, scorePercent) {
-    if(!currentUserID || isGuestMode) return; 
-    const path = `leaderboard/${category}/${currentUserID}`;
-    let weight = quizDifficulty === 'hard' ? 3 : (quizDifficulty === 'medium' ? 2 : 1);
-
-    database.ref(path).once('value', snap => {
-      const data = snap.val();
-      if(!data || weight > (data.weight || 0) || 
-         (weight === data.weight && scorePercent > (data.score || 0)) || 
-         (weight === data.weight && scorePercent === data.score && time < data.time)) {
-        database.ref(path).set({
-          score: scorePercent, time: time, weight: weight,
-          difficulty: quizDifficulty.toUpperCase(), timestamp: firebase.database.ServerValue.TIMESTAMP
-        });
-      }
-    });
-  }
-
-  // --- MODEL LEADERBOARD BARU: JURAGAN KOIN TERBANYAK ---
   function loadCoinLeaderboard() {
     const lbBox = document.getElementById('coinLeaderboardBox');
     database.ref('users').orderByChild('coins').limitToLast(5).on('value', snap => {
@@ -890,7 +871,6 @@
          }
       });
       
-      // Diurutkan dari koin paling melimpah ke bawah
       listPemain.sort((a, b) => b.coins - a.coins);
 
       lbBox.innerHTML = '';
@@ -902,32 +882,7 @@
     });
   }
 
-  function loadLeaderboard(category, elementId) {
-    const lbBox = document.getElementById(elementId);
-    database.ref(`leaderboard/${category}`).on('value', snap => {
-      if(!snap.exists()) { lbBox.innerHTML = 'Belum ada data skor global.'; return; }
-      let players = []; snap.forEach(child => { if(child.key !== "GUEST_USER") { players.push({ name: child.key, ...child.val() }); } });
-      
-      players.sort((a, b) => {
-          if (b.weight !== a.weight) return b.weight - a.weight;
-          if (b.score !== a.score) return b.score - a.score;
-          return a.time - b.time;
-      });
-
-      lbBox.innerHTML = '';
-      players.slice(0, 5).forEach((p, index) => {
-        let div = document.createElement('div'); div.className = 'lb-item';
-        let diffLabel = p.weight === 3 ? "[HARD]" : (p.weight === 2 ? "[MED]" : "[EASY]");
-        database.ref(`users/${p.name}/fullName`).once('value', nSnap => {
-           let uName = nSnap.val() || "Pemain JFT";
-           div.innerHTML = `<span>${index + 1}. <b style="color:var(--primary)">${diffLabel}</b> ${uName} (${p.score || 0}%)</span><span>${formatTime(p.time)}</span>`;
-        });
-        lbBox.appendChild(div);
-      });
-    });
-  }
-
-  function syncStars() {
+    function syncStars() {
     if(!currentUserID || isGuestMode) return; // Proteksi tamu dari sync centang checklist database
     database.ref(`users/${currentUserID}/scores`).on('value', snap => {
       const cloudData = snap.val() || {};
@@ -955,8 +910,8 @@
   function showMinnaMenu() { hideAll(); document.getElementById('minnaMenu').style.display = 'flex'; document.getElementById('backBtn').style.display = 'block'; activeView = 'minna'; }
   function showIrodoriMenu() { 
      hideAll(); document.getElementById('irodoriMenu').style.display = 'flex'; document.getElementById('backBtn').style.display = 'block'; activeView = 'irodori'; 
-     loadLeaderboard('irodori', 'leaderboardBox');
   }
+
   function showSSWGrid() { showGridMenu("SSW PM", "ssw_pm", 2, 65); }
 
   function showGridMenu(title, type, start, end) {
@@ -1020,6 +975,14 @@
         document.getElementById('fcFront').innerHTML = (q.kanji && q.kanji.trim() !== "") ? `<ruby>${q.kanji}<rt>${q.kana}</rt></ruby>` : q.kana;
         document.getElementById('fcBackRead').innerText = ""; document.getElementById('fcBackMean').innerText = q.correct;
     }
+    const fcNextBtn = document.getElementById('nextBabFlashcardBtn');
+    if (fcNextBtn) {
+        if (fcIndex === selectedData.length - 1) {
+            setupFlashcardNextButton(); // Memicu fungsi pengecekan bab selanjutnya
+        } else {
+            fcNextBtn.style.display = 'none'; // Sembunyikan kalau belum kartu terakhir
+        }
+    }
   }
 
   function flipCard() { document.getElementById('cardInner').classList.toggle('is-flipped'); }
@@ -1033,8 +996,8 @@
     totalCorrectInSession = 0; totalQuestionsInSession = data.length;
     globalWrongPool = []; redemptionUsedInThisSession = false;
     
-    if(label.includes("Irodori")) { startTime = Date.now(); isTimerRunning = true; timerInterval = setInterval(updateTimerUI, 100); } 
-    else { stopTimer(); document.getElementById('timerDisplay').innerText = ""; }
+    stopTimer(); 
+    document.getElementById('timerDisplay').innerText = ""; 
     nextChunk();
   }
 
@@ -1156,13 +1119,13 @@
   }
 
   function showResult() {
+  function showResult() {
     const isIrodori = currentLabel.includes("Irodori");
     const isFinished = (masterPool.length === 0 && (globalWrongPool.length === 0 || redemptionUsedInThisSession));
     
     document.getElementById('nextBabBtn').style.display = 'none';
     document.getElementById('muteBtn').style.display = 'none'; 
 
-    if(isIrodori && isFinished) stopTimer();
     hideAll(); activeView = 'result';
     document.getElementById('resultPage').style.display = 'flex'; document.getElementById('backBtn').style.display = 'block';
     
@@ -1175,11 +1138,15 @@
     let guestNote = isGuestMode ? " (Mode Tamu - Koin & Skor Tidak Disimpan)" : "";
     document.getElementById('finalDetail').innerText = `Redemption: ${globalWrongPool.length} | Sisa Soal: ${masterPool.length}\nAkurasi Bab: ${totalAccuracy}%${guestNote}`;
     
-    if(isIrodori && isFinished && !isGuestMode) {
-        const finalDiff = Date.now() - startTime; document.getElementById('timerResult').innerText = "WAKTU NYATA: " + formatTime(finalDiff);
-        saveRaceTime("irodori", finalDiff, totalAccuracy);
-    }
+    document.getElementById('timerResult').innerText = "";
 
+    if(isFinished && !isGuestMode) {
+        if(totalAccuracy >= 100) { saveToCloud(currentLabel, 100); addCoins(15); } 
+        else if (totalAccuracy >= 80) { addCoins(5); }
+        clearSession(); 
+    } else { if(!isGuestMode) saveCurrentState(); }
+    }
+    
     if(isFinished) {
         if(!isGuestMode) {
             if(totalAccuracy >= 100) { saveToCloud(currentLabel, 100); addCoins(15); } 
@@ -1204,7 +1171,12 @@
 
     const btnLanjut = document.getElementById('nextChunkBtn');
     if (masterPool.length > 0) { 
-        btnLanjut.style.display = 'block'; btnLanjut.innerText = "LANJUT KUIS"; btnLanjut.onclick = nextChunk; 
+        btnLanjut.style.display = 'block'; 
+        btnLanjut.innerText = "LANJUT KUIS"; 
+        btnLanjut.onclick = function() {
+            selectedData = [...masterPool]; 
+            showModeMenu();
+        }; 
     } else { 
         btnLanjut.style.display = 'none'; if (isFinished) { setupNextBabButton(); }
     }
@@ -1224,7 +1196,10 @@
     if (nextTargetData) {
         const nextBtn = document.getElementById('nextBabBtn'); nextBtn.style.display = 'block';
         nextBtn.innerText = "⏩ LANJUT " + nextLabelText.toUpperCase();
-        nextBtn.onclick = function() { selectedData = nextTargetData; currentLabel = nextLabelText; startQuiz(currentLabel, selectedData); };
+        nextBtn.onclick = function() { 
+            selectedData = nextTargetData; 
+            currentLabel = nextLabelText; 
+            showModeMenu(); };
     }
   }
 
