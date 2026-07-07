@@ -27,7 +27,7 @@
 
   // Pengaman klik kanan & F12
   document.onkeydown = function(e) {
-    if(event.keyCode == 123) return false;
+    if(e.keyCode == 123) return false;
     if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
     if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
   };
@@ -77,18 +77,19 @@
   .babBtn { background: var(--card); border-radius: 12px; padding: 12px; color: #eee; border: 1px solid #1e293b; cursor: pointer; min-width: 85px; font-size: 13px; position: relative; flex: 1 1 calc(33.33% - 10px); text-align: center; }
   
   /* Desain Dashboard Utama */
-.jft-header { 
-  width: 100%; 
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.4) 0%, rgba(30, 58, 138, 0.6) 100%), url('images/119047.png'); 
-  background-size: cover;
-  background-position: center;
-  padding: 30px 24px; 
-  border-bottom-left-radius: 30px; 
-  border-bottom-right-radius: 30px; 
-  color: white; 
-  position: relative; 
-  box-shadow: 0 10px 25px rgba(0,0,0,0.3); 
-  border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .jft-header { 
+    width: 100%; 
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.4) 0%, rgba(30, 58, 138, 0.6) 100%), url('images/119047.png'); 
+    background-size: cover;
+    background-position: center;
+    padding: 30px 24px; 
+    border-bottom-left-radius: 30px; 
+    border-bottom-right-radius: 30px; 
+    color: white; 
+    position: relative; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3); 
+    border-bottom: 1px solid rgba(255,255,255,0.05); 
+  }
   .jft-salutation { font-size: 14px; color: var(--text-muted); margin: 0; font-weight: 500; }
   .jft-username { font-size: 26px; font-weight: 700; margin: 4px 0 15px 0; letter-spacing: -0.5px; color: #fff; }
   
@@ -106,29 +107,29 @@
   .jft-card-huge { border-radius: 24px; padding: 22px; color: white; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; height: 185px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); cursor: pointer; border: 1px solid rgba(255,255,255,0.05); transition: transform 0.2s; }
   .jft-card-huge:active { transform: scale(0.96); }
   
-.jft-card-blue1 { 
-  background-image: linear-gradient(rgba(255, 255, 255, 0.1), rgba(15, 23, 42, 0.65)), url('images/119153.png'); 
-  background-size: cover; background-position: center;
-}
-.jft-card-purple1 { 
-  background-image: linear-gradient(rgba(255, 255, 255, 0.1), rgba(15, 23, 42, 0.65)), url('images/119138.png'); 
-  background-size: cover; background-position: center;
-}
-.jft-card-blue2 { 
-  background-image: linear-gradient(rgba(255, 255, 255, 0.1), rgba(15, 23, 42, 0.65)), url('images/119136.png'); 
-  background-size: cover; background-position: center;
-}
-.jft-card-dark { 
-  background-image: linear-gradient(rgba(255, 255, 255, 0.1), rgba(15, 23, 42, 0.65)), url('images/119154.png'); 
-  background-size: cover; background-position: center;
-  border: 1px solid var(--gold) !important;
-}
-.jft-card-huge .jft-card-info h3,
-.jft-card-huge .jft-card-info p,
-.jft-card-huge .jft-card-link {
-  color: #ffffff !important;
-  text-shadow: 0px 2px 6px rgba(0, 0, 0, 0.9), 0px 1px 2px rgba(0, 0, 0, 0.9);
-}
+  .jft-card-blue1 { 
+    background-image: linear-gradient(rgba(255, 255, 255, 0.1), rgba(15, 23, 42, 0.65)), url('images/119153.png'); 
+    background-size: cover; background-position: center;
+  }
+  .jft-card-purple1 { 
+    background-image: linear-gradient(rgba(255, 255, 255, 0.1), rgba(15, 23, 42, 0.65)), url('images/119138.png'); 
+    background-size: cover; background-position: center;
+  }
+  .jft-card-blue2 { 
+    background-image: linear-gradient(rgba(255, 255, 255, 0.1), rgba(15, 23, 42, 0.65)), url('images/119136.png'); 
+    background-size: cover; background-position: center;
+  }
+  .jft-card-dark { 
+    background-image: linear-gradient(rgba(255, 255, 255, 0.1), rgba(15, 23, 42, 0.65)), url('images/119154.png'); 
+    background-size: cover; background-position: center;
+    border: 1px solid var(--gold) !important;
+  }
+  .jft-card-huge .jft-card-info h3,
+  .jft-card-huge .jft-card-info p,
+  .jft-card-huge .jft-card-link {
+    color: #ffffff !important;
+    text-shadow: 0px 2px 6px rgba(0, 0, 0, 0.9), 0px 1px 2px rgba(0, 0, 0, 0.9);
+  }
   
   .jft-card-icon-wrap { background: rgba(255,255,255,0.1); width: 46px; height: 46px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
   .jft-card-info h3 { font-size: 18px; font-weight: 700; margin: 0; line-height: 1.3; color: #fff; }
@@ -356,10 +357,7 @@
     </div>
   </div>
 
-  <!-- HALAMAN PROFIL YANG SUDAH DIPERBAIKI -->
   <div id="profilePage" class="menu-container" style="padding-top: 20px;">
-    
-    <!-- Widget Pendaftaran Terintegrasi Khusus Akun Tamu -->
     <div id="guestRegisterSection" class="guest-auth-box hidden">
       <h4>🔒 SIMPAN PROGRES BELAJARMU</h4>
       <p>Kamu masuk sebagai Tamu. Semua progres kuis dan tanda centang bab tidak disimpan. Yuk buat akun atau login langsung!</p>
@@ -384,11 +382,9 @@
         </div>
       </div>
       
-      <!-- Tombol Keluar Mini dan Keren -->
       <button class="small-logout-btn" onclick="logout()">Keluar Akun</button>
     </div>
 
-    <!-- Leaderboard Difokuskan ke Top Koin Terbanyak Global -->
     <h3 style="align-self: flex-start; margin: 5px 0 0 0; color: var(--gold); font-size: 15px;">👑 TOP 5 JURAGAN KOIN GLOBAL</h3>
     <div id="coinLeaderboardBox" class="lb-box" style="margin-top:5px;"></div>
   </div>
@@ -399,7 +395,7 @@
     <button class="mainBtn" style="margin-top:10px;" onclick="showBagian(2)">KOTOBA BAGIAN 2 (26-50)</button>
   </div>
   
-    <div id="irodoriMenu" class="menu-container">
+  <div id="irodoriMenu" class="menu-container">
     <h2 style="color:var(--primary); margin-bottom: 5px;">IRODORI KANJI</h2>
     <button class="mainBtn iroBtn" onclick="startIrodoriKanji()">KANJI IRODORI (FULL)</button>
   </div>
@@ -466,20 +462,28 @@
       <button class="fc-btn" style="background:var(--gold); color:#000;" onclick="playAudioFC()">🔊</button>
       <button class="fc-btn" onclick="nextCard()">NEXT</button>
     </div>
-   <button class="mainBtn" style="margin-top:30px; background:#16a34a; box-shadow: 0 5px 0 #15803d;" onclick="setQuizDirection('jp-id')">MULAI KUIS SEKARANG</button>
-   <button id="nextBabFlashcardBtn" class="mainBtn" style="margin-top:15px; background:#2563eb; box-shadow: 0 5px 0 #1d4ed8; display:none;">⏩ LANJUT BAB (PILIH MODE)</button>
-   </div>
-  
+    <button id="fcNextQuizBtn" class="mainBtn" style="margin-top:30px; background:#16a34a; box-shadow: 0 5px 0 #15803d;" onclick="setQuizDirection('jp-id')">MULAI KUIS SEKARANG</button>
+    <button id="fcNextBabBtn" class="mainBtn" style="background:var(--secondary); margin-top:15px; box-shadow: 0 5px 0 #1e3a8a; display:none;"></button>
+  </div>
+
   <div id="resultPage" class="menu-container">
-    <h2 style="margin-bottom:10px;">HASIL KUIS</h2>
-    <div id="timerResult" style="color:var(--gold); font-weight:bold; margin-bottom:10px;"></div>
-    <div class="score-circle" id="finalScore">0%</div>
-    <div id="finalDetail" style="color:var(--text-muted); white-space: pre-wrap;"></div>
-    <div id="reviewBox" style="width: 100%; text-align: left; margin-top: 20px; max-height: 200px; overflow-y: auto; background: #0f172a; padding: 15px; border-radius: 12px; font-size: 14px; border:1px solid #1e293b;"></div>
+    <div id="normalResultContainer" style="width:100%; text-align:center;">
+        <h2 style="margin-bottom:10px;">HASIL KUIS</h2>
+        <div id="timerResult" style="color:var(--gold); font-weight:bold; margin-bottom:10px;"></div>
+        <div class="score-circle" id="finalScore">0%</div>
+        <div id="finalDetail" style="color:var(--text-muted); white-space: pre-wrap;"></div>
+    </div>
+    
+    <div id="redemptionTitleBox" style="display:none; text-align:center; margin-bottom:15px;">
+        <h2 style="color:var(--gold); margin:0;">🔥 MODE TEBUS DOSA</h2>
+        <p style="color:var(--text-muted); font-size:12px; margin:5px 0 0 0;">Betulkan seluruh soal yang salah tanpa batasan!</p>
+    </div>
+
+    <div id="reviewBox" style="width: 100%; text-align: left; margin-top: 10px; background: #0f172a; padding: 15px; border-radius: 12px; font-size: 14px; border:1px solid #1e293b;"></div>
     
     <button id="nextChunkBtn" class="mainBtn" style="margin-top:20px; display:none;">LANJUT KUIS</button>
     <button id="nextBabBtn" class="mainBtn" style="background:var(--secondary); margin-top:10px; box-shadow: 0 5px 0 #1e3a8a; display:none;"></button>
-    <button class="mainBtn" style="background:#334155; margin-top:10px; box-shadow: 0 5px 0 #1e293b;" onclick="goBack()">KEMBALI</button>
+    <button id="resultBackBtn" class="mainBtn" style="background:#334155; margin-top:10px; box-shadow: 0 5px 0 #1e293b;" onclick="goBack()">KEMBALI</button>
   </div>
 
   <div id="logoutModal">
@@ -514,20 +518,19 @@
   let activeView = 'main', currentLabel = '', selectedData = null;
   let quizMode = 'jp-id', quizDifficulty = 'easy', currentAnswer = "", wrongList = [], isMuted = false;
   let startTime, timerInterval, isTimerRunning = false;
-  let fcIndex = 0, globalWrongPool = [], redemptionUsedInThisSession = false; 
+  let fcIndex = 0, globalWrongPool = []; 
+  let isRedemptionActive = false, currentRedeemQuestion = null;
 
   let currentUserID = "";
   let userCoinsCount = 0;
   let isGuestMode = false; 
   let isRegisterState = false; 
 
-  // --- LOGIKA GUEST MODE (TANPA JEJAK / TANPA SIMPAN NYAWA) ---
   function enterAsGuest() {
      isGuestMode = true;
      currentUserID = "GUEST_USER";
      userCoinsCount = 0;
 
-     // Setup UI mode tamu
      document.getElementById('userLabel').innerText = "Tamu Rama Quiz 👤";
      document.getElementById('userCoins').innerText = "0";
      document.getElementById('coinStatusSub').innerText = "Mode Tamu: Tidak bisa mengumpulkan koin";
@@ -539,7 +542,6 @@
      document.getElementById('statCoins').innerText = "0";
      document.getElementById('statBadge').innerText = "0";
      
-     // Munculkan penawaran Login/Daftar langsung di profil tamu
      document.getElementById('guestRegisterSection').classList.remove('hidden');
 
      hideAll();
@@ -547,15 +549,13 @@
      showToast("Masuk sebagai Tamu.");
   }
 
-  // Tombol pintas dari halaman profil tamu ke Form Login Utama
   function goToAuthScreenFromProfile() {
      isGuestMode = false;
      hideAll();
      document.getElementById('loginPage').style.display = 'flex';
-     toggleAuthMode(false); // bawa ke menu masuk biasa
+     toggleAuthMode(false);
   }
 
-  // --- LOGIKA SISTEM FLOATING KAMUS CEPAT ---
   let isDragging = false, startX, startY;
   function onPointerDown(e) {
     isDragging = false; startX = e.clientX; startY = e.clientY;
@@ -607,15 +607,13 @@
     setTimeout(() => { t.style.opacity = '0'; setTimeout(() => { t.style.display = 'none'; }, 400); }, 2200);
   }
 
-  // --- INTEGRASI FIREBASE AUTH ---
-    auth.onAuthStateChanged(user => {
+  auth.onAuthStateChanged(user => {
      if(user) {
         isGuestMode = false;
         document.getElementById('coinStatusSub').innerText = "Selesaikan kuis untuk mengumpulkan koin";
         document.getElementById('userBadgeType').innerText = "PRO";
-        document.getElementById('guestRegisterSection').classList.add('hidden'); // hilangkan promo login
+        document.getElementById('guestRegisterSection').classList.add('hidden');
 
-        // PERBAIKAN AMAN: Cek apakah user menggunakan login email/password biasa
         const isEmailPassword = user.providerData.some(p => p.providerId === 'password');
         if (isEmailPassword && !user.emailVerified) {
            showToast("Email belum diverifikasi!");
@@ -627,7 +625,6 @@
 
         currentUserID = user.uid;
         
-        // Ambil data nama dari Database
         database.ref(`users/${currentUserID}/fullName`).once('value', snap => {
            let finalName = snap.val() || user.displayName || "User Kuis";
            document.getElementById('userLabel').innerText = finalName;
@@ -635,26 +632,22 @@
            document.getElementById('profAvatar').innerText = finalName.charAt(0).toUpperCase();
         }).catch(err => {
            console.error("Gagal mengambil nama dari DB:", err);
-           // Fallback jika database sibuk/error agar tidak stuck screen
            let fallbackName = user.displayName || "User Kuis";
            document.getElementById('userLabel').innerText = fallbackName;
            document.getElementById('profName').innerText = fallbackName;
            document.getElementById('profAvatar').innerText = fallbackName.charAt(0).toUpperCase();
         });
 
-        // Set email di profil
         document.getElementById('profId').innerText = "Email: " + (user.email || "-");
         
-        // Jalankan fungsi sinkronisasi koin & arahkan ke halaman utama
         if (typeof listenToUserCoinsAndStats === "function") {
            listenToUserCoinsAndStats();
         }
         
-        hideAll(); // Pastikan view lain tertutup terlebih dahulu
+        hideAll();
         switchTab('home');
         
      } else {
-        // Jika tidak login dan bukan mode tamu, paksa tendang ke halaman login
         if (!isGuestMode) {
            hideAll();
            document.getElementById('loginPage').style.display = 'flex';
@@ -708,30 +701,23 @@
     }
   }
 
-      // 1. FUNGSI UNTUK MEMICU REDIRECT GOOGLE (DIPANGGIL SAAT TOMBOL DIKLIK)
   function handleGoogleLogin() {
      const provider = new firebase.auth.GoogleAuthProvider();
-     // Setelan opsional untuk memaksa browser menampilkan pilihan akun Google
      provider.setCustomParameters({ prompt: 'select_account' });
-     
      auth.signInWithRedirect(provider).catch(error => {
         alert("Gagal menginisialisasi Google Sign-In: " + error.message);
      });
   }
 
-  // 2. GLOBAL DETEKTOR (WAJIB ditaruh di luar fungsi apa pun, agar langsung jalan saat web di-load)
   window.addEventListener('DOMContentLoaded', () => {
      auth.getRedirectResult()
        .then((result) => {
-          // Jika ada data user hasil dari redirect login Google
           if (result && result.user) {
              const userId = result.user.uid;
              showToast("Menghubungkan ke server...");
              
-             // Cek data di database
              database.ref('users/' + userId).once('value', snap => {
                 if(!snap.exists()) { 
-                   // Jika user baru belum ada di database, daftarkan data awalnya
                    database.ref('users/' + userId).set({ 
                       fullName: result.user.displayName || "Pemain JFT", 
                       coins: 10 
@@ -741,12 +727,10 @@
                       switchTab('home');
                    }).catch(err => {
                       console.error("Gagal membuat user baru di DB:", err);
-                      // Tetap loloskan ke menu utama walau DB gagal tulis di awal
                       hideAll();
                       switchTab('home');
                    });
                 } else {
-                   // Jika user lama sudah terdaftar
                    showToast("Selamat Datang Kembali!");
                    hideAll();
                    switchTab('home');
@@ -781,7 +765,7 @@
   }
 
   function addCoins(amount) {
-     if(!currentUserID || isGuestMode) return; // Tamu tidak bisa mendapatkan koin
+     if(!currentUserID || isGuestMode) return; 
      database.ref(`users/${currentUserID}/coins`).set(userCoinsCount + amount);
      showToast(`+${amount} Koin Rama Diperoleh!`);
   }
@@ -804,11 +788,10 @@
         document.getElementById('tabProfile').classList.add('active');
         document.getElementById('bottomNavBar').style.display = 'flex';
         activeView = 'profile';
-        loadCoinLeaderboard(); // Memuat Leaderboard Juragan Koin
+        loadCoinLeaderboard();
     }
   }
 
-  // MENCEGAH PENGIRIMAN DATA APAPUN KE CLOUD JIKA USER MERUPAKAN TAMU
   function saveToCloud(label, score) {
     if(!currentUserID || isGuestMode) return;
     const cleanLabel = label.replace(/\s/g, "_");
@@ -822,7 +805,7 @@
       correctCount: correctCount, combo: combo, totalCorrectInSession: totalCorrectInSession,
       totalQuestionsInSession: totalQuestionsInSession, currentLabel: currentLabel,
       quizMode: quizMode, quizDifficulty: quizDifficulty, activeView: activeView,
-      startTime: startTime || 0, selectedData: selectedData, globalWrongPool: globalWrongPool
+      startTime: 0, selectedData: selectedData, globalWrongPool: globalWrongPool
     });
   }
 
@@ -844,7 +827,8 @@
         totalCorrectInSession = data.totalCorrectInSession || 0; totalQuestionsInSession = data.totalQuestionsInSession || 0;
         currentLabel = data.currentLabel; quizMode = data.quizMode; quizDifficulty = data.quizDifficulty;
         selectedData = data.selectedData; globalWrongPool = data.globalWrongPool || [];
-        if(data.startTime > 0) { startTime = data.startTime; isTimerRunning = true; timerInterval = setInterval(updateTimerUI, 100); }
+        isRedemptionActive = false;
+        stopTimer();
         hideAll();
         document.getElementById('backBtn').style.display = 'block';
         document.getElementById('muteBtn').style.display = 'block'; 
@@ -866,7 +850,7 @@
       let listPemain = [];
       snap.forEach(child => {
          let d = child.val();
-         if(child.key !== "GUEST_USER") { // pastikan user tamu terfilter keluar
+         if(child.key !== "GUEST_USER") { 
             listPemain.push({ name: d.fullName || "User", coins: d.coins || 0 });
          }
       });
@@ -882,8 +866,8 @@
     });
   }
 
-    function syncStars() {
-    if(!currentUserID || isGuestMode) return; // Proteksi tamu dari sync centang checklist database
+  function syncStars() {
+    if(!currentUserID || isGuestMode) return; 
     database.ref(`users/${currentUserID}/scores`).on('value', snap => {
       const cloudData = snap.val() || {};
       document.querySelectorAll('.babBtn').forEach(btn => {
@@ -908,10 +892,7 @@
   }
 
   function showMinnaMenu() { hideAll(); document.getElementById('minnaMenu').style.display = 'flex'; document.getElementById('backBtn').style.display = 'block'; activeView = 'minna'; }
-  function showIrodoriMenu() { 
-     hideAll(); document.getElementById('irodoriMenu').style.display = 'flex'; document.getElementById('backBtn').style.display = 'block'; activeView = 'irodori'; 
-  }
-
+  function showIrodoriMenu() { hideAll(); document.getElementById('irodoriMenu').style.display = 'flex'; document.getElementById('backBtn').style.display = 'block'; activeView = 'irodori'; }
   function showSSWGrid() { showGridMenu("SSW PM", "ssw_pm", 2, 65); }
 
   function showGridMenu(title, type, start, end) {
@@ -957,6 +938,8 @@
     document.getElementById('flashcardSection').style.display = 'flex';
     document.getElementById('backBtn').style.display = 'block';
     document.getElementById('muteBtn').style.display = 'block'; 
+    document.getElementById('fcNextQuizBtn').style.display = 'block';
+    document.getElementById('fcNextBabBtn').style.display = 'none';
     fcIndex = 0; renderFlashcard();
   }
 
@@ -975,18 +958,22 @@
         document.getElementById('fcFront').innerHTML = (q.kanji && q.kanji.trim() !== "") ? `<ruby>${q.kanji}<rt>${q.kana}</rt></ruby>` : q.kana;
         document.getElementById('fcBackRead').innerText = ""; document.getElementById('fcBackMean').innerText = q.correct;
     }
-    const fcNextBtn = document.getElementById('nextBabFlashcardBtn');
-    if (fcNextBtn) {
-        if (fcIndex === selectedData.length - 1) {
-            setupFlashcardNextButton(); // Memicu fungsi pengecekan bab selanjutnya
-        } else {
-            fcNextBtn.style.display = 'none'; // Sembunyikan kalau belum kartu terakhir
-        }
+
+    if (fcIndex === selectedData.length - 1) {
+        setupNextBabButtonFC();
+    } else {
+        document.getElementById('fcNextBabBtn').style.display = 'none';
     }
   }
 
   function flipCard() { document.getElementById('cardInner').classList.toggle('is-flipped'); }
-  function nextCard() { if(fcIndex < selectedData.length - 1) { fcIndex++; renderFlashcard(); } else { showToast("Flashcard Selesai!"); } }
+  function nextCard() { 
+    if(fcIndex < selectedData.length - 1) { 
+        fcIndex++; renderFlashcard(); 
+    } else { 
+        showToast("Flashcard Selesai!"); 
+    } 
+  }
   function prevCard() { if(fcIndex > 0) { fcIndex--; renderFlashcard(); } }
   function playAudioFC() { if(isMuted) return; const q = selectedData[fcIndex]; window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(q.kana); u.lang = 'ja-JP'; window.speechSynthesis.speak(u); }
 
@@ -994,25 +981,20 @@
     if(!data || data.length === 0) { alert("Data kosong!"); return; }
     currentLabel = label; masterPool = [...data].sort(() => Math.random() - 0.5);
     totalCorrectInSession = 0; totalQuestionsInSession = data.length;
-    globalWrongPool = []; redemptionUsedInThisSession = false;
-    
-    stopTimer(); 
-    document.getElementById('timerDisplay').innerText = ""; 
+    globalWrongPool = []; isRedemptionActive = false;
+    stopTimer(); document.getElementById('timerDisplay').innerText = "";
     nextChunk();
   }
 
   function stopTimer() { clearInterval(timerInterval); isTimerRunning = false; }
-  function updateTimerUI() { if(!isTimerRunning) return; const diff = Date.now() - startTime; document.getElementById('timerDisplay').innerText = "⌛ " + formatTime(diff); }
   
   function nextChunk() { 
-    redemptionUsedInThisSession = false; currentQuestions = masterPool.splice(0, 10); 
+    currentQuestions = masterPool.splice(0, 10); 
     currentIndex = 0; correctCount = 0; combo = 0; wrongList = []; 
     hideAll(); document.getElementById('backBtn').style.display = 'block'; 
     document.getElementById('muteBtn').style.display = 'block'; 
     activeView = 'quiz'; renderQuestion(); 
   }
-
-  function formatTime(ms) { let s = Math.floor(ms / 1000); let m = Math.floor(s / 60); s = s % 60; return `${m}:${s < 10 ? '0'+s : s}`; }
 
   function updateProgressBar() {
     const container = document.getElementById('progressContainer'); container.style.display = 'flex'; container.innerHTML = '';
@@ -1092,7 +1074,7 @@
   }
 
   function playAudio() {
-    if (isMuted) return; const q = currentQuestions[currentIndex]; if (!q) return;
+    if (isMuted) return; const q = isRedemptionActive ? currentRedeemQuestion : currentQuestions[currentIndex]; if (!q) return;
     window.speechSynthesis.cancel(); const utterance = new SpeechSynthesisUtterance(q.kana || q.kanji);
     utterance.lang = 'ja-JP'; utterance.rate = 0.85; window.speechSynthesis.speak(utterance);
   }
@@ -1100,8 +1082,10 @@
   function clean(t) { return t ? t.replace(/\(.*\)|\[.*\]|[~〜\-\s]/g, "").toLowerCase().trim() : ""; }
 
   function checkInputAnswer() {
+    if(isRedemptionActive) { checkRedeemInputAnswer(); return; }
     const q = currentQuestions[currentIndex]; const inputField = document.getElementById('userAnswer');
     const msg = document.getElementById('wrongMsg'); const cleanUser = clean(inputField.value.trim());
+    if(!cleanUser) { showToast("Jawaban tidak boleh kosong!"); return; }
     let isCorrect = (quizMode === 'jp-id') ? q.correct.split(/,| atau /).some(opt => clean(opt) === cleanUser) : (cleanUser === clean(q.kanji) || cleanUser === clean(q.kana));
     if(isCorrect) { inputField.classList.add('correct-flash'); processAnswer(true); } 
     else { inputField.classList.add('wrong-flash'); inputField.classList.add('shake'); msg.style.display = 'block'; msg.innerText = (quizMode === 'jp-id') ? `Jwb: ${q.correct}` : `Jwb: ${q.kanji || ''} (${q.kana})`; setTimeout(() => { inputField.classList.remove('shake'); processAnswer(false); }, 1500); }
@@ -1119,66 +1103,226 @@
   }
 
   function showResult() {
-    const isIrodori = currentLabel.includes("Irodori");
-    const isFinished = (masterPool.length === 0 && (globalWrongPool.length === 0 || redemptionUsedInThisSession));
+    const isFinished = (masterPool.length === 0);
     
     document.getElementById('nextBabBtn').style.display = 'none';
     document.getElementById('muteBtn').style.display = 'none'; 
+    document.getElementById('timerResult').innerText = "";
 
     hideAll(); activeView = 'result';
     document.getElementById('resultPage').style.display = 'flex'; document.getElementById('backBtn').style.display = 'block';
     
-    let p = Math.round((correctCount / currentQuestions.length) * 100); if (p > 100) p = 100;
-    document.getElementById('finalScore').innerText = p + "%";
-    
-    let totalAccuracy = totalQuestionsInSession > 0 ? Math.round((totalCorrectInSession / totalQuestionsInSession) * 100) : 0;
-    if (totalAccuracy > 100) totalAccuracy = 100;
-    
-    let guestNote = isGuestMode ? " (Mode Tamu - Koin & Skor Tidak Disimpan)" : "";
-    document.getElementById('finalDetail').innerText = `Redemption: ${globalWrongPool.length} | Sisa Soal: ${masterPool.length}\nAkurasi Bab: ${totalAccuracy}%${guestNote}`;
-    
-    document.getElementById('timerResult').innerText = "";
-
-    if(isFinished && !isGuestMode) {
-        if(totalAccuracy >= 100) { saveToCloud(currentLabel, 100); addCoins(15); } 
-        else if (totalAccuracy >= 80) { addCoins(5); }
-        clearSession(); 
-    } else { if(!isGuestMode) saveCurrentState(); }
+    if(!isRedemptionActive) {
+        document.getElementById('normalResultContainer').style.display = 'block';
+        document.getElementById('redemptionTitleBox').style.display = 'none';
+        document.getElementById('resultBackBtn').style.display = 'block';
+        
+        let p = Math.round((correctCount / currentQuestions.length) * 100); if (p > 100) p = 100;
+        document.getElementById('finalScore').innerText = p + "%";
+        
+        let totalAccuracy = totalQuestionsInSession > 0 ? Math.round((totalCorrectInSession / totalQuestionsInSession) * 100) : 0;
+        if (totalAccuracy > 100) totalAccuracy = 100;
+        
+        let guestNote = isGuestMode ? " (Mode Tamu - Koin & Skor Tidak Disimpan)" : "";
+        document.getElementById('finalDetail').innerText = `Total Soal Salah: ${globalWrongPool.length} | Sisa Soal Bab: ${masterPool.length}\nAkurasi Sesi Ini: ${totalAccuracy}%${guestNote}`;
+        
+        if(isFinished) {
+            if(!isGuestMode) {
+                if(totalAccuracy >= 100) { saveToCloud(currentLabel, 100); addCoins(15); } 
+                else if (totalAccuracy >= 80) { addCoins(5); }
+                clearSession(); 
+            }
+        } else { if(!isGuestMode) saveCurrentState(); }
     }
-    
-    if(isFinished) {
-        if(!isGuestMode) {
-            if(totalAccuracy >= 100) { saveToCloud(currentLabel, 100); addCoins(15); } 
-            else if (totalAccuracy >= 80) { addCoins(5); }
-            clearSession(); 
-        } else {
-            // Mode Tamu Murni: Data langsung hangus saat keluar dari halaman skor ini
-            showToast("Kuis Selesai. Progres mode tamu tidak dicatat.");
-        }
-    } else { if(!isGuestMode) saveCurrentState(); }
 
+    renderReviewBoxSystem(isFinished);
+  }
+
+  function renderReviewBoxSystem(isFinished) {
     const rb = document.getElementById('reviewBox'); rb.innerHTML = '';
-    let redeemDiv = document.createElement('div'); redeemDiv.style.cssText = "margin:10px 0; padding:15px; background:#151f32; border-radius:12px; border:1px dashed var(--gold);";
-    
-    if (globalWrongPool.length > 0) {
-        if (!redemptionUsedInThisSession) {
-            redeemDiv.innerHTML = `<p style="color:var(--gold); margin-top:0;">Tersedia Poin Redemption: ${globalWrongPool.length} </p>`;
-            let btnR = document.createElement('button'); btnR.className = "mainBtn goldBtn"; btnR.style.fontSize = "13px"; btnR.innerText = "🎲 TEBUS SOAL"; btnR.onclick = startSingleRedemption; redeemDiv.appendChild(btnR);
-        } else { redeemDiv.innerHTML = `<p style="color:#ef4444; font-size:12px; margin:0; font-weight:bold;">Selesaikan kuis untuk membersihkan sisa soal salah.</p>`; }
-    } else { redeemDiv.innerHTML = `<p style="color:#16a34a; margin:0;">Semua Soal Terjawab Benar!</p>`; }
-    rb.appendChild(redeemDiv);
-
     const btnLanjut = document.getElementById('nextChunkBtn');
+
     if (masterPool.length > 0) { 
-        btnLanjut.style.display = 'block'; 
-        btnLanjut.innerText = "LANJUT KUIS"; 
-        btnLanjut.onclick = function() {
-            selectedData = [...masterPool]; 
-            showModeMenu();
-        }; 
+        btnLanjut.style.display = 'block'; btnLanjut.innerText = "LANJUT KUIS"; btnLanjut.onclick = nextChunk; 
+        if(globalWrongPool.length > 0) {
+            let divMsg = document.createElement('div');
+            divMsg.style.cssText = "color:var(--gold); font-weight:bold; text-align:center; padding:5px;";
+            divMsg.innerText = `🔒 Ada ${globalWrongPool.length} dosa terkumpul. Selesaikan bab ini untuk menebusnya di akhir!`;
+            rb.appendChild(divMsg);
+        }
     } else { 
-        btnLanjut.style.display = 'none'; if (isFinished) { setupNextBabButton(); }
+        btnLanjut.style.display = 'none'; 
+        if (isFinished && globalWrongPool.length === 0) { 
+            setupNextBabButton(); 
+            let successDiv = document.createElement('div');
+            successDiv.style.cssText = "color:#16a34a; font-weight:bold; text-align:center; padding:10px;";
+            successDiv.innerText = "🎉 Semua Soal Selesai & Bersih Tanpa Dosa!";
+            rb.appendChild(successDiv);
+        } else if (isFinished && globalWrongPool.length > 0) {
+            if(!isRedemptionActive) {
+                let divStartRedeem = document.createElement('div');
+                divStartRedeem.style.textAlignment = 'center';
+                divStartRedeem.innerHTML = `<p style="color:var(--gold); text-align:center; font-weight:bold; margin-top:0;">Tersedia ${globalWrongPool.length} Soal Salah Belum Ditebus!</p>`;
+                let btnR = document.createElement('button'); 
+                btnR.className = "mainBtn goldBtn"; 
+                btnR.innerText = "🎲 MULAI TEBUS DOSA SEKARANG"; 
+                btnR.onclick = initRedemptionUILayout; 
+                divStartRedeem.appendChild(btnR);
+                rb.appendChild(divStartRedeem);
+            } else {
+                renderSingleRedemptionCard(rb);
+            }
+        }
     }
+  }
+
+  function initRedemptionUILayout() {
+     isRedemptionActive = true;
+     document.getElementById('normalResultContainer').style.display = 'none';
+     document.getElementById('redemptionTitleBox').style.display = 'block';
+     document.getElementById('resultBackBtn').style.display = 'none'; // Sembunyikan tombol kembali biar fokus kelarin tebusan
+     document.getElementById('nextBabBtn').style.display = 'none';
+     fetchNextRedeemQuestion();
+  }
+
+  function fetchNextRedeemQuestion() {
+     if(globalWrongPool.length === 0) {
+        isRedemptionActive = false;
+        showToast("Semua dosa berhasil ditebus!");
+        showResult();
+        return;
+     }
+     currentRedeemQuestion = globalWrongPool[0]; // ambil antrean pertama
+     showResult();
+  }
+
+  function renderSingleRedemptionCard(container) {
+     const q = currentRedeemQuestion;
+     let card = document.createElement('div');
+     card.style.cssText = "background:var(--card); border:2px solid var(--gold); border-radius:15px; padding:20px; text-align:center;";
+     
+     let wordTitle = document.createElement('div');
+     wordTitle.style.cssText = "font-size:32px; font-weight:bold; color:white; margin-bottom:15px;";
+     
+     const isIrodoriEasy = currentLabel.includes("Irodori") && quizDifficulty === 'easy';
+
+     if (quizMode === 'jp-id') {
+         if (isIrodoriEasy) {
+             wordTitle.innerText = (q.kanji && q.kanji.trim() !== "") ? q.kanji : q.kana; currentAnswer = q.kana;
+         } else {
+             if (currentLabel.includes("Irodori") && quizDifficulty === 'medium') { wordTitle.innerText = q.kanji || q.kana; } 
+             else {
+                 if (quizDifficulty === 'easy') wordTitle.innerText = q.kana;
+                 else wordTitle.innerHTML = (q.kanji && q.kanji.trim() !== "") ? `<ruby>${q.kanji}<rt>${q.kana}</rt></ruby>` : q.kana;
+             }
+             currentAnswer = q.correct;
+         }
+     } else {
+         if (isIrodoriEasy) {
+             wordTitle.innerHTML = `${q.correct}<br><span style="font-size:18px; color:#64748b;">(${q.kana})</span>`;
+             currentAnswer = q.kanji || q.kana;
+         } else {
+             wordTitle.innerText = q.correct;
+             currentAnswer = (quizDifficulty === 'easy') ? q.kana : (q.kanji && q.kanji.trim() !== "" ? q.kanji : q.kana);
+         }
+     }
+
+     card.appendChild(wordTitle);
+
+     if(quizMode === 'jp-id' && !isIrodoriEasy) {
+        let spkBtn = document.createElement('button');
+        spkBtn.className = "speakerBtn"; spkBtn.style.marginBottom = "15px"; spkBtn.innerText = "🔊";
+        spkBtn.onclick = playAudio; card.appendChild(spkBtn);
+        setTimeout(playAudio, 200);
+     }
+
+     if(quizDifficulty === 'hard') {
+         let inputForm = document.createElement('div');
+         inputForm.style.cssText = "display:flex; flex-direction:column; gap:10px; width:100%;";
+         inputForm.innerHTML = `<input type="text" id="redeemUserAnswer" class="login-input" style="background:#0b0f19; font-size:18px;" placeholder="Ketik jawabannya..." autocomplete="off">
+                                <div id="redeemWrongMsg" style="display:none; color:var(--gold); font-weight:bold; font-size:13px;"></div>
+                                <button class="mainBtn" id="redeemSubmitBtn">KIRIM JAWABAN TEBUSAN</button>`;
+         card.appendChild(inputForm);
+         container.appendChild(card);
+         
+         document.getElementById('redeemSubmitBtn').onclick = checkRedeemInputAnswer;
+         document.getElementById('redeemUserAnswer').addEventListener('keypress', (e) => { if (e.key === 'Enter') checkRedeemInputAnswer(); });
+         document.getElementById('redeemUserAnswer').focus();
+     } else {
+         let choices = [currentAnswer];
+         if(currentLabel.includes("Irodori") && quizDifficulty === 'easy') {
+             if(quizMode === 'jp-id') {
+                 choices = choices.concat((selectedData || []).filter(i => i.kana !== q.kana).map(o => o.kana));
+             } else {
+                 choices = choices.concat((selectedData || []).filter(i => i.kanji !== q.kanji).map(o => (o.kanji || o.kana)));
+             }
+         } else {
+             if(quizMode === 'jp-id') {
+                 choices = choices.concat((selectedData || []).filter(i => i.correct !== q.correct).map(o => o.correct));
+             } else {
+                 choices = choices.concat((selectedData || []).filter(i => i.kana !== q.kana).map(o => (quizDifficulty === 'easy' ? o.kana : (o.kanji || o.kana))));
+             }
+         }
+         choices = [...new Set(choices)].slice(0, 4).sort(() => Math.random() - 0.5);
+
+         let optionsGrid = document.createElement('div');
+         optionsGrid.style.cssText = "display:flex; flex-direction:column; gap:10px; width:100%; margin-top:15px;";
+         
+         choices.forEach(txt => {
+             let b = document.createElement('button'); b.className = 'optBtn'; b.innerText = txt;
+             b.onclick = () => {
+                 if(txt === currentAnswer) {
+                     b.classList.add('correct');
+                     showToast("✨ Betul!");
+                     globalWrongPool.shift(); // hapus dosa karena sukses dibetulkan
+                     setTimeout(fetchNextRedeemQuestion, 800);
+                 } else {
+                     b.classList.add('wrong');
+                     showToast("❌ Masih Salah! Coba lagi.");
+                     // Putar antrean ke belakang biar tidak stuck di satu soal itu terus
+                     setTimeout(() => {
+                         let failed = globalWrongPool.shift();
+                         globalWrongPool.push(failed);
+                         fetchNextRedeemQuestion();
+                     }, 1200);
+                 }
+             };
+             optionsGrid.appendChild(b);
+         });
+         card.appendChild(optionsGrid);
+         container.appendChild(card);
+     }
+  }
+
+  function checkRedeemInputAnswer() {
+     const q = currentRedeemQuestion;
+     const inputEl = document.getElementById('redeemUserAnswer');
+     const msgEl = document.getElementById('redeemWrongMsg');
+     if(!inputEl) return;
+     
+     const cleanUser = clean(inputEl.value.trim());
+     if(!cleanUser) { showToast("Jawaban tidak boleh kosong!"); return; }
+
+     let isCorrect = (quizMode === 'jp-id') ? q.correct.split(/,| atau /).some(opt => clean(opt) === cleanUser) : (cleanUser === clean(q.kanji) || cleanUser === clean(q.kana));
+     
+     if(isCorrect) {
+         inputEl.classList.add('correct-flash');
+         showToast("✨ Penebusan Berhasil!");
+         globalWrongPool.shift();
+         setTimeout(fetchNextRedeemQuestion, 800);
+     } else {
+         inputEl.classList.add('wrong-flash');
+         inputEl.classList.add('shake');
+         msgEl.style.display = 'block';
+         msgEl.innerText = (quizMode === 'jp-id') ? `Harusnya: ${q.correct}` : `Harusnya: ${q.kanji || ''} (${q.kana})`;
+         
+         setTimeout(() => {
+             inputEl.classList.remove('shake');
+             let failed = globalWrongPool.shift();
+             globalWrongPool.push(failed); // Lempar ke paling belakang biar bisa diulang nanti
+             fetchNextRedeemQuestion();
+         }, 1800);
+     }
   }
 
   function setupNextBabButton() {
@@ -1194,24 +1338,42 @@
 
     if (nextTargetData) {
         const nextBtn = document.getElementById('nextBabBtn'); nextBtn.style.display = 'block';
-        nextBtn.innerText = "⏩ LANJUT " + nextLabelText.toUpperCase();
+        nextBtn.innerText = "⏩ LANJUT MENEJEMEN " + nextLabelText.toUpperCase();
         nextBtn.onclick = function() { 
             selectedData = nextTargetData; 
             currentLabel = nextLabelText; 
-            showModeMenu(); };
+            showModeMenu(); 
+        };
     }
   }
 
-  function startSingleRedemption() {
-    if (globalWrongPool.length === 0 || redemptionUsedInThisSession) return;
-    const randomIndex = Math.floor(Math.random() * globalWrongPool.length); const target = globalWrongPool[randomIndex];
-    globalWrongPool.splice(randomIndex, 1); currentQuestions = [target]; currentIndex = 0; redemptionUsedInThisSession = true;
-    if(!isGuestMode) saveCurrentState(); 
-    document.getElementById('muteBtn').style.display = 'block'; renderQuestion();
+  function setupNextBabButtonFC() {
+    let currentNum = parseInt(currentLabel.replace(/[^0-9]/g, '')); if (isNaN(currentNum)) return;
+    let nextNum = currentNum + 1; let nextTargetData = null; let nextLabelText = "";
+
+    if (currentLabel.includes("SSW Page")) {
+        if (nextNum === 4) nextNum = 5; if (nextNum === 23) nextNum = 24; if (nextNum === 59) nextNum = 60;
+        if (typeof sswPMData !== 'undefined' && sswPMData && sswPMData[nextNum]) { nextTargetData = sswPMData[nextNum]; nextLabelText = "SSW Page " + nextNum; }
+    } else if (currentLabel.includes("Bab")) {
+        if (typeof babData !== 'undefined' && babData[nextNum]) { nextTargetData = babData[nextNum]; nextLabelText = "Bab " + nextNum; }
+    }
+
+    if (nextTargetData) {
+        const fcNextBtn = document.getElementById('fcNextBabBtn'); 
+        fcNextBtn.style.display = 'block';
+        fcNextBtn.innerText = "⏩ MENU BAB LANJUTAN (" + nextLabelText.toUpperCase() + ")";
+        fcNextBtn.onclick = function() { 
+            selectedData = nextTargetData; 
+            currentLabel = nextLabelText; 
+            showModeMenu(); 
+        };
+    }
   }
 
   function goBack() {
     window.speechSynthesis.cancel(); stopTimer();
+    if(isRedemptionActive) return; // Kunci tombol back jika di tengah penebusan dosa harian
+    
     if (activeView === 'flashcard' || activeView === 'quiz' || activeView === 'result' || activeView === 'difficulty') showModeMenu();
     else if (activeView === 'mode') {
         if(currentLabel.includes("Irodori")) showIrodoriMenu();
