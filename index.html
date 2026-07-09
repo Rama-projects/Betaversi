@@ -34,207 +34,225 @@
 </script>              
 <style>
   :root { 
-    --primary: #2196f3;       /* Biru Muda */
-    --secondary: #1e40af;     /* Biru Tua */
-    --bg: #0b0f19;            /* Latar Belakang Gelap Pekat (Deep Dark Blue) */
-    --card: #151f32;          /* Latar Kartu Biru Gelap */
-    --text: #ffffff;          /* Putih Bersih */
-    --text-muted: #94a3b8;    /* Abu-abu kebiruan */
+    --primary: #47a6ff;       /* Biru Muda Neon */
+    --secondary: #6366f1;     /* Ungu Indigo */
+    --bg: #060814;            /* Space Dark Blue */
+    --card: #11162d;          /* Card Dark Blue */
+    --text: #ffffff;          
+    --text-muted: #8fa0dd;    /* Abu-abu kebiruan lembut */
     --gold: #ffb74d; 
-    --jft-grad: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-    --jft-grad-purple: linear-gradient(135deg, #1d4ed8 0%, #7c3aed 100%);
+    
+    /* Warna Spekatuler Menu Desain 1 */
+    --color-minna: #4fa3f7;   /* Soft Blue */
+    --color-ssw: #e0945c;     /* Soft Brown/Orange */
+    --color-irodori: #e5c97b;  /* Soft Yellow/Cream */
+    --color-leader: #b38eff;  /* Soft Purple */
   }
   
   * { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
   input { -webkit-user-select: text; user-select: text; }
-  html, body { margin: 0; padding: 0; background-color: var(--bg); color: var(--text); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-x: hidden; }
+  html, body { margin: 0; padding: 0; background-color: var(--bg); background-image: radial-gradient(circle at 50% 10%, #121b40 0%, #060814 70%); color: var(--text); font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; overflow-x: hidden; }
   body { display: flex; justify-content: center; min-height: 100vh; }
-  #app { width: 100vw; max-width: 420px; padding: 0; box-sizing: border-box; display: flex; flex-direction: column; position: relative; padding-bottom: 80px; background-color: var(--bg); }
+  #app { width: 100vw; max-width: 420px; padding: 0; box-sizing: border-box; display: flex; flex-direction: column; position: relative; padding-bottom: 90px; background-color: transparent; }
   
   #progressContainer { 
-    position: fixed; top: 0; left: 0; width: 100%; height: 8px; background: #111; z-index: 10001; display: none; flex-direction: row; gap: 3px; padding: 2px; box-sizing: border-box;
+    position: fixed; top: 0; left: 0; width: 100%; height: 8px; background: #0b0d1a; z-index: 10001; display: none; flex-direction: row; gap: 3px; padding: 2px; box-sizing: border-box;
   }
-  .progress-segment { flex-grow: 1; height: 100%; background: #334155; border-radius: 1px; transition: 0.3s; }
-  .progress-segment.active { background: var(--primary); box-shadow: 0 0 5px var(--primary); }
+  .progress-segment { flex-grow: 1; height: 100%; background: #1e2548; border-radius: 2px; transition: 0.3s; }
+  .progress-segment.active { background: var(--primary); box-shadow: 0 0 8px var(--primary); }
 
-  #backBtn { position: absolute; top: 15px; left: 15px; font-size: 24px; background: rgba(0,0,0,0.4); border: none; color: white; cursor: pointer; display: none; z-index: 1000; padding: 8px; border-radius: 50%; width: 40px; height: 40px; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); }
-  #muteBtn { position: absolute; top: 15px; right: 15px; font-size: 20px; background: rgba(0,0,0,0.4); border: none; color: var(--gold); cursor: pointer; display: none; z-index: 1000; padding: 8px; border-radius: 50%; width: 40px; height: 40px; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); }
+  #backBtn { position: absolute; top: 15px; left: 15px; font-size: 20px; background: rgba(17, 22, 45, 0.8); border: none; color: white; cursor: pointer; display: none; z-index: 1000; padding: 8px; border-radius: 50%; width: 42px; height: 42px; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(5px); }
+  #muteBtn { position: absolute; top: 15px; right: 15px; font-size: 18px; background: rgba(17, 22, 45, 0.8); border: none; color: var(--gold); cursor: pointer; display: none; z-index: 1000; padding: 8px; border-radius: 50%; width: 42px; height: 42px; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(5px); }
   
   #quizHeader { text-align: center; margin-bottom: 20px; margin-top: 20px; }
-  #quizInfo { font-size: 11px; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; font-weight: bold; border: 1.5px solid var(--primary); padding: 4px 12px; border-radius: 20px; display: inline-block; }
+  #quizInfo { font-size: 11px; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; font-weight: bold; border: 1.5px solid var(--primary); padding: 4px 12px; border-radius: 20px; display: inline-block; background: rgba(71, 166, 255, 0.1); }
   #instruksi { font-size: 13px; color: var(--text-muted); margin-top: 10px; }
   
-  .menu-container { display: none; flex-direction: column; gap: 15px; align-items: center; width: 100%; padding: 20px; padding-top: 20px; animation: fadeIn 0.3s ease; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .menu-container { display: none; flex-direction: column; gap: 15px; align-items: center; width: 100%; padding: 20px; padding-top: 20px; animation: fadeIn 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
   
-  #headerGrid { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 20px; width: 100%; }
-  .mainBtn { background: var(--primary); border-radius: 18px; padding: 18px; font-weight: bold; color: white; width: 100%; border: none; cursor: pointer; font-size: 15px; text-transform: uppercase; box-shadow: 0 5px 0 #1565c0; transition: 0.1s; outline: none; }
-  .mainBtn:active { transform: translateY(3px); box-shadow: 0 2px 0 #1565c0; }
-  .iroBtn { background: #1d4ed8; box-shadow: 0 5px 0 #1e3a8a; }
-  .sswBtn { background: #7c3aed; box-shadow: 0 5px 0 #5b21b6; }
-  .goldBtn { background: var(--gold); box-shadow: 0 5px 0 #e65100; color: #000; }
-  .guestBtn { background: #334155; box-shadow: 0 5px 0 #1e293b; margin-top: 5px; }
-  .babBtn { background: var(--card); border-radius: 12px; padding: 12px; color: #eee; border: 1px solid #1e293b; cursor: pointer; min-width: 85px; font-size: 13px; position: relative; flex: 1 1 calc(33.33% - 10px); text-align: center; }
+  #headerGrid { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 20px; width: 100%; }
+  .mainBtn { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); border-radius: 20px; padding: 16px; font-weight: bold; color: white; width: 100%; border: none; cursor: pointer; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); transition: all 0.1s ease; outline: none; }
+  .mainBtn:active { transform: translateY(2px); box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2); }
+  .iroBtn { background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2); }
+  .sswBtn { background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2); }
+  .goldBtn { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #000; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2); }
+  .guestBtn { background: linear-gradient(135deg, #475569 0%, #334155 100%); box-shadow: 0 4px 12px rgba(71, 85, 105, 0.2); margin-top: 5px; }
+  .babBtn { background: var(--card); border-radius: 14px; padding: 14px 10px; color: #eee; border: 1px solid #1e264f; cursor: pointer; min-width: 85px; font-size: 13px; position: relative; flex: 1 1 calc(33.33% - 10px); text-align: center; font-weight: 600; transition: all 0.2s; }
+  .babBtn:active { background: #1e264f; transform: scale(0.95); }
   
-  /* Desain Dashboard Utama */
+  /* ================= DESAIN DASHBOARD BARU (SPACE THEME) ================= */
   .jft-header { 
     width: 100%; 
-    background: linear-gradient(135deg, rgba(15, 23, 42, 0.4) 0%, rgba(30, 58, 138, 0.6) 100%), url('images/119047.png'); 
-    background-size: cover;
-    background-position: center;
-    padding: 30px 24px; 
-    border-bottom-left-radius: 30px; 
-    border-bottom-right-radius: 30px; 
+    background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.15), transparent), rgba(17, 22, 45, 0.6);
+    backdrop-filter: blur(10px);
+    padding: 30px 24px 25px 24px; 
+    border-bottom-left-radius: 28px; 
+    border-bottom-right-radius: 28px; 
     color: white; 
     position: relative; 
-    box-shadow: 0 10px 25px rgba(0,0,0,0.3); 
-    border-bottom: 1px solid rgba(255,255,255,0.05); 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25); 
+    border-bottom: 1px solid rgba(255,255,255,0.06); 
   }
-  .jft-salutation { font-size: 14px; color: var(--text-muted); margin: 0; font-weight: 500; }
-  .jft-username { font-size: 26px; font-weight: 700; margin: 4px 0 15px 0; letter-spacing: -0.5px; color: #fff; }
+  .jft-salutation { font-size: 13px; color: var(--text-muted); margin: 0; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+  .jft-username { font-size: 28px; font-weight: 800; margin: 4px 0 16px 0; letter-spacing: -0.5px; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
   
-  .jft-pro-card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; }
+  .jft-pro-card { background: rgba(6, 8, 20, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
   .jft-pro-left { display: flex; align-items: center; gap: 12px; }
-  .jft-pro-icon { font-size: 20px; }
-  .jft-pro-title { font-weight: 600; font-size: 15px; margin: 0; color: var(--gold); }
-  .jft-pro-sub { font-size: 12px; color: var(--text-muted); margin: 2px 0 0 0; }
+  .jft-pro-icon { font-size: 22px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
+  .jft-pro-title { font-weight: 700; font-size: 15px; margin: 0; color: #fff; }
+  .jft-pro-sub { font-size: 11px; color: var(--text-muted); margin: 2px 0 0 0; }
   
   .jft-body { width: 100%; padding: 24px; display: flex; flex-direction: column; }
-  .jft-section-title { font-size: 20px; font-weight: 700; color: white; margin: 0 0 20px 0; letter-spacing: 0.5px; }
+  .jft-section-title { font-size: 16px; font-weight: 700; color: var(--text-muted); margin: 0 0 16px 0; letter-spacing: 1px; text-transform: uppercase; }
   
-  /* Grid Menu */
-  .jft-grid-large { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; width: 100%; }
-  .jft-card-huge { border-radius: 24px; padding: 22px; color: white; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; height: 185px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); cursor: pointer; border: 1px solid rgba(255,255,255,0.05); transition: transform 0.2s; }
-  .jft-card-huge:active { transform: scale(0.96); }
+  /* GRID MENU UTAMA ALA DESAIN 1 (CUTE SPACE) */
+  .jft-grid-large { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; width: 100%; }
   
-  .jft-card-blue1 { 
-    background-image: linear-gradient(rgba(255, 255, 255, 0.1), rgba(15, 23, 42, 0.65)), url('images/119153.png'); 
-    background-size: cover; background-position: center;
+  .jft-card-huge { 
+    border-radius: 24px; 
+    padding: 20px; 
+    color: #11162d; /* Teks gelap kontras tinggi */
+    position: relative; 
+    overflow: hidden; 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: space-between; 
+    height: 180px; 
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15); 
+    cursor: pointer; 
+    border: none;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); 
   }
-  .jft-card-purple1 { 
-    background-image: linear-gradient(rgba(255, 255, 255, 0.1), rgba(15, 23, 42, 0.65)), url('images/119138.png'); 
-    background-size: cover; background-position: center;
-  }
-  .jft-card-blue2 { 
-    background-image: linear-gradient(rgba(255, 255, 255, 0.1), rgba(15, 23, 42, 0.65)), url('images/119136.png'); 
-    background-size: cover; background-position: center;
-  }
-  .jft-card-dark { 
-    background-image: linear-gradient(rgba(255, 255, 255, 0.1), rgba(15, 23, 42, 0.65)), url('images/119154.png'); 
-    background-size: cover; background-position: center;
-    border: 1px solid var(--gold) !important;
-  }
-  .jft-card-huge .jft-card-info h3,
-  .jft-card-huge .jft-card-info p,
-  .jft-card-huge .jft-card-link {
-    color: #ffffff !important;
-    text-shadow: 0px 2px 6px rgba(0, 0, 0, 0.9), 0px 1px 2px rgba(0, 0, 0, 0.9);
+  .jft-card-huge:active { transform: scale(0.95); }
+  
+  /* Warna Solid Lembut Kontras Tinggi Sesuai Desain 1 */
+  .jft-card-blue1 { background-color: var(--color-minna); }
+  .jft-card-purple1 { background-color: var(--color-ssw); }
+  .jft-card-blue2 { background-color: var(--color-irodori); }
+  .jft-card-dark { background-color: var(--color-leader); }
+  
+  /* Container Bulat Maskot/Icon */
+  .jft-card-icon-wrap { 
+    background: rgba(255, 255, 255, 0.35); 
+    width: 46px; 
+    height: 46px; 
+    border-radius: 50%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-size: 24px; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.06);
   }
   
-  .jft-card-icon-wrap { background: rgba(255,255,255,0.1); width: 46px; height: 46px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
-  .jft-card-info h3 { font-size: 18px; font-weight: 700; margin: 0; line-height: 1.3; color: #fff; }
-  .jft-card-info p { font-size: 11px; color: rgba(255,255,255,0.7); margin: 4px 0 10px 0; }
-  .jft-card-action { font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px; color: var(--primary); }
+  .jft-card-info h3 { font-size: 17px; font-weight: 800; margin: 0; line-height: 1.25; color: #0c1024; }
+  .jft-card-info p { font-size: 11px; color: rgba(12, 16, 36, 0.7); margin: 3px 0 0 0; font-weight: 600; }
+  .jft-card-action { display: none; } /* Dihapus agar bersih seperti Desain 1 */
+
+  /* ======================================================================= */
 
   /* Bottom Navigation Bar */
-  .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 420px; height: 65px; background: #0f172a; border-top: 1px solid #1e293b; display: none; justify-content: space-around; align-items: center; z-index: 999; box-shadow: 0 -4px 20px rgba(0,0,0,0.4); }
-  .nav-tab { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; height: 100%; cursor: pointer; color: #64748b; position: relative; text-decoration: none; }
+  .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 420px; height: 68px; background: rgba(17, 22, 45, 0.85); border-top: 1px solid rgba(255,255,255,0.06); backdrop-filter: blur(12px); display: none; justify-content: space-around; align-items: center; z-index: 999; box-shadow: 0 -5px 25px rgba(0,0,0,0.3); border-top-left-radius: 20px; border-top-right-radius: 20px; }
+  .nav-tab { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; height: 100%; cursor: pointer; color: #5c699a; position: relative; text-decoration: none; transition: color 0.2s; }
   .nav-tab.active { color: var(--primary); font-weight: bold; }
-  .nav-tab-icon { font-size: 20px; margin-bottom: 2px; }
+  .nav-tab-icon { font-size: 20px; margin-bottom: 2px; transition: transform 0.2s; }
+  .nav-tab.active .nav-tab-icon { transform: translateY(-2px); }
   .nav-tab-label { font-size: 11px; font-weight: 600; }
-  .nav-tab.active::after { content: ''; position: absolute; bottom: 4px; width: 24px; height: 4px; background: var(--primary); border-radius: 2px; }
+  .nav-tab.active::after { content: ''; position: absolute; top: 0; width: 35px; height: 3px; background: var(--primary); border-radius: 0 0 4px 4px; box-shadow: 0 2px 6px var(--primary); }
 
   /* Profil & Stats */
-  .profile-card { background: var(--card); width: 100%; border-radius: 24px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); display: flex; flex-direction: column; align-items: center; margin-bottom: 15px; border: 1px solid #1e293b; position: relative; }
-  .profile-avatar { width: 70px; height: 70px; border-radius: 50%; background: var(--jft-grad); display: flex; align-items: center; justify-content: center; color: white; font-size: 32px; font-weight: bold; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3); margin-bottom: 10px; }
+  .profile-card { background: var(--card); width: 100%; border-radius: 24px; padding: 24px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); display: flex; flex-direction: column; align-items: center; margin-bottom: 15px; border: 1px solid #1e264f; position: relative; }
+  .profile-avatar { width: 75px; height: 75px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 32px; font-weight: 800; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); margin-bottom: 12px; }
   .profile-name { font-size: 20px; font-weight: 700; color: white; margin: 0; }
   .profile-id { font-size: 12px; color: var(--text-muted); margin: 4px 0 0 0; }
-  .stats-container { display: flex; width: 100%; gap: 12px; margin-top: 15px; }
-  .stat-box { flex: 1; background: #0f172a; border-radius: 16px; padding: 12px; text-align: center; border: 1px solid #1e293b; }
-  .stats-container .stat-val { font-size: 18px; font-weight: 700; color: var(--primary); }
-  .stat-lbl { font-size: 11px; color: var(--text-muted); margin-top: 2px; font-weight: 500; }
+  .stats-container { display: flex; width: 100%; gap: 12px; margin-top: 18px; }
+  .stat-box { flex: 1; background: #0b0d1a; border-radius: 16px; padding: 14px; text-align: center; border: 1px solid #1e264f; }
+  .stats-container .stat-val { font-size: 20px; font-weight: 800; color: var(--primary); }
+  .stat-lbl { font-size: 11px; color: var(--text-muted); margin-top: 2px; font-weight: 600; }
 
-  /* Tombol Keluar Kecil Minimalis */
-  .small-logout-btn { background: transparent; border: 1px solid #dc2626; color: #ef4444; font-size: 11px; font-weight: bold; padding: 6px 12px; border-radius: 20px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: 0.2s; margin-top: 10px; align-self: center; }
-  .small-logout-btn:active { background: rgba(220, 38, 38, 0.1); }
+  .small-logout-btn { background: transparent; border: 1px solid #ef4444; color: #ef4444; font-size: 11px; font-weight: bold; padding: 7px 14px; border-radius: 20px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: 0.2s; margin-top: 15px; align-self: center; }
+  .small-logout-btn:active { background: rgba(239, 68, 68, 0.1); }
 
   /* Kotak Akses Login/Daftar untuk Tamu */
-  .guest-auth-box { width: 100%; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 20px; padding: 20px; border: 1px solid var(--primary); box-shadow: 0 4px 15px rgba(33, 150, 243, 0.15); margin-bottom: 15px; text-align: center; }
+  .guest-auth-box { width: 100%; background: linear-gradient(135deg, #11162d 0%, #0b0d1a 100%); border-radius: 22px; padding: 20px; border: 1.5px dashed var(--primary); box-shadow: 0 4px 15px rgba(33, 150, 243, 0.1); margin-bottom: 15px; text-align: center; }
   .guest-auth-box h4 { margin: 0 0 5px 0; color: var(--primary); font-size: 15px; font-weight: 700; }
   .guest-auth-box p { margin: 0 0 15px 0; color: var(--text-muted); font-size: 12px; line-height: 1.4; }
   .guest-auth-row { display: flex; flex-direction: column; gap: 10px; }
 
   /* Kamus Melayang */
   #floatingKamus {
-    position: fixed; top: 120px; right: 10px; width: 54px; height: 54px;
-    background: var(--jft-grad); border-radius: 50%;
+    position: fixed; top: 120px; right: 12px; width: 54px; height: 54px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 50%;
     z-index: 20000; display: flex; align-items: center; justify-content: center;
-    font-size: 26px; cursor: move; touch-action: none;
-    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.5);
+    font-size: 24px; cursor: move; touch-action: none;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
     border: 2px solid rgba(255,255,255,0.2);
   }
 
   #kamusOverlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(11, 15, 25, 0.95); z-index: 20005;
+    background: rgba(6, 8, 20, 0.96); z-index: 20005;
     display: none; flex-direction: column; align-items: center; padding: 20px; box-sizing: border-box;
   }
   #kamusInput {
-    width: 100%; padding: 15px; border-radius: 15px; border: 2px solid var(--primary);
-    background: #151f32; color: white; font-size: 18px; margin-bottom: 20px; outline: none;
+    width: 100%; padding: 16px; border-radius: 18px; border: 2px solid var(--primary);
+    background: #11162d; color: white; font-size: 16px; margin-bottom: 20px; outline: none; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
   }
   #kamusResults { width: 100%; flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-  .search-item { background: #151f32; padding: 15px; border-radius: 12px; border-left: 4px solid var(--primary); color: white; border-top: 1px solid rgba(255,255,255,0.02); }
+  .search-item { background: #11162d; padding: 16px; border-radius: 14px; border-left: 4px solid var(--primary); color: white; border-top: 1px solid rgba(255,255,255,0.01); }
 
-  #resumeWrapper { display: flex; width: 100%; background: #16a34a; border-radius: 18px; box-shadow: 0 5px 0 #15803d; overflow: hidden; margin-bottom: 20px; }
-  #resumeBtn { flex-grow: 1; background: none; box-shadow: none; border-radius: 0; padding: 18px; color: white; font-weight: bold; border: none; cursor: pointer; text-transform: uppercase; font-size: 14px; }
-  #clearSessionBtn { width: 50px; background: none; border: none; border-left: 1px solid rgba(255,255,255,0.3); color: white; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  #resumeWrapper { display: flex; width: 100%; background: #10b981; border-radius: 20px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); overflow: hidden; margin-bottom: 20px; }
+  #resumeBtn { flex-grow: 1; background: none; box-shadow: none; border-radius: 0; padding: 16px; color: white; font-weight: bold; border: none; cursor: pointer; text-transform: uppercase; font-size: 13px; letter-spacing: 0.5px; }
+  #clearSessionBtn { width: 52px; background: none; border: none; border-left: 1px solid rgba(255,255,255,0.2); color: white; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-  #wordBox { display: none; flex-direction: column; align-items: center; justify-content: flex-start; flex-grow: 1; text-align: center; padding: 20px; padding-top: 40px; }
-  #quizContent { width: 100%; flex-shrink: 0; margin-bottom: 20px; }
-  #displayWord { font-size: 42px; color: var(--text); font-weight: bold; margin-bottom: 10px; }
-  ruby rt { font-size: 18px; color: #cbd5e1; margin-bottom: 4px; }
-  .speakerBtn { background: #151f32; border: 1px solid #1e293b; font-size: 22px; cursor: pointer; color: var(--gold); padding: 10px; border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
-  #options { display: none; flex-direction: column; gap: 12px; width: 100%; padding: 0 20px; margin-top: 10px; margin-bottom: 20px; }
-  .optBtn { background: #151f32; border: 2px solid #1e293b; padding: 18px; border-radius: 15px; color: white; font-size: 18px; cursor: pointer; transition: 0.2s; text-align: center; }
-  .optBtn.correct { background: #16a34a !important; border-color: #15803d !important; }
-  .optBtn.wrong { background: #dc2626 !important; border-color: #991b1b !important; animation: shake 0.4s; }
+  #wordBox { display: none; flex-direction: column; align-items: center; justify-content: flex-start; flex-grow: 1; text-align: center; padding: 20px; padding-top: 30px; }
+  #quizContent { width: 100%; flex-shrink: 0; margin-bottom: 15px; }
+  #displayWord { font-size: 40px; color: var(--text); font-weight: bold; margin-bottom: 15px; text-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+  ruby rt { font-size: 16px; color: #a5b4fc; margin-bottom: 4px; font-weight: 600; }
+  .speakerBtn { background: #11162d; border: 1px solid #1e264f; font-size: 20px; cursor: pointer; color: var(--gold); padding: 10px; border-radius: 50%; width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; margin: 0 auto; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: transform 0.1s; }
+  .speakerBtn:active { transform: scale(0.9); }
+  #options { display: none; flex-direction: column; gap: 12px; width: 100%; padding: 0 20px; margin-top: 5px; margin-bottom: 20px; }
+  .optBtn { background: #11162d; border: 2px solid #1e264f; padding: 18px; border-radius: 18px; color: white; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+  .optBtn:active { transform: scale(0.98); }
+  .optBtn.correct { background: #10b981 !important; border-color: #059669 !important; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important; }
+  .optBtn.wrong { background: #ef4444 !important; border-color: #dc2626 !important; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important; animation: shake 0.4s; }
   
-  #inputContainer { display: none; width: 100%; flex-direction: column; gap: 10px; padding: 0 20px; }
-  #userAnswer { width: 100%; padding: 18px; border-radius: 15px; border: 2px solid #1e293b; background: #151f32; color: white; font-size: 20px; text-align: center; box-sizing: border-box; outline: none; }
-  .correct-flash { background-color: rgba(22, 163, 74, 0.3) !important; border-color: #16a34a !important; }
-  .wrong-flash { background-color: rgba(220, 38, 38, 0.3) !important; border-color: #dc2626 !important; }
+  #inputContainer { display: none; width: 100%; flex-direction: column; gap: 12px; padding: 0 20px; }
+  #userAnswer { width: 100%; padding: 18px; border-radius: 18px; border: 2px solid #1e264f; background: #11162d; color: white; font-size: 18px; font-weight: 600; text-align: center; box-sizing: border-box; outline: none; transition: border-color 0.2s; }
+  #userAnswer:focus { border-color: var(--primary); }
+  .correct-flash { background-color: rgba(16, 185, 129, 0.2) !important; border-color: #10b981 !important; }
+  .wrong-flash { background-color: rgba(239, 68, 68, 0.2) !important; border-color: #ef4444 !important; }
 
-  #flashcardSection { display: none; flex-direction: column; align-items: center; width: 100%; padding: 20px; padding-top: 40px; }
-  .card-container { perspective: 1000px; width: 240px; height: 360px; cursor: pointer; margin-bottom: 30px; }
-  .card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; }
+  #flashcardSection { display: none; flex-direction: column; align-items: center; width: 100%; padding: 20px; padding-top: 30px; }
+  .card-container { perspective: 1000px; width: 250px; height: 350px; cursor: pointer; margin-bottom: 25px; }
+  .card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; }
   .card-inner.is-flipped { transform: rotateY(180deg); }
-  .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 25px; border: 2px solid #1e293b; padding: 20px; box-sizing: border-box; }
-  .card-front { background: #151f32; color: white; }
-  .card-back { background: #0f172a; color: var(--gold); transform: rotateY(180deg); border-color: var(--gold); }
-  .flip-icon { position: absolute; bottom: 15px; right: 15px; font-size: 18px; opacity: 0.4; }
+  .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 26px; border: 2px solid #1e264f; padding: 24px; box-sizing: border-box; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+  .card-front { background: #11162d; color: white; }
+  .card-back { background: #0b0d1a; color: var(--gold); transform: rotateY(180deg); border-color: var(--gold); }
+  .flip-icon { position: absolute; bottom: 16px; right: 16px; font-size: 16px; opacity: 0.3; }
 
-  .fc-nav { display: flex; gap: 15px; width: 100%; justify-content: center; }
-  .fc-btn { background: #151f32; border: 1px solid #1e293b; color: white; padding: 15px 25px; border-radius: 15px; font-weight: bold; font-size: 18px; cursor: pointer; flex: 1; box-shadow: 0 4px 0 #0f172a; }
+  .fc-nav { display: flex; gap: 12px; width: 100%; justify-content: center; padding: 0 10px; }
+  .fc-btn { background: #11162d; border: 1px solid #1e264f; color: white; padding: 14px 20px; border-radius: 16px; font-weight: bold; font-size: 16px; cursor: pointer; flex: 1; transition: background 0.1s; }
+  .fc-btn:active { background: #1e264f; }
   
-  .score-circle { width: 130px; height: 130px; border-radius: 50%; border: 8px solid var(--primary); display: flex; justify-content: center; align-items: center; margin: 0 auto 20px; font-size: 34px; font-weight: bold; color: var(--primary); background: rgba(33, 150, 243, 0.1); }
+  .score-circle { width: 130px; height: 130px; border-radius: 50%; border: 6px solid var(--primary); display: flex; justify-content: center; align-items: center; margin: 0 auto 20px; font-size: 34px; font-weight: 800; color: var(--primary); background: rgba(71, 166, 255, 0.1); box-shadow: 0 0 15px rgba(71, 166, 255, 0.15); }
   
-  .login-box { background: var(--card); border: 1px solid #1e293b; padding: 25px; border-radius: 24px; width: 100%; display: flex; flex-direction: column; gap: 14px; }
-  .login-input { width: 100%; padding: 15px; border-radius: 15px; border: 2px solid #1e293b; background: #0b0f19; color: white; font-size: 16px; text-align: center; outline: none; transition: border-color 0.2s; }
+  .login-box { background: var(--card); border: 1px solid #1e264f; padding: 25px; border-radius: 26px; width: 100%; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+  .login-input { width: 100%; padding: 16px; border-radius: 16px; border: 2px solid #1e264f; background: #060814; color: white; font-size: 15px; text-align: center; outline: none; transition: border-color 0.2s; }
   .login-input:focus { border-color: var(--primary); }
-  .google-btn { background: white; color: #222; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 15px; padding: 15px; border: none; cursor: pointer; width: 100%; font-size: 15px; margin-top: 5px; }
+  .google-btn { background: white; color: #111; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 16px; padding: 15px; border: none; cursor: pointer; width: 100%; font-size: 14px; margin-top: 5px; box-shadow: 0 4px 12px rgba(255,255,255,0.1); }
   
   .auth-switch-text { text-align: center; font-size: 13px; color: var(--text-muted); margin-top: 10px; }
   .auth-switch-text a { color: var(--primary); font-weight: bold; text-decoration: none; }
-  .auth-switch-text a:hover { text-decoration: underline; }
 
-  #toast { display: none; position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%); background: var(--primary); color: white; padding: 12px 25px; border-radius: 30px; font-size: 14px; font-weight: bold; z-index: 30000; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-  #logoutModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:25000; justify-content:center; align-items:center; }
-  .modal-content { background:var(--card); padding:30px; border-radius:25px; width:85%; max-width:340px; text-align:center; border:2px solid #1e293b; }
-  @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-10px);} 75% {transform: translateX(10px);} }
+  #toast { display: none; position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: bold; z-index: 30000; text-align: center; box-shadow: 0 8px 20px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); }
+  #logoutModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:25000; justify-content:center; align-items:center; backdrop-filter: blur(4px); }
+  .modal-content { background:var(--card); padding:30px; border-radius:26px; width:85%; max-width:340px; text-align:center; border:2px solid #1e264f; }
+  @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-8px);} 75% {transform: translateX(8px);} }
   #timerDisplay { font-family: monospace; font-size: 16px; color: var(--gold); margin-bottom: 5px; }
-  .lb-box { margin-top: 15px; background: var(--card); border-radius: 16px; padding: 18px; width: 100%; font-size: 14px; border: 1px solid #1e293b; color: white; }
-  .lb-item { display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 10px 0; }
+  .lb-box { margin-top: 15px; background: #0b0d1a; border-radius: 18px; padding: 16px; width: 100%; font-size: 14px; border: 1px solid #1e264f; color: white; }
+  .lb-item { display: flex; justify-content: space-between; border-bottom: 1px solid #1e264f; padding: 12px 4px; }
   .lb-item:last-child { border-bottom: none; }
   
   .hidden { display: none !important; }
@@ -248,8 +266,8 @@
 
 <div id="kamusOverlay">
     <div style="width:100%; display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-        <h2 style="color:var(--primary); margin:0;">KAMUS CEPAT</h2>
-        <button onclick="closeKamusOverlay()" style="background:none; border:none; color:white; font-size:24px;">✕</button>
+        <h2 style="color:var(--primary); margin:0; font-weight:800; font-size:20px;">KAMUS CEPAT</h2>
+        <button onclick="closeKamusOverlay()" style="background:none; border:none; color:white; font-size:24px; cursor:pointer;">✕</button>
     </div>
     <input type="text" id="kamusInput" placeholder="Cari Indonesia / Jepang..." oninput="searchGlobal()">
     <div id="kamusResults"></div>
@@ -260,8 +278,8 @@
   <button id="muteBtn" onclick="toggleMute()">🔊</button>
 
   <div id="loginPage" class="menu-container" style="padding-top: 40px;">
-    <h1 id="authMainTitle" style="color: var(--primary); margin-bottom: 5px; text-align: center;">RAMA JAPAN QUIZ</h1>
-    <p id="authSubTitle" style="color: var(--text-muted); font-size: 14px; margin-bottom: 25px; text-align: center;">Silakan masuk untuk sinkronisasi nilai & koin</p>
+    <h1 id="authMainTitle" style="color: var(--primary); margin-bottom: 5px; text-align: center; font-weight: 800; font-size: 26px; letter-spacing: -0.5px;">RAMA JAPAN QUIZ</h1>
+    <p id="authSubTitle" style="color: var(--text-muted); font-size: 13px; margin-bottom: 25px; text-align: center; font-weight: 500;">Silakan masuk untuk sinkronisasi nilai & koin</p>
     
     <div class="login-box">
       <input type="text" id="regFullName" class="login-input hidden" placeholder="Nama Lengkap Pemain">
@@ -273,7 +291,7 @@
       
       <button class="mainBtn" id="authSubmitBtn" onclick="handleAuthAction()">MASUK SEKARANG ➔</button>
       
-      <div id="googleDivider" style="text-align: center; color: var(--text-muted); font-size: 12px; margin: 5px 0;">ATAU</div>
+      <div id="googleDivider" style="text-align: center; color: var(--text-muted); font-size: 12px; margin: 5px 0; font-weight: 600;">ATAU</div>
       
       <button id="googleAuthBtn" class="google-btn" onclick="handleGoogleLogin()">
          <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/web-24dp/logo_googleg_color_24dp.png" width="18" alt="Google">
@@ -301,7 +319,7 @@
             <p class="jft-pro-sub" id="coinStatusSub">Selesaikan kuis untuk mengumpulkan koin</p>
           </div>
         </div>
-        <span style="font-size: 14px; color: var(--primary); font-weight: bold;" id="userBadgeType">PRO</span>
+        <span style="font-size: 12px; color: var(--primary); font-weight: 800; background: rgba(71, 166, 255, 0.15); padding: 4px 10px; border-radius: 12px; letter-spacing: 0.5px;" id="userBadgeType">PRO</span>
       </div>
     </div>
 
@@ -315,44 +333,40 @@
       
       <div class="jft-grid-large">
         <div class="jft-card-huge jft-card-blue1" onclick="showMinnaMenu()">
-          <div class="jft-card-icon-wrap">📋</div>
+          <div class="jft-card-icon-wrap">🐼</div>
           <div class="jft-card-info">
             <h3>Minna No<br>Nihongo</h3>
-            <p>Kosakata Utama Bab 1-50</p>
-            <div class="jft-card-action">Buka ➔</div>
+            <p>Kosakata Bab 1-50</p>
           </div>
         </div>
         
         <div class="jft-card-huge jft-card-purple1" onclick="showSSWGrid()">
-          <div class="jft-card-icon-wrap">🍱</div>
+          <div class="jft-card-icon-wrap">🤖</div>
           <div class="jft-card-info">
             <h3>SSW<br>Makanan</h3>
-            <p>Pengolahan Makanan Lengkap</p>
-            <div class="jft-card-action">Buka ➔</div>
+            <p>Pengolahan Makanan</p>
           </div>
         </div>
 
         <div class="jft-card-huge jft-card-blue2" onclick="showIrodoriMenu()">
-          <div class="jft-card-icon-wrap">🗂️</div>
+          <div class="jft-card-icon-wrap">🦊</div>
           <div class="jft-card-info">
             <h3>Irodori<br>Kanji</h3>
-            <p>Latihan Fokus Tulisan Kanji</p>
-            <div class="jft-card-action">Buka ➔</div>
+            <p>Fokus Tulisan Kanji</p>
           </div>
         </div>
 
         <div class="jft-card-huge jft-card-dark" id="leaderboardHugeCard" onclick="switchTab('profile')">
-          <div class="jft-card-icon-wrap">📊</div>
+          <div class="jft-card-icon-wrap">🚀</div>
           <div class="jft-card-info">
             <h3>Leaderboard<br>& Profil</h3>
-            <p>Skor Global & Koleksi Koin</p>
-            <div class="jft-card-action" style="color:var(--gold);">Cek Peringkat ➔</div>
+            <p>Skor Global & Koin</p>
           </div>
         </div>
       </div>
 
-      <div style="margin-top: 50px; text-align: center; width: 100%; opacity: 0.3;">
-          <p style="font-size: 11px;">Copyright © 2026 • Pengembang Rama</p>
+      <div style="margin-top: 50px; text-align: center; width: 100%; opacity: 0.25;">
+          <p style="font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">Copyright © 2026 • Pengembang Rama</p>
       </div>
     </div>
   </div>
@@ -385,39 +399,39 @@
       <button class="small-logout-btn" onclick="logout()">Keluar Akun</button>
     </div>
 
-    <h3 style="align-self: flex-start; margin: 5px 0 0 0; color: var(--gold); font-size: 15px;">👑 TOP 5 JURAGAN KOIN GLOBAL</h3>
+    <h3 style="align-self: flex-start; margin: 5px 0 0 0; color: var(--gold); font-size: 14px; font-weight: 700; letter-spacing: 0.5px;">👑 TOP 5 JURAGAN KOIN GLOBAL</h3>
     <div id="coinLeaderboardBox" class="lb-box" style="margin-top:5px;"></div>
   </div>
 
   <div id="minnaMenu" class="menu-container">
-    <h2 style="color:var(--primary); margin-bottom: 5px;">MINNA NO NIHONGO</h2>
+    <h2 style="color:var(--primary); margin-bottom: 5px; font-weight:800; font-size:20px;">MINNA NO NIHONGO</h2>
     <button class="mainBtn" onclick="showBagian(1)">KOTOBA BAGIAN 1 (1-25)</button>
     <button class="mainBtn" style="margin-top:10px;" onclick="showBagian(2)">KOTOBA BAGIAN 2 (26-50)</button>
   </div>
   
   <div id="irodoriMenu" class="menu-container">
-    <h2 style="color:var(--primary); margin-bottom: 5px;">IRODORI KANJI</h2>
+    <h2 style="color:var(--primary); margin-bottom: 5px; font-weight:800; font-size:20px;">IRODORI KANJI</h2>
     <button class="mainBtn iroBtn" onclick="startIrodoriKanji()">KANJI IRODORI (FULL)</button>
   </div>
   
   <div id="dynamicMenu" class="menu-container">
-    <h2 id="dynamicTitle" style="color:white; margin-bottom:0;">Pilih Bab</h2>
+    <h2 id="dynamicTitle" style="color:white; margin-bottom:0; font-weight:800; font-size:20px;">Pilih Bab</h2>
     <div id="headerGrid"></div>
   </div>
   
   <div id="modeMenu" class="menu-container">
-    <h2 style="color: var(--gold); margin-bottom:0;">Pilih Mode</h2>
-    <p id="modeInfo" style="margin-top:0; color:var(--text-muted); font-weight:bold;"></p>
+    <h2 style="color: var(--gold); margin-bottom:0; font-weight:800; font-size:20px;">Pilih Mode</h2>
+    <p id="modeInfo" style="margin-top:0; color:var(--text-muted); font-weight:bold; font-size:13px;"></p>
     <button class="mainBtn goldBtn" onclick="startFlashcardMode()">🎴 MODE FLASHCARD</button>
     <button class="mainBtn" onclick="setQuizDirection('jp-id')">JEPANG ➡ INDO</button>
     <button class="mainBtn iroBtn" onclick="setQuizDirection('id-jp')">INDO ➡ JEPANG</button>
   </div>
 
   <div id="diffMenu" class="menu-container">
-    <h2 style="color: #16a34a;">Pilih Kesulitan</h2>
-    <button class="mainBtn" style="background:#16a34a; box-shadow: 0 5px 0 #15803d;" onclick="setDifficulty('easy')">MUDAH (KANA)</button>
-    <button class="mainBtn" style="background:#ea580c; box-shadow: 0 5px 0 #c2410c; margin-top:10px;" onclick="setDifficulty('medium')">SEDANG (KANJI)</button>
-    <button class="mainBtn" style="background:#dc2626; box-shadow: 0 5px 0 #b91c1c; margin-top:10px;" onclick="setDifficulty('hard')">SULIT (KETIK KANJI)</button>
+    <h2 style="color: #10b981; font-weight:800; font-size:20px;">Pilih Kesulitan</h2>
+    <button class="mainBtn" style="background:linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);" onclick="setDifficulty('easy')">MUDAH (KANA)</button>
+    <button class="mainBtn" style="background:linear-gradient(135deg, #f97316 0%, #ea580c 100%); box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2); margin-top:10px;" onclick="setDifficulty('medium')">SEDANG (KANJI)</button>
+    <button class="mainBtn" style="background:linear-gradient(135deg, #ef4444 0%, #dc2626 100%); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); margin-top:10px;" onclick="setDifficulty('hard')">SULIT (KETIK KANJI)</button>
   </div>
 
   <div id="wordBox">
@@ -429,7 +443,7 @@
       </div>
       <div id="displayWord"></div>
       <button id="mainSpeaker" class="speakerBtn" onclick="playAudio()">🔊</button>
-      <div id="comboSection" style="display:none; text-align:center; margin-bottom: 10px;">🔥 <span id="flowerCount" style="font-weight:bold; color:#16a34a;">0</span></div>
+      <div id="comboSection" style="display:none; text-align:center; margin-bottom: 10px; font-weight:bold;">🔥 <span id="flowerCount" style="color:#10b981;">0</span></div>
     </div>
     <div id="inputContainer">
       <input type="text" id="userAnswer" placeholder="Ketik jawabannya..." autocomplete="off">
@@ -441,17 +455,17 @@
   <div id="options"></div>
 
   <div id="flashcardSection">
-    <div id="fcInfo" style="color:var(--gold); font-size:14px; margin-bottom:15px; font-weight:bold; text-align:center;"></div>
+    <div id="fcInfo" style="color:var(--gold); font-size:14px; margin-bottom:15px; font-weight:bold; text-align:center; line-height:1.4;"></div>
     <div class="card-container" onclick="flipCard()">
       <div class="card-inner" id="cardInner">
         <div class="card-face card-front">
-          <div id="fcFront" style="font-size: 38px; font-weight:bold;"></div>
+          <div id="fcFront" style="font-size: 36px; font-weight:bold;"></div>
           <div class="flip-icon">⇄</div>
         </div>
         <div class="card-face card-back">
           <div id="fcBack" style="display:flex; flex-direction:column; gap:10px; text-align:center;">
-              <div id="fcBackRead" style="font-size: 20px; color:var(--text-muted); font-weight:bold;"></div>
-              <div id="fcBackMean" style="font-size: 28px; font-weight:bold; color:var(--gold);"></div>
+              <div id="fcBackRead" style="font-size: 18px; color:var(--text-muted); font-weight:bold;"></div>
+              <div id="fcBackMean" style="font-size: 26px; font-weight:bold; color:var(--gold);"></div>
           </div>
           <div class="flip-icon">⇄</div>
         </div>
@@ -459,38 +473,38 @@
     </div>
     <div class="fc-nav">
       <button class="fc-btn" onclick="prevCard()">PREV</button>
-      <button class="fc-btn" style="background:var(--gold); color:#000;" onclick="playAudioFC()">🔊</button>
+      <button class="fc-btn" style="background:var(--gold); color:#000; border:none;" onclick="playAudioFC()">🔊</button>
       <button class="fc-btn" onclick="nextCard()">NEXT</button>
     </div>
-    <button id="fcNextQuizBtn" class="mainBtn" style="margin-top:30px; background:#16a34a; box-shadow: 0 5px 0 #15803d;" onclick="setQuizDirection('jp-id')">MULAI KUIS SEKARANG</button>
-    <button id="fcNextBabBtn" class="mainBtn" style="background:var(--secondary); margin-top:15px; box-shadow: 0 5px 0 #1e3a8a; display:none;"></button>
+    <button id="fcNextQuizBtn" class="mainBtn" style="margin-top:30px; background:linear-gradient(135deg, #10b981 0%, #059669 100%);" onclick="setQuizDirection('jp-id')">MULAI KUIS SEKARANG</button>
+    <button id="fcNextBabBtn" class="mainBtn" style="background:var(--secondary); margin-top:15px; display:none;"></button>
   </div>
 
   <div id="resultPage" class="menu-container">
     <div id="normalResultContainer" style="width:100%; text-align:center;">
-        <h2 style="margin-bottom:10px;">HASIL KUIS</h2>
+        <h2 style="margin-bottom:10px; font-weight:800;">HASIL KUIS</h2>
         <div id="timerResult" style="color:var(--gold); font-weight:bold; margin-bottom:10px;"></div>
         <div class="score-circle" id="finalScore">0%</div>
-        <div id="finalDetail" style="color:var(--text-muted); white-space: pre-wrap;"></div>
+        <div id="finalDetail" style="color:var(--text-muted); white-space: pre-wrap; font-size:13px; line-height:1.4;"></div>
     </div>
     
     <div id="redemptionTitleBox" style="display:none; text-align:center; margin-bottom:15px;">
-        <h2 style="color:var(--gold); margin:0;">🔥 MODE TEBUS DOSA</h2>
+        <h2 style="color:var(--gold); margin:0; font-weight:800;">🔥 MODE TEBUS DOSA</h2>
         <p style="color:var(--text-muted); font-size:12px; margin:5px 0 0 0;">Betulkan seluruh soal yang salah tanpa batasan!</p>
     </div>
 
-    <div id="reviewBox" style="width: 100%; text-align: left; margin-top: 10px; background: #0f172a; padding: 15px; border-radius: 12px; font-size: 14px; border:1px solid #1e293b;"></div>
+    <div id="reviewBox" style="width: 100%; text-align: left; margin-top: 10px; background: #0b0d1a; padding: 16px; border-radius: 18px; font-size: 14px; border:1px solid #1e264f;"></div>
     
     <button id="nextChunkBtn" class="mainBtn" style="margin-top:20px; display:none;">LANJUT KUIS</button>
-    <button id="nextBabBtn" class="mainBtn" style="background:var(--secondary); margin-top:10px; box-shadow: 0 5px 0 #1e3a8a; display:none;"></button>
-    <button id="resultBackBtn" class="mainBtn" style="background:#334155; margin-top:10px; box-shadow: 0 5px 0 #1e293b;" onclick="goBack()">KEMBALI</button>
+    <button id="nextBabBtn" class="mainBtn" style="background:var(--secondary); margin-top:10px; display:none;"></button>
+    <button id="resultBackBtn" class="mainBtn" style="background:linear-gradient(135deg, #475569 0%, #334155 100%); margin-top:10px;" onclick="goBack()">KEMBALI</button>
   </div>
 
   <div id="logoutModal">
     <div class="modal-content">
-      <h3 style="margin-top:0; color:var(--primary); letter-spacing:1px;" id="logoutModalTitle">YAKIN KELUAR?</h3>
+      <h3 style="margin-top:0; color:var(--primary); letter-spacing:0.5px; font-weight:800;" id="logoutModalTitle">YAKIN KELUAR?</h3>
       <div style="display:flex; gap:12px; margin-top: 20px;">
-        <button class="mainBtn" style="background:#334155; box-shadow: 0 4px 0 #1e293b;" onclick="closeLogoutModal()">TIDAK</button>
+        <button class="mainBtn" style="background:linear-gradient(135deg, #475569 0%, #334155 100%);" onclick="closeLogoutModal()">TIDAK</button>
         <button class="mainBtn" onclick="confirmLogout()">YA</button>
       </div>
     </div>
@@ -1011,7 +1025,7 @@
     
     const q = currentQuestions[currentIndex]; const display = document.getElementById('displayWord');
     const inputField = document.getElementById('userAnswer');
-    inputField.classList.remove('correct-flash', 'wrong-flash'); inputField.style.borderColor = "#1e293b";
+    inputField.classList.remove('correct-flash', 'wrong-flash'); inputField.style.borderColor = "#1e264f";
     
     document.getElementById('wordBox').style.display = 'flex';
     document.getElementById('quizInfo').innerText = `${currentLabel} | ${quizDifficulty.toUpperCase()}`;
@@ -1041,12 +1055,12 @@
     } else {
         document.getElementById('mainSpeaker').style.display = 'none';
         if (isIrodoriEasy) {
-            display.innerHTML = `<div style="font-size:14px; color:var(--primary); margin-bottom:5px;">Pilih Kanji Tepat:</div>${q.correct}<br><div style="font-size:22px; color:#64748b; margin-top:10px;">(${q.kana})</div>`;
+            display.innerHTML = `<div style="font-size:13px; color:var(--primary); margin-bottom:5px; font-weight:600;">Pilih Kanji Tepat:</div>${q.correct}<br><div style="font-size:20px; color:#64748b; margin-top:8px;">(${q.kana})</div>`;
             currentAnswer = q.kanji || q.kana; let choices = [currentAnswer];
             choices = choices.concat((selectedData || []).filter(i => i.kanji !== q.kanji).map(o => (o.kanji || o.kana)).sort(() => 0.5 - Math.random()).slice(0, 3));
             setupLayout(choices);
         } else {
-            display.innerHTML = `<div style="font-size:14px; color:var(--primary); margin-bottom:5px;">Terjemahkan:</div>${q.correct}`;
+            display.innerHTML = `<div style="font-size:13px; color:var(--primary); margin-bottom:5px; font-weight:600;">Terjemahkan:</div>${q.correct}`;
             currentAnswer = (quizDifficulty === 'easy') ? q.kana : (q.kanji && q.kanji.trim() !== "" ? q.kanji : q.kana);
             let choices = [currentAnswer];
             choices = choices.concat((selectedData || []).filter(i => i.kana !== q.kana).map(o => (quizDifficulty === 'easy') ? o.kana : (o.kanji || o.kana)).sort(() => 0.5 - Math.random()).slice(0, 3));
@@ -1155,7 +1169,7 @@
         if (isFinished && globalWrongPool.length === 0) { 
             setupNextBabButton(); 
             let successDiv = document.createElement('div');
-            successDiv.style.cssText = "color:#16a34a; font-weight:bold; text-align:center; padding:10px;";
+            successDiv.style.cssText = "color:#10b981; font-weight:bold; text-align:center; padding:10px;";
             successDiv.innerText = "🎉 Semua Soal Selesai & Bersih Tanpa Dosa!";
             rb.appendChild(successDiv);
         } else if (isFinished && globalWrongPool.length > 0) {
@@ -1180,7 +1194,7 @@
      isRedemptionActive = true;
      document.getElementById('normalResultContainer').style.display = 'none';
      document.getElementById('redemptionTitleBox').style.display = 'block';
-     document.getElementById('resultBackBtn').style.display = 'none'; // Sembunyikan tombol kembali biar fokus kelarin tebusan
+     document.getElementById('resultBackBtn').style.display = 'none'; 
      document.getElementById('nextBabBtn').style.display = 'none';
      fetchNextRedeemQuestion();
   }
@@ -1192,17 +1206,17 @@
         showResult();
         return;
      }
-     currentRedeemQuestion = globalWrongPool[0]; // ambil antrean pertama
+     currentRedeemQuestion = globalWrongPool[0]; 
      showResult();
   }
 
   function renderSingleRedemptionCard(container) {
      const q = currentRedeemQuestion;
      let card = document.createElement('div');
-     card.style.cssText = "background:var(--card); border:2px solid var(--gold); border-radius:15px; padding:20px; text-align:center;";
+     card.style.cssText = "background:var(--card); border:2px solid var(--gold); border-radius:18px; padding:20px; text-align:center;";
      
      let wordTitle = document.createElement('div');
-     wordTitle.style.cssText = "font-size:32px; font-weight:bold; color:white; margin-bottom:15px;";
+     wordTitle.style.cssText = "font-size:30px; font-weight:bold; color:white; margin-bottom:15px;";
      
      const isIrodoriEasy = currentLabel.includes("Irodori") && quizDifficulty === 'easy';
 
@@ -1219,7 +1233,7 @@
          }
      } else {
          if (isIrodoriEasy) {
-             wordTitle.innerHTML = `${q.correct}<br><span style="font-size:18px; color:#64748b;">(${q.kana})</span>`;
+             wordTitle.innerHTML = `${q.correct}<br><span style="font-size:16px; color:#64748b;">(${q.kana})</span>`;
              currentAnswer = q.kanji || q.kana;
          } else {
              wordTitle.innerText = q.correct;
@@ -1239,7 +1253,7 @@
      if(quizDifficulty === 'hard') {
          let inputForm = document.createElement('div');
          inputForm.style.cssText = "display:flex; flex-direction:column; gap:10px; width:100%;";
-         inputForm.innerHTML = `<input type="text" id="redeemUserAnswer" class="login-input" style="background:#0b0f19; font-size:18px;" placeholder="Ketik jawabannya..." autocomplete="off">
+         inputForm.innerHTML = `<input type="text" id="redeemUserAnswer" class="login-input" style="background:#060814; font-size:18px;" placeholder="Ketik jawabannya..." autocomplete="off">
                                 <div id="redeemWrongMsg" style="display:none; color:var(--gold); font-weight:bold; font-size:13px;"></div>
                                 <button class="mainBtn" id="redeemSubmitBtn">KIRIM JAWABAN TEBUSAN</button>`;
          card.appendChild(inputForm);
@@ -1274,12 +1288,11 @@
                  if(txt === currentAnswer) {
                      b.classList.add('correct');
                      showToast("✨ Betul!");
-                     globalWrongPool.shift(); // hapus dosa karena sukses dibetulkan
+                     globalWrongPool.shift(); 
                      setTimeout(fetchNextRedeemQuestion, 800);
                  } else {
                      b.classList.add('wrong');
                      showToast("❌ Masih Salah! Coba lagi.");
-                     // Putar antrean ke belakang biar tidak stuck di satu soal itu terus
                      setTimeout(() => {
                          let failed = globalWrongPool.shift();
                          globalWrongPool.push(failed);
@@ -1319,7 +1332,7 @@
          setTimeout(() => {
              inputEl.classList.remove('shake');
              let failed = globalWrongPool.shift();
-             globalWrongPool.push(failed); // Lempar ke paling belakang biar bisa diulang nanti
+             globalWrongPool.push(failed); 
              fetchNextRedeemQuestion();
          }, 1800);
      }
@@ -1372,7 +1385,7 @@
 
   function goBack() {
     window.speechSynthesis.cancel(); stopTimer();
-    if(isRedemptionActive) return; // Kunci tombol back jika di tengah penebusan dosa harian
+    if(isRedemptionActive) return; 
     
     if (activeView === 'flashcard' || activeView === 'quiz' || activeView === 'result' || activeView === 'difficulty') showModeMenu();
     else if (activeView === 'mode') {
