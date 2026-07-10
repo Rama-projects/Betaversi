@@ -489,7 +489,7 @@
     </div>
     
     <div id="redemptionTitleBox" style="display:none; text-align:center; margin-bottom:15px;">
-        <h2 style="color:var(--gold); margin:0; font-weight:800;">🔥 MODE TEBUS DOSA</h2>
+        <h2 style="color:var(--gold); margin:0; font-weight:800;">🔥 REDEMTION</h2>
         <p style="color:var(--text-muted); font-size:12px; margin:5px 0 0 0;">Betulkan seluruh soal yang salah tanpa batasan!</p>
     </div>
 
@@ -1161,7 +1161,7 @@
         if(globalWrongPool.length > 0) {
             let divMsg = document.createElement('div');
             divMsg.style.cssText = "color:var(--gold); font-weight:bold; text-align:center; padding:5px;";
-            divMsg.innerText = `🔒 Ada ${globalWrongPool.length} dosa terkumpul. Selesaikan bab ini untuk menebusnya di akhir!`;
+            divMsg.innerText = `🔒 ${globalWrongPool.length} Selesaikan bab ini`;
             rb.appendChild(divMsg);
         }
     } else { 
@@ -1170,7 +1170,7 @@
             setupNextBabButton(); 
             let successDiv = document.createElement('div');
             successDiv.style.cssText = "color:#10b981; font-weight:bold; text-align:center; padding:10px;";
-            successDiv.innerText = "🎉 Semua Soal Selesai & Bersih Tanpa Dosa!";
+            successDiv.innerText = "🎉 Semua Soal Selesai";
             rb.appendChild(successDiv);
         } else if (isFinished && globalWrongPool.length > 0) {
             if(!isRedemptionActive) {
@@ -1179,7 +1179,7 @@
                 divStartRedeem.innerHTML = `<p style="color:var(--gold); text-align:center; font-weight:bold; margin-top:0;">Tersedia ${globalWrongPool.length} Soal Salah Belum Ditebus!</p>`;
                 let btnR = document.createElement('button'); 
                 btnR.className = "mainBtn goldBtn"; 
-                btnR.innerText = "🎲 MULAI TEBUS DOSA SEKARANG"; 
+                btnR.innerText = "🎲 REDEMTION"; 
                 btnR.onclick = initRedemptionUILayout; 
                 divStartRedeem.appendChild(btnR);
                 rb.appendChild(divStartRedeem);
@@ -1202,7 +1202,7 @@
   function fetchNextRedeemQuestion() {
      if(globalWrongPool.length === 0) {
         isRedemptionActive = false;
-        showToast("Semua dosa berhasil ditebus!");
+        showToast("Semua soal selesai!");
         showResult();
         return;
      }
@@ -1320,7 +1320,7 @@
      
      if(isCorrect) {
          inputEl.classList.add('correct-flash');
-         showToast("✨ Penebusan Berhasil!");
+         showToast("✨ Berhasil!");
          globalWrongPool.shift();
          setTimeout(fetchNextRedeemQuestion, 800);
      } else {
@@ -1351,7 +1351,7 @@
 
     if (nextTargetData) {
         const nextBtn = document.getElementById('nextBabBtn'); nextBtn.style.display = 'block';
-        nextBtn.innerText = "⏩ LANJUT MENEJEMEN " + nextLabelText.toUpperCase();
+        nextBtn.innerText = "⏩ LANJUTKAN " + nextLabelText.toUpperCase();
         nextBtn.onclick = function() { 
             selectedData = nextTargetData; 
             currentLabel = nextLabelText; 
@@ -1374,7 +1374,7 @@
     if (nextTargetData) {
         const fcNextBtn = document.getElementById('fcNextBabBtn'); 
         fcNextBtn.style.display = 'block';
-        fcNextBtn.innerText = "⏩ MENU BAB LANJUTAN (" + nextLabelText.toUpperCase() + ")";
+        fcNextBtn.innerText = "⏩ LANJUTKAN (" + nextLabelText.toUpperCase() + ")";
         fcNextBtn.onclick = function() { 
             selectedData = nextTargetData; 
             currentLabel = nextLabelText; 
